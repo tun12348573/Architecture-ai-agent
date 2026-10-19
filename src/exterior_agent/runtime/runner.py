@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Literal
 
 from exterior_agent import __version__
+from exterior_agent.assets.fetch import cache_dir
 from exterior_agent.blender.invoke import blender_command, blender_version, run_blender
 from exterior_agent.domain.project import Project
 from exterior_agent.domain.render import RenderSettings
@@ -26,6 +27,7 @@ from exterior_agent.geometry.scene_plan import (
     required_material_names,
     required_object_names,
 )
+from exterior_agent.runtime.assets_stage import LICENSES, AssetsMissing, stage_assets
 from exterior_agent.runtime.delivery import (
     make_contact_sheet,
     validate_glb,
@@ -64,6 +66,7 @@ class BuildOptions:
     stage_timeout_s: float = 1800.0
     cancel: threading.Event | None = None
     on_progress: Callable[[str, dict], None] | None = None
+    asset_cache: Path | None = None  # None -> exterior_agent.assets.fetch.cache_dir()
 
 
 @dataclass
@@ -113,14 +116,15 @@ def _check_resume(rev: Path, job: dict, fingerprint: dict) -> None:
             f"{rev} was started with a different {', '.join(changed)}; "
             "delete that directory or bump project_revision to rebuild"
         )
+    recorded_all = job.get("artifacts", {})
     for name in ARTIFACTS:
-        recorded = job.get("artifacts", {}).get(name)
-        path = rev / name
-        if recorded is None and path.exists():
+        if recorded_all.get(name) is None and (rev / name).exists():
             raise ResumeRefused(
-                f"{path} exists but was not recorded by this job; not overwriting it"
+                f"{rev / name} exists but was not recorded by this job; not overwriting it"
             )
-        if recorded is not None and (not path.exists() or sha256_file(path) != recorded):
+    for name, recorded in recorded_all.items():  # model files and staged textures
+        path = rev / name
+        if not path.exists() or sha256_file(path) != recorded:
             raise ResumeRefused(
                 f"{path} changed since it was built (hand edit?); not overwriting it"
             )
@@ -194,14 +198,28 @@ class _Job:
             detail = (
                 f"exit code {result.returncode}" if result.status == "failed" else result.status
             )
-            raise _StageFailed(
-                "cancelled" if result.status == "cancelled" else "failed",
-                f"{name} stage {detail}; see {log}",
-            )
+            message = f"{name} stage {detail}; see {log}"
+            text = log.read_text(encoding="utf-8", errors="replace") if log.exists() else ""
+            if "out of GPU memory" in text or "CUDA error" in text:
+                message += (
+                    "; the GPU ran out of memory: lower --samples or plants, "
+                    "or use --engine cycles --device cpu"
+                )
+            raise _StageFailed("cancelled" if result.status == "cancelled" else "failed", message)
+
+    def stage_assets(self) -> None:
+        cache = self.opts.asset_cache or cache_dir()
+        try:
+            staged = stage_assets(self.plan, cache, self.rev)
+        except AssetsMissing as exc:
+            raise _StageFailed("failed", str(exc)) from exc
+        self.state["artifacts"].update(staged)
+        self.save()
 
     def build(self) -> None:
         if all(name in self.state["artifacts"] for name in ARTIFACTS):
             return
+        self.stage_assets()
 
         def on_line(line: str) -> None:
             if line.startswith("EA_RESULT "):
@@ -304,6 +322,12 @@ class _Job:
             "views": {cid: self.state["views"][cid] for cid in self.camera_ids},
             "unresolved_assumptions": unresolved_assumptions(self.project),
             "timings_seconds": timings,
+            "assets": [
+                {"id": entry["id"], "license": entry["license"]} for entry in self._licenses()
+            ],
+            "placeholders": sorted(
+                o["name"] for o in self.plan["objects"] if o["name"].startswith("Prop_")
+            ),
             "packaged_at": _now(),
         }
         write_delivery(self.rev, info)
@@ -311,6 +335,10 @@ class _Job:
         if problems:
             raise _StageFailed("failed", "; ".join(problems))
         self.state["stages"]["package"]["status"] = "completed"
+
+    def _licenses(self) -> list[dict]:
+        path = self.rev / LICENSES
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
 
     def finish(self, status: Status, message: str) -> BuildOutcome:
         self.state["status"] = status

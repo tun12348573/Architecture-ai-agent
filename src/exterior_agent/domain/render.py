@@ -27,7 +27,7 @@ DEVICES = {"cpu": "CPU", "gpu": "GPU"}
 
 
 def resolve_render(
-    profile: str, engine: str | None = None, device: str | None = None
+    profile: str, engine: str | None = None, device: str | None = None, samples: int | None = None
 ) -> RenderSettings:
     if profile not in PROFILES:
         raise ValueError(f"unknown render profile {profile!r}; expected one of {sorted(PROFILES)}")
@@ -46,4 +46,8 @@ def resolve_render(
         if device.lower() not in DEVICES:
             raise ValueError(f"unknown device {device!r}; expected cpu or gpu")
         settings = replace(settings, device=DEVICES[device.lower()])
+    if samples is not None:
+        if samples < 1:
+            raise ValueError("--samples must be at least 1")
+        settings = replace(settings, samples=samples)
     return settings

@@ -54,7 +54,9 @@ def cmd_build(args) -> int:
     if project is None:
         return EXIT_INPUT
     try:
-        render = resolve_render(args.profile or project.render_profile, args.engine, args.device)
+        render = resolve_render(
+            args.profile or project.render_profile, args.engine, args.device, args.samples
+        )
     except ValueError as exc:
         _err(f"ERROR render: {exc}")
         return EXIT_INPUT
@@ -164,6 +166,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--device", choices=("cpu", "gpu"))
     p.add_argument("--blender", help="path to blender.exe (else $EXTERIOR_AGENT_BLENDER or PATH)")
     p.add_argument("--stage-timeout", type=float, default=1800.0, help="seconds per stage")
+    p.add_argument("--samples", type=int, help="override the profile's render samples")
     p.set_defaults(func=cmd_build)
 
     p = sub.add_parser("assets", help="manage CC0 assets (textures, HDRI, models)")

@@ -50,6 +50,9 @@ def render(args: list[str], fail: str) -> int:
     images = Path(opt(args, "--images"))
     images.mkdir(parents=True, exist_ok=True)
     sleep = float(os.environ.get("FAKE_BLENDER_SLEEP", "0"))
+    if os.environ.get("FAKE_BLENDER_OOM"):
+        print("Error: System is out of GPU memory", flush=True)
+        return 1
     hang_after = os.environ.get("FAKE_BLENDER_HANG_AFTER")
     for n, cam_id in enumerate(opt(args, "--cameras").split(",")):
         if hang_after is not None and n == int(hang_after):
