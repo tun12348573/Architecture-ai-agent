@@ -17,6 +17,10 @@ WALL_NAMES = {
 }
 
 
+def _snap(x: float) -> float:
+    return round(x, 6) + 0.0
+
+
 def wall_mesh(length: float, height: float, thickness: float, holes: list[Hole]) -> Mesh:
     """Closed wall solid in local (u, v, z) coordinates with holes cut through v.
 
@@ -24,6 +28,18 @@ def wall_mesh(length: float, height: float, thickness: float, holes: list[Hole])
     Faces are emitted for solid cells on both facade planes and on every solid-cell edge
     that borders an empty cell or the wall boundary, so all vertices are shared.
     """
+    # Snap to 1 µm and clamp to the wall so float noise (0.7 + 1.4 != 2.1) or a hole within
+    # the validation tolerance of an edge cannot create sliver cells or degenerate faces.
+    length, height = _snap(length), _snap(height)
+    holes = [
+        (
+            _snap(min(max(u0, 0.0), length)),
+            _snap(min(max(u1, 0.0), length)),
+            _snap(min(max(z0, 0.0), height)),
+            _snap(min(max(z1, 0.0), height)),
+        )
+        for u0, u1, z0, z1 in holes
+    ]
     us = sorted({0.0, length, *(h[0] for h in holes), *(h[1] for h in holes)})
     zs = sorted({0.0, height, *(h[2] for h in holes), *(h[3] for h in holes)})
 

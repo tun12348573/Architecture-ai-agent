@@ -113,3 +113,46 @@ def test_doors_windows_inside_openings(demo):
         mlo, mhi = mesh.bounds()
         for axis in range(3):
             assert mlo[axis] >= lo[axis] - TOL and mhi[axis] <= hi[axis] + TOL, (name, axis)
+
+
+def _set_opening(data, opening_id, **values):
+    o = next(o for o in data["building"]["openings"] if o["id"] == opening_id)
+    for key, value in values.items():
+        o[key]["value"] = value
+
+
+def _assert_clean_walls(project):
+    for name, mesh in build_walls(project).items():
+        assert mesh.is_closed(), name
+        for face in mesh.faces:
+            assert len(set(face)) == len(face), (name, face)
+
+
+def test_head_aligned_openings_give_closed_walls(demo_data):
+    # 0.7 + 1.4 == 2.0999999999999996 in floating point, D01 head is 2.1
+    _set_opening(demo_data, "D01", height=2.1)
+    _set_opening(demo_data, "W01", sill=0.7, height=1.4)
+    _assert_clean_walls(parse_project(demo_data))
+
+
+def test_mm_project_gives_closed_walls(demo_data):
+    _set_opening(demo_data, "D01", height=2.3)
+    _set_opening(demo_data, "W01", sill=0.9, height=1.4)
+    for node in [demo_data["building"][k] for k in ("footprint_width", "wall_thickness")] + [
+        o[k]
+        for o in demo_data["building"]["openings"]
+        for k in ("offset", "width", "height", "sill")
+    ]:
+        node["value"] = round(node["value"] * 1000, 6)
+        node["unit"] = "mm"
+    _assert_clean_walls(parse_project(demo_data))
+
+
+@pytest.mark.parametrize("offset", [0.2, 10.8], ids=["near_end", "far_end"])
+@pytest.mark.parametrize("wall", ["left", "right"])
+def test_side_wall_openings_on_limits_give_closed_walls(demo_data, wall, offset):
+    project = _with_side_opening(demo_data, wall)
+    data = project.model_dump(mode="json")
+    data["building"]["openings"][-1]["offset"]["value"] = offset
+    data["building"]["openings"][-1]["offset"]["original"] = None
+    _assert_clean_walls(parse_project(data))
