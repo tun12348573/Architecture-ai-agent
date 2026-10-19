@@ -9,9 +9,9 @@ Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun1234
 - Spec: [docs/superpowers/specs/2026-10-19-m0-m1-design.md](superpowers/specs/2026-10-19-m0-m1-design.md)
 - Plan: [docs/superpowers/plans/2026-10-19-m0-m1.md](superpowers/plans/2026-10-19-m0-m1.md)
 
-## M2a — template nhà phố hiện đại (nhánh `m2a`, 2026-10-19)
+## M2a — template nhà phố hiện đại (đã merge vào `main`, 2026-10-19)
 
-**Đã triển khai, kiểm chứng cục bộ; chờ review cuối + merge.** Spec: [2026-10-19-m2-modern-townhouse-design.md](superpowers/specs/2026-10-19-m2-modern-townhouse-design.md) · Plan: [2026-10-19-m2a-modern-template.md](superpowers/plans/2026-10-19-m2a-modern-template.md).
+**Đã triển khai, review cuối xong, merge vào `main`; chưa push lên GitHub.** Spec: [2026-10-19-m2-modern-townhouse-design.md](superpowers/specs/2026-10-19-m2-modern-townhouse-design.md) · Plan: [2026-10-19-m2a-modern-template.md](superpowers/plans/2026-10-19-m2a-modern-template.md).
 
 - `schema_version 1.1`, `template: "modern_townhouse"`; project `1.0` cho `scene_plan` y hệt trước (test hash vàng).
 - 1–5 tầng có lỗ cửa thật, tầng lùi + terrace (lan can kính, pergola), ban công kính, khung bao chữ U, lam đứng, ô văng, cửa nhôm kính 4 cánh có dải kính trên, cửa sổ có khung, tường chắn mái, tum thang, vườn sân thượng, sân trước (lát/cỏ), cổng nan, rào, xe/xe máy khối mẫu; UV box-mapping theo mét.
@@ -97,6 +97,6 @@ Python host 3.13.3 · Blender 5.2.2 LTS (Python nhúng 3.13.13) · pydantic 2.14
 
 ## Bước tiếp theo
 
-1. Review cuối + merge M2a, rồi viết plan M2b (ảnh gần như thật).
+1. Push `main` lên GitHub để CI chạy; viết plan M2b (ảnh gần như thật).
 
 Lệnh chạy tiếp ngay: `.\scripts\check.ps1` rồi `exterior-agent build "examples\demo_house\project.json"`.
