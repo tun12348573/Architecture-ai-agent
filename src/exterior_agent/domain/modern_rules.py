@@ -15,6 +15,7 @@ MIN_FLOOR_DEPTH = 2.0
 CAR_LENGTH = 4.4
 CAR_WIDTH = 1.8
 MAX_MOTORBIKES = 4
+BIKE_LENGTH, BIKE_WIDTH, BIKE_GAP = 1.9, 0.7, 0.05
 MODERN_MATERIAL_ROLES = (
     "frame",
     "aluminium",
@@ -175,6 +176,15 @@ def check_modern(p) -> list[ValidationIssue]:  # noqa: C901 - one flat list of r
         y.kind.value != "parking" or s.front_setback.value < CAR_LENGTH + 0.1 - TOL
     ):
         add("modern.front_yard.car", f"car needs a parking yard at least {CAR_LENGTH + 0.1} m deep")
-    if not 0 <= y.motorbikes.value <= MAX_MOTORBIKES:
+    bikes = y.motorbikes.value
+    if not 0 <= bikes <= MAX_MOTORBIKES:
         add("modern.front_yard.motorbikes", f"0..{MAX_MOTORBIKES} motorbikes")
+    else:
+        pitch = BIKE_WIDTH + BIKE_GAP
+        if y.car.value:  # bikes alternate either side of the centred car
+            fits = CAR_WIDTH / 2 + -(-bikes // 2) * pitch <= s.width.value / 2 + TOL
+        else:
+            fits = bikes * pitch - BIKE_GAP <= s.width.value + TOL
+        if bikes and not fits:
+            add("modern.front_yard.motorbikes", "motorbikes do not fit across the front yard")
     return issues

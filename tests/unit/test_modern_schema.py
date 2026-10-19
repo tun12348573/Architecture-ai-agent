@@ -159,3 +159,21 @@ def test_missing_modern_material_role(modern_data):
 def test_flag_must_be_bool(modern_data):
     modern_data["modern"]["front_yard"]["car"]["value"] = 1
     assert any(p.startswith("modern.front_yard.car") for p in paths(issues_for(modern_data)))
+
+
+def test_props_must_fit_site_width(modern_data):
+    for key in ("width",):
+        modern_data["site"][key]["value"] = 4.0
+    modern_data["modern"]["footprint_width"]["value"] = 4.0
+    modern_data["modern"]["front_yard"]["gate_width"]["value"] = 3.0
+    modern_data["modern"]["front_yard"]["motorbikes"]["value"] = 4
+    floors = modern_data["modern"]["floors"]
+    floors[0]["openings_front"][0]["width"]["value"] = 2.6  # D1: 0.9 + 2.6 <= 3.8
+    floors[0]["openings_rear"][1]["offset"]["value"] = 2.4  # W1: 2.4 + 1.2 <= 3.8
+    floors[1]["openings_front"][0]["width"]["value"] = 2.8  # W2
+    modern_data["modern"]["balconies"][0]["width"]["value"] = 3.0
+    modern_data["modern"]["louvers"] = []
+    modern_data["modern"]["roof"]["stair_head"]["width"]["value"] = 2.5
+    assert "modern.front_yard.motorbikes" in paths(issues_for(modern_data))
+    modern_data["modern"]["front_yard"]["motorbikes"]["value"] = 2
+    parse_project(modern_data)
