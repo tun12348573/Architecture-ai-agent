@@ -120,6 +120,25 @@ def massing_objects(p) -> list[PlanObject]:
     return out
 
 
+PLANT_SPACING = 1.5
+
+
+def roof_plant_positions(p) -> list[tuple[float, float, float]]:
+    """Plant base points spread along the top of the roof planter (empty without a garden)."""
+    m = p.modern
+    g = m.roof.garden
+    if g is None:
+        return []
+    n = len(m.floors)
+    pt = m.roof.parapet_thickness.value
+    x0 = -m.footprint_width.value / 2 + pt
+    inner = m.footprint_width.value - 2 * pt
+    y = floor_front_y(p, n) + pt + g.planter_width.value / 2
+    z = floor_base_z(m, n) + m.floors[n - 1].height.value + g.planter_height.value
+    count = max(1, round(inner / PLANT_SPACING))
+    return [(x0 + (i + 0.5) * inner / count, y, z) for i in range(count)]
+
+
 def _roof_objects(p, x0: float, x1: float, yf: float, yr: float, z: float) -> list[PlanObject]:
     r = p.modern.roof
     pt, ph = r.parapet_thickness.value, r.parapet_height.value

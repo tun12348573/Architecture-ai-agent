@@ -2,13 +2,14 @@
 
 import math
 
+from exterior_agent.assets.catalog import load_catalog
 from exterior_agent.domain.project import Project
 from exterior_agent.domain.render import RenderSettings
 from exterior_agent.geometry.cameras import euler_xyz, fit_cameras
 from exterior_agent.geometry.layout import building_bounds, site_bounds
 from exterior_agent.geometry.mesh import Bounds, Mesh
 from exterior_agent.geometry.modern_facade import facade_objects
-from exterior_agent.geometry.modern_massing import massing_objects
+from exterior_agent.geometry.modern_massing import massing_objects, roof_plant_positions
 from exterior_agent.geometry.modern_site import site_objects
 from exterior_agent.geometry.primitives import box_uvs
 from exterior_agent.geometry.walls import (
@@ -130,7 +131,56 @@ def modern_bounds(project: Project) -> tuple[Bounds, Bounds]:
     return building, _union([building, lot])
 
 
-def _modern_objects_and_materials(project: Project) -> tuple[list[dict], list[dict]]:
+TEXTURE_ROLES = ("base_color", "roughness", "normal")
+PLANT_TURN = 2.399963  # golden angle: varied but deterministic plant rotations
+
+
+def _asset_ref(asset, f) -> dict:
+    return {"path": f"materials/{asset.id}/{f.path}", "sha256": f.sha256}
+
+
+def _textures(spec, catalog) -> dict:
+    asset = catalog.get(spec.texture)
+    return {
+        "textures": {f.role: _asset_ref(asset, f) for f in asset.files if f.role in TEXTURE_ROLES},
+        "texture_scale_m": asset.scale_m or 1.0,
+    }
+
+
+def _world_and_plants(project: Project, catalog) -> dict:
+    extra: dict = {}
+    if project.world is not None:
+        w = project.world
+        hdri = catalog.get(w.hdri.value)
+        extra["world"] = {
+            "hdri": _asset_ref(hdri, hdri.files[0]),
+            "strength": w.strength.value,
+            "rotation_deg": w.rotation_deg.value,
+        }
+    garden = project.modern.roof.garden
+    models = [catalog.get(m.value) for m in (garden.plant_models if garden else [])]
+    if models:
+        extra["assets"] = []
+        for i, location in enumerate(roof_plant_positions(project)):
+            model = models[i % len(models)]
+            main = next(f for f in model.files if f.role == "gltf")
+            extra["assets"].append(
+                {
+                    "name": f"Plant_Roof_{i + 1}",
+                    "collection": "Roof",
+                    "model": _asset_ref(model, main),
+                    "includes": [_asset_ref(model, f) for f in model.files if f.role == "include"],
+                    "location": list(location),
+                    "rotation_z": round(i * PLANT_TURN, 6),
+                    "scale": 1.0,
+                }
+            )
+    return extra
+
+
+def _modern_objects_and_materials(
+    project: Project, textured: bool = False
+) -> tuple[list[dict], list[dict]]:
     objects = []
     for o in _modern_plan_objects(project):
         if o.mesh is None:
@@ -148,18 +198,27 @@ def _modern_objects_and_materials(project: Project) -> tuple[list[dict], list[di
             }
         )
     used = {o["material"] for o in objects if o["type"] == "MESH"}
-    materials = [
-        _material(name, getattr(project.materials, role).value)
-        for name, role in MODERN_MATERIALS.items()
-        if name in used
-    ]
+    catalog = load_catalog() if textured else None
+    materials = []
+    for name, role in MODERN_MATERIALS.items():
+        if name not in used:
+            continue
+        spec = getattr(project.materials, role).value
+        entry = _material(name, spec)
+        if textured and spec.texture is not None:
+            entry.update(_textures(spec, catalog))
+        materials.append(entry)
     return objects, materials
 
 
 def build_scene_plan(project: Project, render: RenderSettings) -> dict:
+    extra: dict = {}
     if project.template == "modern_townhouse":
-        objects, materials = _modern_objects_and_materials(project)
+        textured = render.profile != "smoke"  # smoke stays flat and asset-free
+        objects, materials = _modern_objects_and_materials(project, textured)
         building, site = modern_bounds(project)
+        if textured:
+            extra = _world_and_plants(project, load_catalog())
     else:
         objects, materials = _basic_objects_and_materials(project)
         building, site = building_bounds(project), site_bounds(project)
@@ -187,6 +246,7 @@ def build_scene_plan(project: Project, render: RenderSettings) -> dict:
         "sun": {"rotation_euler": list(SUN_ROTATION), "strength": SUN_STRENGTH},
         "world_color": WORLD_COLOR,
         "render": render.to_dict(),
+        **extra,
     }
 
 
@@ -196,3 +256,19 @@ def required_object_names(plan: dict) -> set[str]:
 
 def required_material_names(plan: dict) -> set[str]:
     return {m["name"] for m in plan["materials"]}
+
+
+def required_asset_files(plan: dict) -> list[tuple[str, str, str]]:
+    """(asset_id, file path inside the asset, sha256) for every asset file the plan uses."""
+    refs = [t for m in plan["materials"] for t in m.get("textures", {}).values()]
+    if "world" in plan:
+        refs.append(plan["world"]["hdri"])
+    for a in plan.get("assets", []):
+        refs += [a["model"], *a["includes"]]
+    out: list[tuple[str, str, str]] = []
+    for ref in refs:
+        _, asset_id, rel = ref["path"].split("/", 2)
+        key = (asset_id, rel, ref["sha256"])
+        if key not in out:
+            out.append(key)
+    return out
