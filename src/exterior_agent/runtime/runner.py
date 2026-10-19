@@ -7,8 +7,10 @@ incomplete one resumes only when its fingerprint and recorded artifacts still ma
 import hashlib
 import json
 import platform
+import sys
 import threading
 from collections.abc import Callable
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -34,13 +36,23 @@ from exterior_agent.runtime.delivery import (
 from exterior_agent.runtime.files import atomic_write_json, canonical_json, sha256_file
 from exterior_agent.runtime.revision import content_hash, revision_dir
 
+if sys.platform == "win32":
+    import msvcrt
+else:
+    import fcntl
+
 ARTIFACTS = ("model.blend", "model.glb")
+LOCK_NAME = ".exterior-agent.lock"
 # Retention policy: only these known temporary names are ever deleted.
 TEMP_GLOBS = ("*.tmp", "*.tmp.blend", "*.tmp.glb", "*.blend1", "images/.tmp_*.png")
 Status = Literal["completed", "failed", "cancelled"]
 
 
 class ResumeRefused(Exception):
+    pass
+
+
+class BuildBusy(Exception):
     pass
 
 
@@ -309,7 +321,40 @@ class _Job:
         return BuildOutcome(status, self.rev, list(self.rendered_now), False, message)
 
 
+@contextmanager
+def build_lock(out_dir: Path):
+    """OS-level exclusive lock per output root: one build (one Blender) at a time.
+    The OS releases it when the process exits, so a crash never leaves a stale lock."""
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    handle = open(out_dir / LOCK_NAME, "a+b")  # held open for the whole build
+    try:
+        try:
+            if sys.platform == "win32":
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as exc:
+            raise BuildBusy(
+                f"another build is running with output in {out_dir}; wait for it to finish"
+            ) from exc
+        try:
+            yield
+        finally:
+            if sys.platform == "win32":
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+    finally:
+        handle.close()
+
+
 def run_build(project: Project, opts: BuildOptions) -> BuildOutcome:
+    with build_lock(Path(opts.out_dir).resolve()):
+        return _run_locked(project, opts)
+
+
+def _run_locked(project: Project, opts: BuildOptions) -> BuildOutcome:
     job = _Job(project, opts)
     if not job.start():
         return BuildOutcome("completed", job.rev, [], True, f"already complete: {job.rev}")

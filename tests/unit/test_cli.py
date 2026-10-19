@@ -104,3 +104,16 @@ def test_build_with_non_executable_blender_exit_3(monkeypatch, tmp_path, capsys)
     assert code == 3
     assert "EXTERIOR_AGENT_BLENDER" in captured.err
     assert "Traceback" not in captured.out + captured.err
+
+
+def test_build_busy_exit_2(monkeypatch, tmp_path, capsys):
+    from exterior_agent.runtime.runner import BuildBusy
+
+    monkeypatch.setattr(cli, "find_blender", lambda explicit=None: FAKE_BLENDER)
+
+    def busy(*_args, **_kwargs):
+        raise BuildBusy("another build is running")
+
+    monkeypatch.setattr(cli, "run_build", busy)
+    assert cli.main(["build", str(DEMO_PATH), "--out", str(tmp_path)]) == 2
+    assert "another build" in capsys.readouterr().err

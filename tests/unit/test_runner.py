@@ -221,3 +221,12 @@ def test_delivery_records_code_hash(project, tmp_path):
     rev = run_build(project, options(tmp_path)).revision_dir
     delivery = json.loads((rev / "delivery.json").read_text(encoding="utf-8"))
     assert delivery["code_hash"] == code_hash()
+
+
+def test_concurrent_build_refused(project, tmp_path):
+    from exterior_agent.runtime.runner import BuildBusy, build_lock
+
+    with build_lock(tmp_path):
+        with pytest.raises(BuildBusy, match="another build"):
+            run_build(project, options(tmp_path))
+    assert run_build(project, options(tmp_path)).status == "completed"

@@ -19,7 +19,7 @@ from exterior_agent.domain.validate import (
     unresolved_assumptions,
 )
 from exterior_agent.runtime import doctor
-from exterior_agent.runtime.runner import BuildOptions, ResumeRefused, run_build
+from exterior_agent.runtime.runner import BuildBusy, BuildOptions, ResumeRefused, run_build
 
 EXIT_OK, EXIT_FAILED, EXIT_INPUT, EXIT_NO_BLENDER, EXIT_CANCELLED = 0, 1, 2, 3, 130
 
@@ -90,6 +90,9 @@ def cmd_build(args) -> int:
     except BlenderNotFound as exc:
         _err(f"ERROR {exc}")
         return EXIT_NO_BLENDER
+    except BuildBusy as exc:
+        _err(f"ERROR {exc}")
+        return EXIT_INPUT
     except KeyboardInterrupt:
         _err("cancelled")
         return EXIT_CANCELLED
