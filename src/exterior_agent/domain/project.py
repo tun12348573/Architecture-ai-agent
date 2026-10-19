@@ -1,105 +1,26 @@
 """Pydantic schema for project.json. Every design value carries provenance (Param)."""
 
-import math
-from typing import Annotated, Literal
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import Field
 
-from exterior_agent.domain.units import LENGTH_UNITS
+from exterior_agent.domain.modern import ModernBuilding
+from exterior_agent.domain.params import (  # noqa: F401 - re-exported for existing imports
+    Choice,
+    Count,
+    Flag,
+    Length,
+    MaterialParam,
+    MaterialSpec,
+    Original,
+    Param,
+    Status,
+    Strict,
+    StrictFloat,
+    StrictInt,
+)
 
-Status = Literal["needs_review", "confirmed"]
 WallName = Literal["front", "rear", "left", "right"]
-
-
-class Strict(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-
-StrictFloat = Annotated[float, Field(strict=True)]  # rejects bool/str; int is still accepted
-StrictInt = Annotated[int, Field(strict=True)]
-
-
-class Original(Strict):
-    value: StrictFloat
-    unit: str
-
-    @field_validator("unit")
-    @classmethod
-    def _known_unit(cls, unit: str) -> str:
-        if unit not in LENGTH_UNITS:
-            raise ValueError(f"length unit must be one of {sorted(LENGTH_UNITS)}")
-        return unit
-
-
-class Param[T](Strict):
-    value: T
-    unit: str | None
-    source: str = Field(min_length=1)
-    source_ref: str = Field(min_length=1)
-    status: Status
-    original: Original | None = None
-
-
-class Length(Param[float]):
-    value: StrictFloat
-
-    @field_validator("unit")
-    @classmethod
-    def _known_unit(cls, unit: str | None) -> str | None:
-        if unit not in LENGTH_UNITS:
-            raise ValueError(f"length unit must be one of {sorted(LENGTH_UNITS)}")
-        return unit
-
-    @field_validator("value")
-    @classmethod
-    def _finite_non_negative(cls, value: float) -> float:
-        if not math.isfinite(value):
-            raise ValueError("must be a finite number")
-        if value < 0:
-            raise ValueError("must not be negative")
-        return value
-
-
-class Count(Param[int]):
-    value: StrictInt
-
-    @field_validator("unit")
-    @classmethod
-    def _count_unit(cls, unit: str | None) -> str | None:
-        if unit != "count":
-            raise ValueError("unit must be 'count'")
-        return unit
-
-
-class Choice(Param[str]):
-    @field_validator("unit")
-    @classmethod
-    def _no_unit(cls, unit: str | None) -> str | None:
-        if unit is not None:
-            raise ValueError("unit must be null for a choice")
-        return unit
-
-
-class MaterialSpec(Strict):
-    base_color: tuple[float, float, float]
-    roughness: float = Field(ge=0, le=1)
-    alpha: float = Field(default=1.0, ge=0, le=1)
-
-    @field_validator("base_color")
-    @classmethod
-    def _unit_range(cls, rgb: tuple[float, float, float]) -> tuple[float, float, float]:
-        if not all(0 <= c <= 1 for c in rgb):
-            raise ValueError("colour components must be within 0..1")
-        return rgb
-
-
-class MaterialParam(Param[MaterialSpec]):
-    @field_validator("unit")
-    @classmethod
-    def _no_unit(cls, unit: str | None) -> str | None:
-        if unit is not None:
-            raise ValueError("unit must be null for a material")
-        return unit
 
 
 class Site(Strict):
@@ -141,6 +62,16 @@ class Materials(Strict):
     window_glass: MaterialParam
     land: MaterialParam
     context_ground: MaterialParam
+    # Extra roles used by the modern_townhouse template (required there, see modern_rules).
+    frame: MaterialParam | None = None
+    aluminium: MaterialParam | None = None
+    louver: MaterialParam | None = None
+    terrace_floor: MaterialParam | None = None
+    paving: MaterialParam | None = None
+    grass: MaterialParam | None = None
+    soil: MaterialParam | None = None
+    pergola_wood: MaterialParam | None = None
+    props: MaterialParam | None = None
 
 
 class CameraDef(Strict):
@@ -164,13 +95,15 @@ CANONICAL_CAMERAS = [CameraDef(id=c, view=c[3:]) for c in CANONICAL_CAMERA_IDS]
 
 
 class Project(Strict):
-    schema_version: Literal["1.0"]
+    schema_version: Literal["1.0", "1.1"]
     project_id: str = Field(pattern=r"^[a-z0-9-]+$")
     project_revision: int = Field(ge=1, strict=True)
     input_mode: str
     label: str
+    template: Literal["basic_house", "modern_townhouse"] = "basic_house"
     site: Site
-    building: Building
+    building: Building | None = None
+    modern: ModernBuilding | None = None
     materials: Materials
     cameras: list[CameraDef] = Field(default_factory=lambda: list(CANONICAL_CAMERAS))
     render_profile: Literal["preview", "final", "smoke"] = "preview"

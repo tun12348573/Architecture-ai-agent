@@ -2,10 +2,10 @@
 
 import json
 from pathlib import Path
-from typing import NamedTuple
 
 from pydantic import BaseModel, ValidationError
 
+from exterior_agent.domain.modern_rules import check_modern
 from exterior_agent.domain.project import (
     CANONICAL_CAMERA_IDS,
     Length,
@@ -13,19 +13,17 @@ from exterior_agent.domain.project import (
     Project,
 )
 from exterior_agent.domain.units import to_metres
+from exterior_agent.domain.validate_common import (  # noqa: F401 - re-exported
+    MIN_INTERIOR,
+    MIN_LINTEL,
+    MIN_PIER,
+    TOL,
+    ValidationIssue,
+)
 
-TOL = 0.001
-MIN_INTERIOR = 0.5
-MIN_LINTEL = 0.10
-MIN_PIER = 0.10
 MAX_ROOF_THICKNESS = 1.0
 # Lengths that may legitimately be zero; every other length must be positive.
 ZERO_ALLOWED = {"offset", "sill"}
-
-
-class ValidationIssue(NamedTuple):
-    path: str
-    message: str
 
 
 class ProjectValidationError(Exception):
@@ -103,23 +101,57 @@ def facade_length(project: Project, wall: str) -> float:
     return b.footprint_width.value if wall in ("front", "rear") else b.footprint_depth.value
 
 
+def _template_issues(p: Project) -> list[ValidationIssue]:
+    if p.template == "modern_townhouse":
+        if p.schema_version != "1.1" or p.modern is None or p.building is not None:
+            return [
+                ValidationIssue(
+                    "template",
+                    "modern_townhouse needs schema_version 1.1, a 'modern' block and no 'building'",
+                )
+            ]
+    elif p.building is None or p.modern is not None:
+        return [ValidationIssue("template", "basic_house needs a 'building' block and no 'modern'")]
+    return []
+
+
+def _zero_allowed(path: str) -> bool:
+    last = path.rsplit(".", 1)[-1]
+    return last in ZERO_ALLOWED or (path.startswith("modern.floors") and last == "front_setback")
+
+
 def check_semantics(p: Project) -> list[ValidationIssue]:
-    issues: list[ValidationIssue] = []
+    issues = _template_issues(p)
+    if issues:
+        return issues
     add = lambda path, msg: issues.append(ValidationIssue(path, msg))  # noqa: E731
-    b, s = p.building, p.site
 
     if p.input_mode != "parameters":
         add("input_mode", f"input_mode {p.input_mode!r} is not supported in M1")
-    if b.floors.value != 1:
-        add("building.floors", f"{b.floors.value} floors is not supported in M1 (exactly 1)")
-    if b.roof.type.value != "flat":
-        add("building.roof.type", f"roof type {b.roof.type.value!r} is not supported in M1")
+    ids = [c.id for c in p.cameras]
+    if sorted(ids) != sorted(CANONICAL_CAMERA_IDS):
+        add("cameras", f"M1 requires exactly the canonical cameras {list(CANONICAL_CAMERA_IDS)}")
+    if p.template == "basic_house":
+        b = p.building
+        if b.floors.value != 1:
+            add("building.floors", f"{b.floors.value} floors is not supported in M1 (exactly 1)")
+        if b.roof.type.value != "flat":
+            add("building.roof.type", f"roof type {b.roof.type.value!r} is not supported in M1")
 
     for path, length in _walk_lengths(p):
-        if length.value <= 0 and path.rsplit(".", 1)[-1] not in ZERO_ALLOWED:
+        if length.value <= 0 and not _zero_allowed(path):
             add(path, "must be greater than zero")
     if issues:
         return issues
+    if p.template == "modern_townhouse":
+        return check_modern(p)
+    return _check_basic(p)
+
+
+def _check_basic(p: Project) -> list[ValidationIssue]:
+    issues: list[ValidationIssue] = []
+    add = lambda path, msg: issues.append(ValidationIssue(path, msg))  # noqa: E731
+    b, s = p.building, p.site
 
     fw, fd, t, h = (
         b.footprint_width.value,
@@ -169,10 +201,6 @@ def check_semantics(p: Project) -> list[ValidationIssue]:
             if start - end < MIN_PIER - TOL:
                 msg = f"needs at least {MIN_PIER} m pier to the previous opening"
                 add(f"building.openings[{j}]", msg)
-
-    ids = [c.id for c in p.cameras]
-    if sorted(ids) != sorted(CANONICAL_CAMERA_IDS):
-        add("cameras", f"M1 requires exactly the canonical cameras {list(CANONICAL_CAMERA_IDS)}")
     return issues
 
 

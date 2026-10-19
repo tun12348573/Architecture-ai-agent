@@ -1,0 +1,835 @@
+{
+  "schema_version": "1.1",
+  "project_id": "modern-townhouse",
+  "project_revision": 1,
+  "input_mode": "parameters",
+  "template": "modern_townhouse",
+  "label": "DEMO FIXTURE — modern townhouse, not a real building",
+  "site": {
+    "width": {
+      "value": 5.0,
+      "unit": "m",
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "depth": {
+      "value": 20.0,
+      "unit": "m",
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "front_setback": {
+      "value": 4.5,
+      "unit": "m",
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "rear_setback": {
+      "value": 1.0,
+      "unit": "m",
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    }
+  },
+  "modern": {
+    "footprint_width": {
+      "value": 5.0,
+      "unit": "m",
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "footprint_depth": {
+      "value": 14.5,
+      "unit": "m",
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "wall_thickness": {
+      "value": 0.2,
+      "unit": "m",
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "slab_thickness": {
+      "value": 0.15,
+      "unit": "m",
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "floors": [
+      {
+        "height": {
+          "value": 3.6,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "front_setback": {
+          "value": 0.0,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "openings_front": [
+          {
+            "id": "D1",
+            "kind": "door_4leaf",
+            "offset": {
+              "value": 0.9,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "width": {
+              "value": 3.2,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "height": {
+              "value": 2.6,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "sill": {
+              "value": 0.0,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "transom_height": {
+              "value": 0.5,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            }
+          }
+        ],
+        "openings_rear": [
+          {
+            "id": "D2",
+            "kind": "door",
+            "offset": {
+              "value": 0.6,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "width": {
+              "value": 0.9,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "height": {
+              "value": 2.2,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "sill": {
+              "value": 0.0,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            }
+          },
+          {
+            "id": "W1",
+            "kind": "window",
+            "offset": {
+              "value": 2.8,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "width": {
+              "value": 1.2,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "height": {
+              "value": 1.2,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "sill": {
+              "value": 1.0,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            }
+          }
+        ]
+      },
+      {
+        "height": {
+          "value": 3.3,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "front_setback": {
+          "value": 0.0,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "terrace_pergola": {
+          "value": true,
+          "unit": null,
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "openings_front": [
+          {
+            "id": "W2",
+            "kind": "window",
+            "offset": {
+              "value": 0.7,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "width": {
+              "value": 3.6,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "height": {
+              "value": 2.2,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "sill": {
+              "value": 0.5,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            }
+          }
+        ],
+        "openings_rear": [
+          {
+            "id": "W3",
+            "kind": "window",
+            "offset": {
+              "value": 1.9,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "width": {
+              "value": 1.2,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "height": {
+              "value": 1.2,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "sill": {
+              "value": 1.0,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            }
+          }
+        ]
+      },
+      {
+        "height": {
+          "value": 3.3,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "front_setback": {
+          "value": 2.0,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "openings_front": [
+          {
+            "id": "W4",
+            "kind": "window",
+            "offset": {
+              "value": 1.3,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "width": {
+              "value": 2.4,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "height": {
+              "value": 2.2,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "sill": {
+              "value": 0.4,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            }
+          }
+        ],
+        "openings_rear": [
+          {
+            "id": "W5",
+            "kind": "window",
+            "offset": {
+              "value": 1.9,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "width": {
+              "value": 1.2,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "height": {
+              "value": 1.2,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            },
+            "sill": {
+              "value": 1.0,
+              "unit": "m",
+              "source": "m2_spec_proposal",
+              "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+              "status": "needs_review"
+            }
+          }
+        ]
+      }
+    ],
+    "balconies": [
+      {
+        "floor": {
+          "value": 2,
+          "unit": "count",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "offset": {
+          "value": 0.5,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "width": {
+          "value": 4.0,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "depth": {
+          "value": 1.0,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "rail_height": {
+          "value": 1.1,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "slab_thickness": {
+          "value": 0.15,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        }
+      }
+    ],
+    "frames": [
+      {
+        "from_floor": {
+          "value": 2,
+          "unit": "count",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "to_floor": {
+          "value": 2,
+          "unit": "count",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "thickness": {
+          "value": 0.3,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "depth": {
+          "value": 0.4,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        }
+      }
+    ],
+    "louvers": [
+      {
+        "floor": {
+          "value": 2,
+          "unit": "count",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "offset": {
+          "value": 3.0,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "width": {
+          "value": 1.4,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "count": {
+          "value": 6,
+          "unit": "count",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "blade_width": {
+          "value": 0.05,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "blade_depth": {
+          "value": 0.1,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        }
+      }
+    ],
+    "canopy": {
+      "height": {
+        "value": 2.9,
+        "unit": "m",
+        "source": "m2_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "status": "needs_review"
+      },
+      "depth": {
+        "value": 1.2,
+        "unit": "m",
+        "source": "m2_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "status": "needs_review"
+      },
+      "thickness": {
+        "value": 0.12,
+        "unit": "m",
+        "source": "m2_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "status": "needs_review"
+      }
+    },
+    "roof": {
+      "parapet_height": {
+        "value": 1.1,
+        "unit": "m",
+        "source": "m2_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "status": "needs_review"
+      },
+      "parapet_thickness": {
+        "value": 0.15,
+        "unit": "m",
+        "source": "m2_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "status": "needs_review"
+      },
+      "stair_head": {
+        "width": {
+          "value": 3.0,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "depth": {
+          "value": 4.0,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "height": {
+          "value": 2.8,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        }
+      },
+      "garden": {
+        "planter_width": {
+          "value": 0.6,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "planter_height": {
+          "value": 0.5,
+          "unit": "m",
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        },
+        "pergola": {
+          "value": true,
+          "unit": null,
+          "source": "m2_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+          "status": "needs_review"
+        }
+      }
+    },
+    "front_yard": {
+      "kind": {
+        "value": "parking",
+        "unit": null,
+        "source": "m2_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "status": "needs_review"
+      },
+      "gate_width": {
+        "value": 3.5,
+        "unit": "m",
+        "source": "m2_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "status": "needs_review"
+      },
+      "gate_height": {
+        "value": 1.6,
+        "unit": "m",
+        "source": "m2_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "status": "needs_review"
+      },
+      "fence_height": {
+        "value": 1.6,
+        "unit": "m",
+        "source": "m2_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "status": "needs_review"
+      },
+      "car": {
+        "value": true,
+        "unit": null,
+        "source": "m2_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "status": "needs_review"
+      },
+      "motorbikes": {
+        "value": 2,
+        "unit": "count",
+        "source": "m2_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "status": "needs_review"
+      }
+    }
+  },
+  "materials": {
+    "wall": {
+      "value": {
+        "base_color": [
+          0.92,
+          0.91,
+          0.88
+        ],
+        "roughness": 0.8
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "roof": {
+      "value": {
+        "base_color": [
+          0.55,
+          0.55,
+          0.55
+        ],
+        "roughness": 0.9
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "door": {
+      "value": {
+        "base_color": [
+          0.4,
+          0.27,
+          0.16
+        ],
+        "roughness": 0.6
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "window_glass": {
+      "value": {
+        "base_color": [
+          0.6,
+          0.72,
+          0.8
+        ],
+        "roughness": 0.05,
+        "alpha": 0.3
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "land": {
+      "value": {
+        "base_color": [
+          0.32,
+          0.46,
+          0.24
+        ],
+        "roughness": 1.0
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "context_ground": {
+      "value": {
+        "base_color": [
+          0.55,
+          0.55,
+          0.52
+        ],
+        "roughness": 1.0
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "frame": {
+      "value": {
+        "base_color": [
+          0.22,
+          0.22,
+          0.22
+        ],
+        "roughness": 0.6
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "aluminium": {
+      "value": {
+        "base_color": [
+          0.18,
+          0.18,
+          0.19
+        ],
+        "roughness": 0.4
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "louver": {
+      "value": {
+        "base_color": [
+          0.55,
+          0.38,
+          0.22
+        ],
+        "roughness": 0.6
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "terrace_floor": {
+      "value": {
+        "base_color": [
+          0.7,
+          0.66,
+          0.6
+        ],
+        "roughness": 0.8
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "paving": {
+      "value": {
+        "base_color": [
+          0.62,
+          0.6,
+          0.57
+        ],
+        "roughness": 0.9
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "grass": {
+      "value": {
+        "base_color": [
+          0.3,
+          0.48,
+          0.22
+        ],
+        "roughness": 1.0
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "soil": {
+      "value": {
+        "base_color": [
+          0.3,
+          0.22,
+          0.16
+        ],
+        "roughness": 1.0
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "pergola_wood": {
+      "value": {
+        "base_color": [
+          0.5,
+          0.34,
+          0.2
+        ],
+        "roughness": 0.7
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "props": {
+      "value": {
+        "base_color": [
+          0.3,
+          0.38,
+          0.5
+        ],
+        "roughness": 0.4
+      },
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    }
+  },
+  "render_profile": "preview"
+}
