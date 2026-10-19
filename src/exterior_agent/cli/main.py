@@ -87,6 +87,9 @@ def cmd_build(args) -> int:
     except ResumeRefused as exc:
         _err(f"ERROR resume refused: {exc}")
         return EXIT_INPUT
+    except BlenderNotFound as exc:
+        _err(f"ERROR {exc}")
+        return EXIT_NO_BLENDER
     except KeyboardInterrupt:
         _err("cancelled")
         return EXIT_CANCELLED

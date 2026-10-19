@@ -93,3 +93,14 @@ def test_doctor_without_blender(no_blender, capsys):
     assert report["python"]["version"].startswith("3.13")
     assert report["memory"]["total_gb"] > 0
     assert report["packages"]["pydantic"]
+
+
+def test_build_with_non_executable_blender_exit_3(monkeypatch, tmp_path, capsys):
+    fake = tmp_path / "blender.txt"
+    fake.write_text("not a program")
+    monkeypatch.setenv("EXTERIOR_AGENT_BLENDER", str(fake))
+    code = cli.main(["build", str(DEMO_PATH), "--out", str(tmp_path / "out")])
+    captured = capsys.readouterr()
+    assert code == 3
+    assert "EXTERIOR_AGENT_BLENDER" in captured.err
+    assert "Traceback" not in captured.out + captured.err

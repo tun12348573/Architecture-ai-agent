@@ -59,10 +59,21 @@ def blender_command(blender: list[str], script: str, args: list[str]) -> list[st
 
 
 def blender_version(blender: list[str]) -> str:
-    out = subprocess.run(
-        [*blender, "--version"], capture_output=True, text=True, timeout=120, errors="replace"
-    ).stdout
-    return next((line.strip() for line in out.splitlines() if line.strip()), "unknown")
+    """First line of `blender --version`; BlenderNotFound if the path does not run as Blender."""
+    try:
+        result = subprocess.run(
+            [*blender, "--version"], capture_output=True, text=True, timeout=120, errors="replace"
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise BlenderNotFound(
+            f"cannot run Blender at {blender[-1]} ({exc}); check --blender or {ENV_VAR}"
+        ) from exc
+    first = next((line.strip() for line in result.stdout.splitlines() if line.strip()), "")
+    if result.returncode != 0 or not first.startswith("Blender"):
+        raise BlenderNotFound(
+            f"{blender[-1]} did not report a Blender version; check --blender or {ENV_VAR}"
+        )
+    return first
 
 
 def run_blender(
