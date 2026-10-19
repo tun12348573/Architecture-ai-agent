@@ -63,7 +63,7 @@ Lưu ý: hai thư mục preview `r001-ee6f32d5`, `r001-88e2be54` được tạo 
 | Kiểm tra | Trạng thái |
 | --- | --- |
 | Contact sheet preview: hướng 10 view (cửa trước bên trái, sân trước ở đáy ảnh top, aerial từ trước-phải) | **Đã xem bằng mắt — đúng** |
-| Mở `output\demo-townhouse\r001-ee6f32d5\model.glb` bằng viewer độc lập (gltf-viewer.donmccurdy.com, 2026-10-19, chủ dự án) | **Đã làm — manual**: file mở được; thấy khối nhà mái bằng, sân trước/sau, cửa đi D01 bên trái và cửa sổ W01 là lỗ thật trên mặt tiền, vật liệu có màu. Validator của viewer báo "4 notes" (mức thông tin); số lỗi/cảnh báo chưa được xác nhận riêng. Nhận xét chủ dự án: hình còn sơ sài (đúng phạm vi M1) |
+| Mở `output\demo-townhouse\r001-ee6f32d5\model.glb` bằng viewer độc lập (gltf-viewer.donmccurdy.com, 2026-10-19, chủ dự án) | **Đã làm — manual**: file mở được; thấy khối nhà mái bằng, sân trước/sau, cửa đi D01 bên trái và cửa sổ W01 là lỗ thật trên mặt tiền, vật liệu có màu. Khronos glTF-Validator 2.0.0-dev.3.10 (generator Khronos glTF Blender I/O v5.2.40): **0 lỗi, 0 cảnh báo**, 4 Info `NODE_EMPTY` tại `/nodes/2–5` = 4 Empty `Opening_*` (cố ý); 11 draw calls, 6 materials, 436 vertices, 304 triangles, không extension. Nhận xét chủ dự án: hình còn sơ sài (đúng phạm vi M1) |
 | Cycles **OptiX** | **Lỗi**: `COMPILE ERROR: unable to compile with new backend: unimplemented PTX intrinsics` (driver 566.07). Giả thuyết: driver quá cũ cho Blender 5.2 — chưa kiểm chứng |
 | Cycles **CUDA** | Render được (log `EA_DEVICE {"gpu": "CUDA: NVIDIA GeForce RTX 3050 Ti Laptop GPU"}`) |
 
@@ -82,7 +82,7 @@ Python host 3.13.3 · Blender 5.2.2 LTS (Python nhúng 3.13.13) · pydantic 2.14
 
 ## Bước tiếp theo
 
-1. Chủ dự án: xác nhận số lỗi/cảnh báo trong validation report của GLB; duyệt các giá trị `needs_review`; xoá `C:\output`.
+1. Chủ dự án: duyệt các giá trị `needs_review`; xoá `C:\output`.
 2. Tạo remote GitHub (khi chủ dự án quyết định) để CI chạy thật; sửa nếu bước cài Blender trên Ubuntu lỗi.
 3. Lên spec/plan M2 (template tầng, ban công, mái, vật liệu + benchmark độ phức tạp).
 
