@@ -69,8 +69,9 @@ def _loc_path(loc: tuple) -> str:
 
 def _normalize(node):
     if isinstance(node, Length):
-        if node.original is not None:  # already normalized
-            return node
+        if node.unit == "m":  # already metres; keep an existing conversion record
+            original = node.original or Original(value=node.value, unit="m")
+            return node.model_copy(update={"original": original})
         return node.model_copy(
             update={
                 "value": to_metres(node.value, node.unit),

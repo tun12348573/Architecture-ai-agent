@@ -1,7 +1,7 @@
 """Pydantic schema for project.json. Every design value carries provenance (Param)."""
 
 import math
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -15,9 +15,20 @@ class Strict(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
+StrictFloat = Annotated[float, Field(strict=True)]  # rejects bool/str; int is still accepted
+StrictInt = Annotated[int, Field(strict=True)]
+
+
 class Original(Strict):
-    value: float
+    value: StrictFloat
     unit: str
+
+    @field_validator("unit")
+    @classmethod
+    def _known_unit(cls, unit: str) -> str:
+        if unit not in LENGTH_UNITS:
+            raise ValueError(f"length unit must be one of {sorted(LENGTH_UNITS)}")
+        return unit
 
 
 class Param[T](Strict):
@@ -30,6 +41,8 @@ class Param[T](Strict):
 
 
 class Length(Param[float]):
+    value: StrictFloat
+
     @field_validator("unit")
     @classmethod
     def _known_unit(cls, unit: str | None) -> str | None:
@@ -48,6 +61,8 @@ class Length(Param[float]):
 
 
 class Count(Param[int]):
+    value: StrictInt
+
     @field_validator("unit")
     @classmethod
     def _count_unit(cls, unit: str | None) -> str | None:
@@ -151,7 +166,7 @@ CANONICAL_CAMERAS = [CameraDef(id=c, view=c[3:]) for c in CANONICAL_CAMERA_IDS]
 class Project(Strict):
     schema_version: Literal["1.0"]
     project_id: str = Field(pattern=r"^[a-z0-9-]+$")
-    project_revision: int = Field(ge=1)
+    project_revision: int = Field(ge=1, strict=True)
     input_mode: str
     label: str
     site: Site

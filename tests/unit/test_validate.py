@@ -180,3 +180,37 @@ def test_load_project_bad_json(tmp_path):
     with pytest.raises(ProjectValidationError) as exc:
         load_project(path)
     assert exc.value.issues[0].path == "$"
+
+
+def test_original_present_does_not_skip_conversion(demo_data):
+    demo_data["building"]["wall_height"].update(
+        value=12, unit="ft", original={"value": 12, "unit": "ft"}
+    )
+    project = parse_project(demo_data)
+    assert project.building.wall_height.value == pytest.approx(3.6576)
+    assert project.building.wall_height.unit == "m"
+
+
+def test_original_unit_must_be_known(demo_data):
+    demo_data["building"]["wall_height"]["original"] = {"value": 3.6, "unit": "parsecs"}
+    assert any(p.startswith("building.wall_height") for p in paths(issues_for(demo_data)))
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda d: d["building"]["roof"]["thickness"].update(value=True),
+        lambda d: d["building"]["floors"].update(value=True),
+        lambda d: d["building"]["wall_height"].update(value="3.6"),
+        lambda d: d.update(project_revision="2"),
+    ],
+    ids=["bool_length", "bool_count", "string_length", "string_revision"],
+)
+def test_wrong_types_rejected(demo_data, mutate):
+    mutate(demo_data)
+    issues_for(demo_data)
+
+
+def test_integer_length_accepted(demo_data):
+    demo_data["site"]["depth"]["value"] = 18
+    assert parse_project(demo_data).site.depth.value == 18.0
