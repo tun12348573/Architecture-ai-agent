@@ -100,3 +100,18 @@ def test_run_blender_callback_error_does_not_hang(tmp_path):
     log = (tmp_path / "e.log").read_text(encoding="utf-8")
     assert "progress handler broke" in log
     assert "line 39999" in log
+
+
+def test_timeout_stops_whole_process_tree(tmp_path):
+    # The child spawns a grandchild that inherits stdout (like a launcher or helper process).
+    code = (
+        "import subprocess, sys, time\n"
+        "subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])\n"
+        "print('started', flush=True)\n"
+        "time.sleep(60)\n"
+    )
+    start = time.monotonic()
+    result = run_blender([sys.executable, "-c", code], tmp_path / "tree.log", timeout_s=2)
+    elapsed = time.monotonic() - start
+    assert result.status == "timeout"
+    assert elapsed < 8, f"took {elapsed:.1f}s: a grandchild kept the output pipe open"

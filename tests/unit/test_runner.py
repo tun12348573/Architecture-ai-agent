@@ -30,6 +30,7 @@ def project(demo_data):
 def clean_fake_env(monkeypatch):
     monkeypatch.delenv("FAKE_BLENDER_FAIL", raising=False)
     monkeypatch.delenv("FAKE_BLENDER_SLEEP", raising=False)
+    monkeypatch.delenv("FAKE_BLENDER_HANG_AFTER", raising=False)
 
 
 def options(out: Path, **kwargs) -> BuildOptions:
@@ -233,14 +234,15 @@ def test_concurrent_build_refused(project, tmp_path):
 
 
 def test_stage_timeout_marks_failed_and_keeps_partial(project, tmp_path, monkeypatch):
-    monkeypatch.setenv("FAKE_BLENDER_SLEEP", "1.5")
-    outcome = run_build(project, options(tmp_path, stage_timeout_s=2.5))
+    # Hang after one view: only the render stage can time out, however slow the machine is.
+    monkeypatch.setenv("FAKE_BLENDER_HANG_AFTER", "1")
+    outcome = run_build(project, options(tmp_path, stage_timeout_s=8))
     assert outcome.status == "failed"
     assert "timeout" in outcome.message
     state = job(outcome.revision_dir)
     assert state["status"] == "failed" and state["stages"]["render"]["status"] == "failed"
-    assert 1 <= len(outcome.rendered_now) < 10
-    monkeypatch.setenv("FAKE_BLENDER_SLEEP", "0")
+    assert outcome.rendered_now == ["01_front"]
+    monkeypatch.delenv("FAKE_BLENDER_HANG_AFTER")
     resumed = run_build(project, options(tmp_path))
     assert resumed.status == "completed"
     assert set(resumed.rendered_now).isdisjoint(outcome.rendered_now)

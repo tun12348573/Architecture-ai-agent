@@ -2,6 +2,7 @@
 
 Env: FAKE_BLENDER_FAIL=build | render:<n> (exit 1 at build, or after n rendered views)
      FAKE_BLENDER_SLEEP=<seconds> (pause before each view)
+     FAKE_BLENDER_HANG_AFTER=<n> (hang forever after n rendered views; for timeout tests)
 """
 
 import json
@@ -49,7 +50,10 @@ def render(args: list[str], fail: str) -> int:
     images = Path(opt(args, "--images"))
     images.mkdir(parents=True, exist_ok=True)
     sleep = float(os.environ.get("FAKE_BLENDER_SLEEP", "0"))
+    hang_after = os.environ.get("FAKE_BLENDER_HANG_AFTER")
     for n, cam_id in enumerate(opt(args, "--cameras").split(",")):
+        if hang_after is not None and n == int(hang_after):
+            time.sleep(3600)
         if fail == f"render:{n}":
             print("fake render failure", flush=True)
             return 1
