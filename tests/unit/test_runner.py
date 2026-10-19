@@ -230,3 +230,17 @@ def test_concurrent_build_refused(project, tmp_path):
         with pytest.raises(BuildBusy, match="another build"):
             run_build(project, options(tmp_path))
     assert run_build(project, options(tmp_path)).status == "completed"
+
+
+def test_stage_timeout_marks_failed_and_keeps_partial(project, tmp_path, monkeypatch):
+    monkeypatch.setenv("FAKE_BLENDER_SLEEP", "1.5")
+    outcome = run_build(project, options(tmp_path, stage_timeout_s=2.5))
+    assert outcome.status == "failed"
+    assert "timeout" in outcome.message
+    state = job(outcome.revision_dir)
+    assert state["status"] == "failed" and state["stages"]["render"]["status"] == "failed"
+    assert 1 <= len(outcome.rendered_now) < 10
+    monkeypatch.setenv("FAKE_BLENDER_SLEEP", "0")
+    resumed = run_build(project, options(tmp_path))
+    assert resumed.status == "completed"
+    assert set(resumed.rendered_now).isdisjoint(outcome.rendered_now)
