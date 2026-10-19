@@ -72,6 +72,19 @@ Sao chép `examples\demo_house\project.json` thành file mới, sửa `value` (r
 - `offset` của lỗ cửa: tính từ **đầu bên trái của mặt đứng khi đứng ngoài nhìn vào bức tường đó** tới mép trái lỗ.
 - M1 chỉ hỗ trợ: 1 tầng, mái bằng, `input_mode: "parameters"`, đúng 10 camera chuẩn.
 
+## Template nhà phố hiện đại (M2a)
+
+Fixture: `examples\modern_townhouse\project.json` (`schema_version: "1.1"`, `template: "modern_townhouse"`, DEMO FIXTURE, mọi số đề xuất là `needs_review`).
+
+```powershell
+exterior-agent validate "examples\modern_townhouse\project.json"
+exterior-agent build "examples\modern_townhouse\project.json"
+```
+
+Khối `modern` gồm `floors[]` (1–5 tầng; mỗi tầng `height`, `front_setback` — tầng trên lùi vào tạo terrace, `openings_front`/`openings_rear` với `kind` = `door_4leaf` | `door` | `window`, `terrace_pergola`), `balconies[]`, `frames[]` (khung bao đua ra, hình chữ U ngược), `louvers[]` (lam đứng), `canopy` (ô văng tầng 1), `roof` (tường chắn mái, tum thang, `garden` với bồn cây + pergola) và `front_yard` (`parking` | `garden`, cổng, rào, `car`, `motorbikes`).
+
+Tắt một thành phần: để danh sách rỗng (`"balconies": []`, `"frames": []`, `"louvers": []`), xoá khối (`canopy`, `roof.garden`, `terrace_pergola`), hoặc đặt `car` = `false`, `motorbikes` = `0`. Tổng chiều cao (các tầng + tum thang/tường chắn) tối đa 25 m. Vật liệu hiện là màu phẳng; texture/HDRI là M2b. Project `1.0` (nhà demo M1) vẫn build như cũ.
+
 ## Kết quả
 
 Mỗi lần build tạo thư mục mới, **không bao giờ ghi đè**:
@@ -104,7 +117,7 @@ Exporter báo thành công là chưa đủ. Mở `model.glb` bằng một viewer
 
 ## Giới hạn
 
-- Một tầng, mái bằng, không khung cửa, không texture; vật liệu màu đơn.
+- Nhà demo M1: một tầng, mái bằng. Template hiện đại M2a: 1–5 tầng mái bằng, vật liệu màu phẳng (texture/HDRI ở M2b); xe/xe máy là khối mẫu đơn giản.
 - Chưa đọc DXF/ảnh/phác thảo; chưa có AI, API, cloud.
 - OptiX không chạy trên driver NVIDIA hiện tại của laptop; `--device gpu` dùng CUDA trước. Eevee/GPU chưa được kiểm trên CI.
 - Không hứa hiệu năng hay 4K; số đo thời gian xem `docs/STATUS.md`.

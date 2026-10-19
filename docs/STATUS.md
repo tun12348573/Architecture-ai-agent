@@ -9,6 +9,17 @@ Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun1234
 - Spec: [docs/superpowers/specs/2026-10-19-m0-m1-design.md](superpowers/specs/2026-10-19-m0-m1-design.md)
 - Plan: [docs/superpowers/plans/2026-10-19-m0-m1.md](superpowers/plans/2026-10-19-m0-m1.md)
 
+## M2a — template nhà phố hiện đại (nhánh `m2a`, 2026-10-19)
+
+**Đã triển khai, kiểm chứng cục bộ; chờ review cuối + merge.** Spec: [2026-10-19-m2-modern-townhouse-design.md](superpowers/specs/2026-10-19-m2-modern-townhouse-design.md) · Plan: [2026-10-19-m2a-modern-template.md](superpowers/plans/2026-10-19-m2a-modern-template.md).
+
+- `schema_version 1.1`, `template: "modern_townhouse"`; project `1.0` cho `scene_plan` y hệt trước (test hash vàng).
+- 1–5 tầng có lỗ cửa thật, tầng lùi + terrace (lan can kính, pergola), ban công kính, khung bao chữ U, lam đứng, ô văng, cửa nhôm kính 4 cánh có dải kính trên, cửa sổ có khung, tường chắn mái, tum thang, vườn sân thượng, sân trước (lát/cỏ), cổng nan, rào, xe/xe máy khối mẫu; UV box-mapping theo mét.
+- `.\scripts\check.ps1`: ruff OK, unit **173 passed**, integration **14 passed** (Blender 5.2.2 thật), pip-audit sạch.
+- `exterior-agent build "examples\modern_townhouse\project.json"` (preview Eevee, màu phẳng) → `output\modern-townhouse\r001-aff0478b\`, ~0.3 s/view, 10.6 s tổng. Contact sheet xem bằng mắt: đủ thành phần, hướng 10 view đúng (manual).
+- Sửa thêm trong lúc làm: `run_blender` giờ dừng **cả cây tiến trình** khi timeout/huỷ (trước đó tiến trình cháu giữ pipe 10 s và bị bỏ mồ côi).
+- Tiếp theo: **M2b** — tài sản CC0 (texture, HDRI, mô hình), vật liệu PBR, profile `final` Cycles CUDA + khử nhiễu, lệnh `benchmark`, `materials/` + `LICENSES.json` trong gói giao.
+
 ## Đã làm
 
 - CLI `exterior-agent validate | build | doctor` (`src/exterior_agent/cli/main.py`).
@@ -84,6 +95,6 @@ Python host 3.13.3 · Blender 5.2.2 LTS (Python nhúng 3.13.13) · pydantic 2.14
 
 ## Bước tiếp theo
 
-1. Lên spec/plan M2 (template tầng, ban công, mái, vật liệu + benchmark độ phức tạp).
+1. Review cuối + merge M2a, rồi viết plan M2b (ảnh gần như thật).
 
 Lệnh chạy tiếp ngay: `.\scripts\check.ps1` rồi `exterior-agent build "examples\demo_house\project.json"`.
