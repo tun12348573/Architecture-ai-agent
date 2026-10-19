@@ -570,7 +570,23 @@
           "source": "m2_spec_proposal",
           "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
           "status": "needs_review"
-        }
+        },
+        "plant_models": [
+          {
+            "value": "shrub_01",
+            "unit": null,
+            "source": "m2_spec_proposal",
+            "source_ref": "docs/superpowers/plans/2026-10-19-m2b-photoreal.md Task 2",
+            "status": "needs_review"
+          },
+          {
+            "value": "shrub_02",
+            "unit": null,
+            "source": "m2_spec_proposal",
+            "source_ref": "docs/superpowers/plans/2026-10-19-m2b-photoreal.md Task 2",
+            "status": "needs_review"
+          }
+        ]
       }
     },
     "front_yard": {
@@ -622,11 +638,12 @@
     "wall": {
       "value": {
         "base_color": [
-          0.92,
-          0.91,
-          0.88
+          1.0,
+          1.0,
+          1.0
         ],
-        "roughness": 0.8
+        "roughness": 0.8,
+        "texture": "painted_plaster_wall"
       },
       "unit": null,
       "source": "m2_spec_proposal",
@@ -636,11 +653,12 @@
     "roof": {
       "value": {
         "base_color": [
-          0.55,
-          0.55,
-          0.55
+          1.0,
+          1.0,
+          1.0
         ],
-        "roughness": 0.9
+        "roughness": 0.9,
+        "texture": "concrete"
       },
       "unit": null,
       "source": "m2_spec_proposal",
@@ -711,7 +729,8 @@
           0.22,
           0.22
         ],
-        "roughness": 0.6
+        "roughness": 0.6,
+        "texture": "brushed_concrete"
       },
       "unit": null,
       "source": "m2_spec_proposal",
@@ -735,11 +754,12 @@
     "louver": {
       "value": {
         "base_color": [
-          0.55,
-          0.38,
-          0.22
+          1.0,
+          1.0,
+          1.0
         ],
-        "roughness": 0.6
+        "roughness": 0.6,
+        "texture": "oak_wood_planks"
       },
       "unit": null,
       "source": "m2_spec_proposal",
@@ -749,11 +769,12 @@
     "terrace_floor": {
       "value": {
         "base_color": [
-          0.7,
-          0.66,
-          0.6
+          1.0,
+          1.0,
+          1.0
         ],
-        "roughness": 0.8
+        "roughness": 0.8,
+        "texture": "concrete_tiles"
       },
       "unit": null,
       "source": "m2_spec_proposal",
@@ -763,11 +784,12 @@
     "paving": {
       "value": {
         "base_color": [
-          0.62,
-          0.6,
-          0.57
+          1.0,
+          1.0,
+          1.0
         ],
-        "roughness": 0.9
+        "roughness": 0.9,
+        "texture": "concrete_pavers"
       },
       "unit": null,
       "source": "m2_spec_proposal",
@@ -777,11 +799,12 @@
     "grass": {
       "value": {
         "base_color": [
-          0.3,
-          0.48,
-          0.22
+          1.0,
+          1.0,
+          1.0
         ],
-        "roughness": 1.0
+        "roughness": 1.0,
+        "texture": "leafy_grass"
       },
       "unit": null,
       "source": "m2_spec_proposal",
@@ -791,11 +814,12 @@
     "soil": {
       "value": {
         "base_color": [
-          0.3,
-          0.22,
-          0.16
+          1.0,
+          1.0,
+          1.0
         ],
-        "roughness": 1.0
+        "roughness": 1.0,
+        "texture": "farm_soil"
       },
       "unit": null,
       "source": "m2_spec_proposal",
@@ -805,11 +829,12 @@
     "pergola_wood": {
       "value": {
         "base_color": [
-          0.5,
-          0.34,
-          0.2
+          1.0,
+          1.0,
+          1.0
         ],
-        "roughness": 0.7
+        "roughness": 0.7,
+        "texture": "oak_wood_planks"
       },
       "unit": null,
       "source": "m2_spec_proposal",
@@ -831,5 +856,28 @@
       "status": "needs_review"
     }
   },
-  "render_profile": "preview"
+  "render_profile": "preview",
+  "world": {
+    "hdri": {
+      "value": "kloofendal_48d_partly_cloudy_puresky",
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/plans/2026-10-19-m2b-photoreal.md Task 2",
+      "status": "needs_review"
+    },
+    "strength": {
+      "value": 1.0,
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/plans/2026-10-19-m2b-photoreal.md Task 2",
+      "status": "needs_review"
+    },
+    "rotation_deg": {
+      "value": 0.0,
+      "unit": null,
+      "source": "m2_spec_proposal",
+      "source_ref": "docs/superpowers/plans/2026-10-19-m2b-photoreal.md Task 2",
+      "status": "needs_review"
+    }
+  }
 }

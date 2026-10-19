@@ -34,6 +34,43 @@ def total_height(m) -> float:
     return sum(f.height.value for f in m.floors) + above_roof
 
 
+def check_assets(p) -> list[ValidationIssue]:
+    """Asset ids named by the project must exist in the catalog with the right kind."""
+    from exterior_agent.assets.catalog import load_catalog
+
+    try:
+        catalog = load_catalog()
+    except (OSError, ValueError) as exc:
+        return [ValidationIssue("materials", f"asset catalog unreadable: {exc}")]
+    wanted: list[tuple[str, str, str]] = []
+    for role in type(p.materials).model_fields:
+        mat = getattr(p.materials, role)
+        if mat is not None and mat.value.texture is not None:
+            wanted.append((f"materials.{role}.value.texture", mat.value.texture, "texture"))
+    if p.world is not None:
+        wanted.append(("world.hdri", p.world.hdri.value, "hdri"))
+    garden = p.modern.roof.garden
+    for i, model in enumerate(garden.plant_models if garden is not None else []):
+        wanted.append((f"modern.roof.garden.plant_models[{i}]", model.value, "model"))
+    issues = []
+    for path, asset_id, kind in wanted:
+        try:
+            found = catalog.get(asset_id).kind
+        except KeyError:
+            issues.append(
+                ValidationIssue(path, f"asset {asset_id!r} is not in assets/catalog.json")
+            )
+            continue
+        if found != kind:
+            issues.append(ValidationIssue(path, f"asset {asset_id!r} is a {found}, not a {kind}"))
+    if p.world is not None:
+        if not 0 < p.world.strength.value <= 10:
+            issues.append(ValidationIssue("world.strength", "must be in (0, 10]"))
+        if not 0 <= p.world.rotation_deg.value < 360:
+            issues.append(ValidationIssue("world.rotation_deg", "must be in [0, 360)"))
+    return issues
+
+
 def check_modern(p) -> list[ValidationIssue]:  # noqa: C901 - one flat list of rules
     issues: list[ValidationIssue] = []
 
@@ -190,4 +227,4 @@ def check_modern(p) -> list[ValidationIssue]:  # noqa: C901 - one flat list of r
             fits = bikes * pitch - BIKE_GAP <= s.width.value + TOL
         if bikes and not fits:
             add("modern.front_yard.motorbikes", "motorbikes do not fit across the front yard")
-    return issues
+    return issues + check_assets(p)

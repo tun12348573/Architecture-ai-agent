@@ -14,6 +14,7 @@ from exterior_agent.domain.params import (  # noqa: F401 - re-exported for exist
     MaterialSpec,
     Original,
     Param,
+    Scalar,
     Status,
     Strict,
     StrictFloat,
@@ -74,6 +75,12 @@ class Materials(Strict):
     props: MaterialParam | None = None
 
 
+class World(Strict):
+    hdri: Choice  # asset id of kind "hdri"
+    strength: Scalar
+    rotation_deg: Scalar
+
+
 class CameraDef(Strict):
     id: str
     view: str
@@ -104,6 +111,7 @@ class Project(Strict):
     site: Site
     building: Building | None = None
     modern: ModernBuilding | None = None
+    world: World | None = None
     materials: Materials
     cameras: list[CameraDef] = Field(default_factory=lambda: list(CANONICAL_CAMERAS))
     render_profile: Literal["preview", "final", "smoke"] = "preview"
