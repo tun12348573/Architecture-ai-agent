@@ -100,3 +100,26 @@ def test_changed_parameters_rebuild(blender_cmd, built, tmp_path):
     objects = inspect(blender_cmd, tmp_path, blend=outcome.revision_dir / "model.blend")["objects"]
     assert "Balcony_F2" not in objects and "Floor4_Wall_Front" in objects
     assert verify_delivery(first_rev) == []
+
+
+def test_uv_values_are_metric_in_blender(blender_cmd, built, tmp_path):
+    _, rev = built
+    objects = inspect(blender_cmd, tmp_path, blend=rev / "model.blend")["objects"]
+    for name, entry in objects.items():
+        if entry["type"] == "MESH" and entry.get("uv_layers"):
+            assert entry["uv_max_error"] < 1e-4, name
+
+
+def test_minimal_config_builds(blender_cmd, tmp_path):
+    data = copy.deepcopy(MODERN)
+    m = data["modern"]
+    m["balconies"], m["frames"], m["louvers"] = [], [], []
+    del m["canopy"]
+    del m["roof"]["garden"]
+    m["floors"][1].pop("terrace_pergola")
+    m["front_yard"]["kind"]["value"] = "garden"
+    m["front_yard"]["car"]["value"] = False
+    m["front_yard"]["motorbikes"]["value"] = 0
+    outcome = run_build(parse_project(data), options(tmp_path / "minimal out"))
+    assert outcome.status == "completed", outcome.message
+    assert verify_delivery(outcome.revision_dir) == []

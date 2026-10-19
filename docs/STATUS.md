@@ -15,7 +15,9 @@ Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun1234
 
 - `schema_version 1.1`, `template: "modern_townhouse"`; project `1.0` cho `scene_plan` y hệt trước (test hash vàng).
 - 1–5 tầng có lỗ cửa thật, tầng lùi + terrace (lan can kính, pergola), ban công kính, khung bao chữ U, lam đứng, ô văng, cửa nhôm kính 4 cánh có dải kính trên, cửa sổ có khung, tường chắn mái, tum thang, vườn sân thượng, sân trước (lát/cỏ), cổng nan, rào, xe/xe máy khối mẫu; UV box-mapping theo mét.
-- `.\scripts\check.ps1`: ruff OK, unit **173 passed**, integration **14 passed** (Blender 5.2.2 thật), pip-audit sạch.
+- `.\scripts\check.ps1` (sau review cuối): ruff OK, unit **190 passed**, integration **16 passed** (Blender 5.2.2 thật), pip-audit sạch.
+- Review cuối (subagent Opus): "With fixes", 0 Critical. Đã sửa: kiểm tra hình học chung (tên trùng, ra ngoài lô, phần bị lộn/quá nhỏ, chồng lấn giữa mọi thành phần — tường trừ lỗ cửa) chạy sau validate tham số; `terrace_pergola` không có terrace → lỗi; `_stop` luôn dừng Blender khi dừng cả cây thất bại; test giá trị UV trong Blender và build cấu hình tối thiểu.
+- Hoãn (minor): giới hạn 25 m chưa tính pergola mái (2.6 m) khi tum thang thấp hơn.
 - `exterior-agent build "examples\modern_townhouse\project.json"` (preview Eevee, màu phẳng) → `output\modern-townhouse\r001-aff0478b\`, ~0.3 s/view, 10.6 s tổng. Contact sheet xem bằng mắt: đủ thành phần, hướng 10 view đúng (manual).
 - Sửa thêm trong lúc làm: `run_blender` giờ dừng **cả cây tiến trình** khi timeout/huỷ (trước đó tiến trình cháu giữ pipe 10 s và bị bỏ mồ côi).
 - Tiếp theo: **M2b** — tài sản CC0 (texture, HDRI, mô hình), vật liệu PBR, profile `final` Cycles CUDA + khử nhiễu, lệnh `benchmark`, `materials/` + `LICENSES.json` trong gói giao.

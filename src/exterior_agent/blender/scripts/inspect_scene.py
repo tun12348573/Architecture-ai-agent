@@ -37,6 +37,22 @@ def load(args: argparse.Namespace) -> None:
     bpy.ops.import_scene.gltf(filepath=args.glb)
 
 
+def uv_max_error(obj) -> float:
+    """Largest difference between stored UVs and the metric box projection of each face."""
+    mesh = obj.data
+    uv = mesh.uv_layers[0].data
+    worst = 0.0
+    for poly in mesh.polygons:
+        axis = max(range(3), key=lambda k: abs(poly.normal[k]))
+        keep = {0: (1, 2), 1: (0, 2), 2: (0, 1)}[axis]
+        for loop_index in poly.loop_indices:
+            co = obj.matrix_world @ mesh.vertices[mesh.loops[loop_index].vertex_index].co
+            expected = (co[keep[0]], co[keep[1]])
+            got = uv[loop_index].uv
+            worst = max(worst, abs(got[0] - expected[0]), abs(got[1] - expected[1]))
+    return worst
+
+
 def object_entry(obj) -> dict:
     entry = {
         "type": obj.type,
@@ -45,6 +61,8 @@ def object_entry(obj) -> dict:
     }
     if obj.type == "MESH":
         entry["uv_layers"] = len(obj.data.uv_layers)
+        if obj.data.uv_layers:
+            entry["uv_max_error"] = uv_max_error(obj)
     if obj.type == "MESH" and obj.data.vertices:
         world = [obj.matrix_world @ v.co for v in obj.data.vertices]
         entry["bbox_min"] = [min(v[i] for v in world) for i in range(3)]
