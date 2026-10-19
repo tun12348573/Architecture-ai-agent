@@ -165,7 +165,8 @@ def main() -> None:
         export_yup=True,
     )
     os.replace(tmp_glb, glb)
-    print("EA_RESULT " + json.dumps({"blend": str(blend), "glb": str(glb)}), flush=True)
+    result = {"blend": str(blend), "glb": str(glb), "python": sys.version.split()[0]}
+    print("EA_RESULT " + json.dumps(result), flush=True)
 
 
 main()

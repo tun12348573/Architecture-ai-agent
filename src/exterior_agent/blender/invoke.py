@@ -103,15 +103,21 @@ def run_blender(
         reader = threading.Thread(target=pump, daemon=True)
         reader.start()
         status: Literal["ok", "failed", "timeout", "cancelled"] | None = None
-        while proc.poll() is None:
-            if cancel is not None and cancel.is_set():
-                status = "cancelled"
-            elif time.monotonic() - start > timeout_s:
-                status = "timeout"
-            if status:
-                _stop(proc)
-                break
-            time.sleep(POLL_S)
+        try:
+            while proc.poll() is None:
+                if cancel is not None and cancel.is_set():
+                    status = "cancelled"
+                elif time.monotonic() - start > timeout_s:
+                    status = "timeout"
+                if status:
+                    _stop(proc)
+                    break
+                time.sleep(POLL_S)
+        except KeyboardInterrupt:
+            # The child runs in its own process group and never sees Ctrl+C: stop it here.
+            _stop(proc)
+            log.write("\n[exterior-agent] interrupted (Ctrl+C); Blender stopped\n")
+            raise
         reader.join(timeout=KILL_GRACE_S)
         if status is None:
             status = "ok" if proc.returncode == 0 else "failed"

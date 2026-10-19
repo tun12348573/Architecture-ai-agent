@@ -29,7 +29,8 @@ def built(blender_cmd, tmp_path_factory):
         ["--plan", str(plan_path), "--blend", str(blend), "--glb", str(glb)],
         work / "build.log",
     )
-    assert any(line.startswith("EA_RESULT ") for line in lines)
+    result = json.loads(next(line for line in lines if line.startswith("EA_RESULT "))[10:])
+    assert result["python"].startswith("3.")
     return {"work": work, "plan": plan, "project": project, "blend": blend, "glb": glb}
 
 
