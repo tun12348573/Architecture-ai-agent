@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "exterior-agent"
+version = "0.1.0"
+description = "Exterior architectural visualization: parameters -> Blender scene -> renders and editable assets"
+requires-python = ">=3.13,<3.14"
+dependencies = ["pydantic>=2,<3", "pillow>=11"]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "pip-audit"]
+
+[project.scripts]
+exterior-agent = "exterior_agent.cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"exterior_agent.blender" = ["scripts/*.py"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["blender: needs a real Blender executable"]
