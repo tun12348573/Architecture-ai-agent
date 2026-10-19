@@ -43,6 +43,8 @@ def object_entry(obj) -> dict:
         "collections": [c.name for c in obj.users_collection],
         "materials": [s.material.name for s in obj.material_slots if s.material],
     }
+    if obj.type == "MESH":
+        entry["uv_layers"] = len(obj.data.uv_layers)
     if obj.type == "MESH" and obj.data.vertices:
         world = [obj.matrix_world @ v.co for v in obj.data.vertices]
         entry["bbox_min"] = [min(v[i] for v in world) for i in range(3)]

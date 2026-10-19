@@ -68,6 +68,10 @@ def add_object(spec: dict, scene, materials: dict) -> None:
         mesh.from_pydata(
             [tuple(v) for v in spec["vertices"]], [], [tuple(f) for f in spec["faces"]]
         )
+        if "uvs" in spec:  # per face, per corner; loops follow the face order of from_pydata
+            layer = mesh.uv_layers.new(name="UVMap")
+            flat = [c for face in spec["uvs"] for uv in face for c in uv]
+            layer.data.foreach_set("uv", flat)
         mesh.validate()
         mesh.update()
         mesh.materials.append(materials[spec["material"]])
