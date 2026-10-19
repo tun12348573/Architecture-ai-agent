@@ -23,7 +23,7 @@ Cập nhật: 2026-10-19 · Nhánh: `m0-m1` (từ `main`) · Không có git remo
 | Lệnh | Kết quả |
 | --- | --- |
 | `.\scripts\check.ps1` (có `EXTERIOR_AGENT_BLENDER`), sau đợt sửa review | ruff check OK, ruff format OK (52 file), unit **111 passed**, integration **10 passed** (Blender 5.2.2 thật), pip-audit: không có lỗ hổng |
-| `exterior-agent build "examples\demo_house\project.json" --profile smoke` | completed → `output\demo-townhouse001-af814768\` (`delivery.json` có `code_hash`) |
+| `exterior-agent build "examples\demo_house\project.json" --profile smoke` | completed → `output\demo-townhouse\r001-af814768\` (`delivery.json` có `code_hash`) |
 | `exterior-agent doctor` | Python 3.13.3; pydantic 2.14.1; pillow 13.0.0; Blender 5.2.2 LTS, Python nhúng 3.13.13; Cycles thấy OPTIX + CUDA (RTX 3050 Ti); RAM 7.42 GB tổng, **0.87 GB trống** lúc đo; nvidia-smi 4096 MiB, driver 566.07 |
 | `exterior-agent validate "examples\demo_house\project.json"` | OK, liệt kê 24 giá trị `needs_review` |
 | `exterior-agent build "examples\demo_house\project.json" --profile preview` | completed → `output\demo-townhouse\r001-ee6f32d5\` |
