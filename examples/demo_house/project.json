@@ -1,0 +1,312 @@
+{
+  "schema_version": "1.0",
+  "project_id": "demo-townhouse",
+  "project_revision": 1,
+  "input_mode": "parameters",
+  "label": "DEMO FIXTURE — not the owner's real building",
+  "site": {
+    "width": {
+      "value": 4.5,
+      "unit": "m",
+      "source": "brief_demo_fixture",
+      "source_ref": "CLAUDE.md §4",
+      "status": "confirmed"
+    },
+    "depth": {
+      "value": 18.0,
+      "unit": "m",
+      "source": "brief_demo_fixture",
+      "source_ref": "CLAUDE.md §4",
+      "status": "confirmed"
+    },
+    "front_setback": {
+      "value": 5.0,
+      "unit": "m",
+      "source": "brief_demo_fixture",
+      "source_ref": "CLAUDE.md §4",
+      "status": "confirmed"
+    },
+    "rear_setback": {
+      "value": 1.0,
+      "unit": "m",
+      "source": "brief_demo_fixture",
+      "source_ref": "CLAUDE.md §4",
+      "status": "confirmed"
+    }
+  },
+  "building": {
+    "footprint_width": {
+      "value": 4.5,
+      "unit": "m",
+      "source": "brief_demo_fixture",
+      "source_ref": "CLAUDE.md §4",
+      "status": "confirmed"
+    },
+    "footprint_depth": {
+      "value": 12.0,
+      "unit": "m",
+      "source": "brief_demo_fixture",
+      "source_ref": "CLAUDE.md §4",
+      "status": "confirmed"
+    },
+    "floors": {
+      "value": 1,
+      "unit": "count",
+      "source": "brief_demo_fixture",
+      "source_ref": "CLAUDE.md §4",
+      "status": "confirmed"
+    },
+    "wall_height": {
+      "value": 3.6,
+      "unit": "m",
+      "source": "brief_demo_fixture",
+      "source_ref": "CLAUDE.md §4",
+      "status": "confirmed"
+    },
+    "wall_thickness": {
+      "value": 0.2,
+      "unit": "m",
+      "source": "m1_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+      "status": "needs_review"
+    },
+    "roof": {
+      "type": {
+        "value": "flat",
+        "unit": null,
+        "source": "brief_demo_fixture",
+        "source_ref": "CLAUDE.md §4",
+        "status": "confirmed"
+      },
+      "thickness": {
+        "value": 0.15,
+        "unit": "m",
+        "source": "m1_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+        "status": "needs_review"
+      }
+    },
+    "openings": [
+      {
+        "id": "D01",
+        "kind": "door",
+        "wall": "front",
+        "offset": {
+          "value": 0.6,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "width": {
+          "value": 1.0,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "height": {
+          "value": 2.4,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "sill": {
+          "value": 0.0,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        }
+      },
+      {
+        "id": "W01",
+        "kind": "window",
+        "wall": "front",
+        "offset": {
+          "value": 2.3,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "width": {
+          "value": 1.6,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "height": {
+          "value": 1.4,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "sill": {
+          "value": 0.9,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        }
+      },
+      {
+        "id": "D02",
+        "kind": "door",
+        "wall": "rear",
+        "offset": {
+          "value": 0.5,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "width": {
+          "value": 0.9,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "height": {
+          "value": 2.2,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "sill": {
+          "value": 0.0,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        }
+      },
+      {
+        "id": "W02",
+        "kind": "window",
+        "wall": "rear",
+        "offset": {
+          "value": 2.5,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "width": {
+          "value": 1.2,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "height": {
+          "value": 1.2,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        },
+        "sill": {
+          "value": 1.0,
+          "unit": "m",
+          "source": "m1_spec_proposal",
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+          "status": "needs_review"
+        }
+      }
+    ]
+  },
+  "materials": {
+    "wall": {
+      "value": {
+        "base_color": [
+          0.86,
+          0.84,
+          0.8
+        ],
+        "roughness": 0.8
+      },
+      "unit": null,
+      "source": "m1_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+      "status": "needs_review"
+    },
+    "roof": {
+      "value": {
+        "base_color": [
+          0.45,
+          0.45,
+          0.47
+        ],
+        "roughness": 0.9
+      },
+      "unit": null,
+      "source": "m1_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+      "status": "needs_review"
+    },
+    "door": {
+      "value": {
+        "base_color": [
+          0.4,
+          0.25,
+          0.14
+        ],
+        "roughness": 0.6
+      },
+      "unit": null,
+      "source": "m1_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+      "status": "needs_review"
+    },
+    "window_glass": {
+      "value": {
+        "base_color": [
+          0.55,
+          0.7,
+          0.8
+        ],
+        "roughness": 0.05,
+        "alpha": 0.35
+      },
+      "unit": null,
+      "source": "m1_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+      "status": "needs_review"
+    },
+    "land": {
+      "value": {
+        "base_color": [
+          0.3,
+          0.45,
+          0.22
+        ],
+        "roughness": 1.0
+      },
+      "unit": null,
+      "source": "m1_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+      "status": "needs_review"
+    },
+    "context_ground": {
+      "value": {
+        "base_color": [
+          0.55,
+          0.55,
+          0.52
+        ],
+        "roughness": 1.0
+      },
+      "unit": null,
+      "source": "m1_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
+      "status": "needs_review"
+    }
+  },
+  "render_profile": "preview"
+}
