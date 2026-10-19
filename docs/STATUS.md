@@ -1,10 +1,10 @@
 # STATUS
 
-Cập nhật: 2026-10-19 · Nhánh: `main` (đã merge `m0-m1`) · Không có git remote.
+Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun12348573/Architecture-ai-agent (public).
 
 ## Milestone
 
-**M0 + M1: đã triển khai, kiểm chứng cục bộ — xác minh một phần** (CI chưa chạy thật; GLB đã mở được bằng viewer độc lập — kiểm tra thủ công).
+**M0 + M1: PASSED** — kiểm chứng cục bộ, CI GitHub Actions xanh (run 39234429907), GLB qua Khronos glTF-Validator (kiểm tra thủ công).
 
 - Spec: [docs/superpowers/specs/2026-10-19-m0-m1-design.md](superpowers/specs/2026-10-19-m0-m1-design.md)
 - Plan: [docs/superpowers/plans/2026-10-19-m0-m1.md](superpowers/plans/2026-10-19-m0-m1.md)
@@ -30,6 +30,10 @@ Cập nhật: 2026-10-19 · Nhánh: `main` (đã merge `m0-m1`) · Không có gi
 | `exterior-agent build ... --profile preview --engine cycles --device gpu` | completed bằng **CUDA** → `output\demo-townhouse\r001-88e2be54\` (lần đầu lỗi OptiX, lần chạy lại resume bằng CUDA) |
 
 Test integration với Blender thật (128×72, Cycles CPU): dựng scene, mở lại `.blend` đủ đối tượng/collection/vật liệu, kích thước ±1 mm, ray-cast xác nhận lỗ cửa thật, import lại GLB khớp ±1 mm, đủ 10 view, đổi tham số → revision mới đúng hình học, huỷ rồi chạy tiếp, `--out` tương đối.
+
+CI GitHub Actions (ubuntu-24.04, Python 3.13.16), run https://github.com/tun12348573/Architecture-ai-agent/actions/runs/39234429907, commit `421411d`, 2026-10-19: lint/format OK, unit **114 passed**, pip-audit sạch, tải Blender 5.2.2 Linux **SHA256 OK**, integration **10 passed** (Cycles CPU 128×72, đủ 10 view), tổng 3 phút 3 giây.
+
+Fixture demo: chủ dự án xác nhận cả 24 giá trị đề xuất (2026-10-19) → `project_revision` 2, `exterior-agent build` preview → `output\demo-townhouse\r002-aec3ecd0\`, `complete: true`, `unresolved_assumptions: []`.
 
 ## Số đo thời gian (thủ công, 2026-10-19)
 
@@ -69,12 +73,10 @@ Lưu ý: hai thư mục preview `r001-ee6f32d5`, `r001-88e2be54` được tạo 
 
 ## Chưa kiểm chứng / tồn đọng
 
-- **CI chưa từng chạy**: repo chưa có remote. Workflow đã parse YAML hợp lệ, action ghim SHA; bước cài thư viện hệ thống cho Blender trên Ubuntu và `scripts/install_blender_ci.sh` **chưa chạy thật**.
-- Eevee trên Linux CI không được dùng (CI dùng Cycles CPU).
-- Profile `final` chưa chạy.
-- File lạc `C:\output\demo-townhouse\r001-ee6f32d5\images\.tmp_01_front.png` do lỗi đường dẫn tương đối (đã sửa) tạo ra; công cụ không được phép xoá ở gốc ổ C — **chủ dự án xoá thư mục `C:\output` bằng tay**.
+- Eevee và GPU không chạy trên CI (CI dùng Cycles CPU); GPU chỉ được kiểm thủ công trên laptop (CUDA được, OptiX lỗi).
+- Profile `final` 1920×1080 chưa chạy.
 - RAM trống thấp (0.87 GB lúc đo): nên đóng ứng dụng khác khi render `final`.
-- 24 giá trị đề xuất trong fixture demo vẫn `needs_review` (dày tường, mái, lỗ cửa, vật liệu).
+- Các mục minor đã hoãn (xem mục Review toàn nhánh).
 
 ## Phiên bản
 
@@ -82,8 +84,6 @@ Python host 3.13.3 · Blender 5.2.2 LTS (Python nhúng 3.13.13) · pydantic 2.14
 
 ## Bước tiếp theo
 
-1. Chủ dự án: duyệt các giá trị `needs_review`; xoá `C:\output`.
-2. Tạo remote GitHub (khi chủ dự án quyết định) để CI chạy thật; sửa nếu bước cài Blender trên Ubuntu lỗi.
-3. Lên spec/plan M2 (template tầng, ban công, mái, vật liệu + benchmark độ phức tạp).
+1. Lên spec/plan M2 (template tầng, ban công, mái, vật liệu + benchmark độ phức tạp).
 
 Lệnh chạy tiếp ngay: `.\scripts\check.ps1` rồi `exterior-agent build "examples\demo_house\project.json"`.
