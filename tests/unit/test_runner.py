@@ -178,6 +178,14 @@ def test_hand_edited_blend_is_never_overwritten(project, tmp_path, monkeypatch):
     assert (failed_rev / "model.blend").read_bytes().endswith(b"OWNER EDIT")
 
 
+def test_relative_out_dir_passes_absolute_paths_to_blender(project, tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    outcome = run_build(project, options(Path("rel out")))
+    assert outcome.status == "completed", outcome.message
+    assert outcome.revision_dir.is_absolute()
+    assert outcome.revision_dir.is_relative_to(tmp_path)
+
+
 def test_build_with_spaces_in_paths(project, tmp_path):
     outcome = run_build(project, options(tmp_path / "my out dir"))
     assert outcome.status == "completed"

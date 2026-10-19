@@ -106,7 +106,8 @@ def _check_resume(rev: Path, job: dict, fingerprint: dict) -> None:
 class _Job:
     def __init__(self, project: Project, opts: BuildOptions):
         self.project, self.opts = project, opts
-        self.rev = revision_dir(opts.out_dir, project, opts.render)
+        # Absolute: Blender resolves relative output paths against the drive root, not the CWD.
+        self.rev = revision_dir(Path(opts.out_dir).resolve(), project, opts.render)
         self.plan = build_scene_plan(project, opts.render)
         self.camera_ids = [c["id"] for c in self.plan["cameras"]]
         self.rendered_now: list[str] = []

@@ -14,7 +14,9 @@ from pathlib import Path
 
 import bpy
 
-GPU_BACKENDS = ("OPTIX", "CUDA", "HIP", "ONEAPI", "METAL")
+# CUDA first: on the owner's RTX 3050 Ti (driver 566.07) OptiX kernels fail to compile
+# with Blender 5.2.2 while CUDA renders (measured 2026-10-19, see docs/STATUS.md).
+GPU_BACKENDS = ("CUDA", "OPTIX", "HIP", "ONEAPI", "METAL")
 
 
 def parse_args() -> argparse.Namespace:

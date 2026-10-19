@@ -72,6 +72,12 @@ def main() -> int:
         return 0
     script = Path(opt(args, "--python")).name
     script_args = args[args.index("--") + 1 :]
+    # Real Blender resolves relative output paths against the drive root, not the CWD.
+    for flag in ("--plan", "--blend", "--glb", "--images"):
+        value = opt(script_args, flag)
+        if value is not None and not Path(value).is_absolute():
+            print(f"fake blender: relative path for {flag}: {value}", flush=True)
+            return 3
     fail = os.environ.get("FAKE_BLENDER_FAIL", "")
     if script == "build_scene.py":
         return build(script_args, fail)
