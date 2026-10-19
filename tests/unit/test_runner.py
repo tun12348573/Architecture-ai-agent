@@ -190,3 +190,34 @@ def test_build_with_spaces_in_paths(project, tmp_path):
     outcome = run_build(project, options(tmp_path / "my out dir"))
     assert outcome.status == "completed"
     assert " " in str(outcome.revision_dir)
+
+
+def test_code_hash_tracks_source_files(tmp_path):
+    from exterior_agent.runtime.runner import code_hash
+
+    (tmp_path / "pkg").mkdir()
+    (tmp_path / "pkg" / "a.py").write_text("x = 1\n")
+    first = code_hash(tmp_path)
+    assert first == code_hash(tmp_path)
+    (tmp_path / "pkg" / "a.py").write_text("x = 2\n")
+    assert code_hash(tmp_path) != first
+
+
+def test_resume_refused_when_code_changed(project, tmp_path, monkeypatch):
+    import exterior_agent.runtime.runner as runner
+
+    monkeypatch.setenv("FAKE_BLENDER_FAIL", "render:2")
+    rev = run_build(project, options(tmp_path)).revision_dir
+    monkeypatch.delenv("FAKE_BLENDER_FAIL")
+    assert job(rev)["fingerprint"]["code_hash"] == runner.code_hash()
+    monkeypatch.setattr(runner, "code_hash", lambda root=None: "edited-render-script")
+    with pytest.raises(ResumeRefused, match="code_hash"):
+        run_build(project, options(tmp_path))
+
+
+def test_delivery_records_code_hash(project, tmp_path):
+    from exterior_agent.runtime.runner import code_hash
+
+    rev = run_build(project, options(tmp_path)).revision_dir
+    delivery = json.loads((rev / "delivery.json").read_text(encoding="utf-8"))
+    assert delivery["code_hash"] == code_hash()

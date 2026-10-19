@@ -77,6 +77,17 @@ def _sha_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def code_hash(root: Path | None = None) -> str:
+    """Hash of every .py file of the package (host code and Blender scripts), so a resume
+    never mixes outputs produced by different code under the same version number."""
+    root = Path(root) if root is not None else Path(__file__).resolve().parents[1]
+    digest = hashlib.sha256()
+    for path in sorted(root.rglob("*.py")):
+        digest.update(path.relative_to(root).as_posix().encode("utf-8") + b"\0")
+        digest.update(path.read_bytes().replace(b"\r\n", b"\n") + b"\0")
+    return digest.hexdigest()
+
+
 def _clean_temp(rev: Path) -> None:
     for pattern in TEMP_GLOBS:
         for path in rev.glob(pattern):
@@ -116,6 +127,7 @@ class _Job:
             "input_hash": content_hash(project, opts.render),
             "scene_plan_hash": _sha_text(canonical_json(self.plan)),
             "tool_version": __version__,
+            "code_hash": code_hash(),
             "blender_version": blender_version(opts.blender),
             "render": opts.render.to_dict(),
         }
@@ -269,6 +281,7 @@ class _Job:
             "label": self.project.label,
             "revision_dir": self.rev.name,
             "tool_version": __version__,
+            "code_hash": self.fingerprint["code_hash"],
             "blender_version": self.fingerprint["blender_version"],
             "python_versions": {
                 "host": platform.python_version(),
