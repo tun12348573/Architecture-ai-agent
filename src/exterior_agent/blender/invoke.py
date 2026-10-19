@@ -147,21 +147,24 @@ def run_blender(
 
 def _stop(proc: subprocess.Popen) -> None:
     """Stop the child and everything it started (helpers would keep our output pipe open)."""
-    if sys.platform == "win32":
-        subprocess.run(
-            ["taskkill", "/T", "/F", "/PID", str(proc.pid)],
-            capture_output=True,
-            timeout=KILL_GRACE_S,
-        )
-    else:
-        try:
+    try:
+        if sys.platform == "win32":
+            subprocess.run(
+                ["taskkill", "/T", "/F", "/PID", str(proc.pid)],
+                capture_output=True,
+                timeout=KILL_GRACE_S,
+            )
+        else:
             os.killpg(proc.pid, signal.SIGTERM)  # own session: pgid == pid
-        except ProcessLookupError:
-            pass
+    except (OSError, subprocess.TimeoutExpired):
+        pass  # tree kill unavailable: the direct kill below still stops Blender itself
     try:
         proc.wait(timeout=KILL_GRACE_S)
     except subprocess.TimeoutExpired:
         if sys.platform != "win32":
-            os.killpg(proc.pid, signal.SIGKILL)
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except OSError:
+                pass
         proc.kill()
         proc.wait()

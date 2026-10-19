@@ -115,3 +115,21 @@ def test_timeout_stops_whole_process_tree(tmp_path):
     elapsed = time.monotonic() - start
     assert result.status == "timeout"
     assert elapsed < 8, f"took {elapsed:.1f}s: a grandchild kept the output pipe open"
+
+
+def test_stop_falls_back_to_kill_when_tree_kill_fails(monkeypatch):
+    import subprocess as sp
+
+    import exterior_agent.blender.invoke as invoke
+
+    proc = sp.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
+
+    def broken_run(*args, **kwargs):
+        raise sp.TimeoutExpired(args[0], 1)
+
+    monkeypatch.setattr(invoke.subprocess, "run", broken_run)
+    monkeypatch.setattr(invoke, "KILL_GRACE_S", 0.5)
+    if sys.platform != "win32":
+        monkeypatch.setattr(invoke.os, "killpg", lambda *a: (_ for _ in ()).throw(OSError("x")))
+    invoke._stop(proc)
+    assert proc.poll() is not None
