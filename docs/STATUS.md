@@ -1,6 +1,6 @@
 # STATUS
 
-Cập nhật: 2026-10-19 · Nhánh: `m0-m1` (từ `main`) · Không có git remote.
+Cập nhật: 2026-10-19 · Nhánh: `main` (đã merge `m0-m1`) · Không có git remote.
 
 ## Milestone
 
