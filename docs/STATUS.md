@@ -22,7 +22,8 @@ Cập nhật: 2026-10-19 · Nhánh: `m0-m1` (từ `main`) · Không có git remo
 
 | Lệnh | Kết quả |
 | --- | --- |
-| `.\scripts\check.ps1` (có `EXTERIOR_AGENT_BLENDER`) | ruff check OK, ruff format OK (51 file), unit **90 passed**, integration **10 passed** (Blender 5.2.2 thật), pip-audit: không có lỗ hổng |
+| `.\scripts\check.ps1` (có `EXTERIOR_AGENT_BLENDER`), sau đợt sửa review | ruff check OK, ruff format OK (52 file), unit **111 passed**, integration **10 passed** (Blender 5.2.2 thật), pip-audit: không có lỗ hổng |
+| `exterior-agent build "examples\demo_house\project.json" --profile smoke` | completed → `output\demo-townhouse001-af814768\` (`delivery.json` có `code_hash`) |
 | `exterior-agent doctor` | Python 3.13.3; pydantic 2.14.1; pillow 13.0.0; Blender 5.2.2 LTS, Python nhúng 3.13.13; Cycles thấy OPTIX + CUDA (RTX 3050 Ti); RAM 7.42 GB tổng, **0.87 GB trống** lúc đo; nvidia-smi 4096 MiB, driver 566.07 |
 | `exterior-agent validate "examples\demo_house\project.json"` | OK, liệt kê 24 giá trị `needs_review` |
 | `exterior-agent build "examples\demo_house\project.json" --profile preview` | completed → `output\demo-townhouse\r001-ee6f32d5\` |
@@ -39,6 +40,23 @@ Test integration với Blender thật (128×72, Cycles CPU): dựng scene, mở 
 | `preview` 1280×720 Cycles **CUDA** 16 samples | 0.64–1.12 s/view |
 
 Không đo được RAM/VRAM đỉnh trong lúc render (chưa có công cụ theo dõi). Không có số liệu cho `final` 1920×1080.
+
+## Review toàn nhánh (2026-10-19)
+
+Một reviewer độc lập (subagent, model Opus) review `975d9eb..e087cb7`: kết luận "With fixes", không có lỗi Critical. Đã sửa, mỗi mục có test RED→GREEN:
+
+- Đường dẫn Blender tồn tại nhưng không chạy được → nay thoát mã 3 thay vì traceback.
+- Resume có thể trộn ảnh từ code khác nhau → fingerprint và `delivery.json` có `code_hash` (hash mọi file `.py` của package, gồm script Blender).
+- Lưới tường bị lệch số thực (vd. `0.7 + 1.4 ≠ 2.1`) tạo mặt suy biến → làm tròn 1 µm và kẹp trong biên.
+- Có `original` thì bỏ qua quy đổi đơn vị (3 ft thành 3 m) → đã sửa; `original.unit` được kiểm tra.
+- Kiểu dữ liệu lỏng (`true`, `"3.6"`) → nay báo lỗi; số nguyên vẫn hợp lệ.
+- Handler output lỗi làm treo tới timeout → vẫn đọc tiếp pipe, stage báo `failed`.
+- Hai build chạy cùng lúc → khoá `.exterior-agent.lock` theo thư mục output (mã 2).
+- Thêm test timeout cấp runner (hành vi vốn đúng).
+
+Hoãn (minor): CLI gợi ý "chạy lại để resume" kể cả khi resume sẽ bị từ chối; `delivery.json` ghi `complete: true` trước bước verify cuối; key `timings_seconds` (spec ghi `timings`); chưa ghi backend GPU thực dùng; chưa kiểm hướng camera bên trong `.blend` bằng test integration; `scene_plan.json` trên đĩa không kiểm lại khi resume; CI chạy hai lần cho nhánh có PR.
+
+Lưu ý: hai thư mục preview `r001-ee6f32d5`, `r001-88e2be54` được tạo trước đợt sửa nên `delivery.json` của chúng không có `code_hash`.
 
 ## Kiểm tra thủ công
 
