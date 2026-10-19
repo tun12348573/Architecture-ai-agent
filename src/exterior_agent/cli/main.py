@@ -124,7 +124,27 @@ def cmd_doctor(args) -> int:
     print(f"Cycles GPU  {b.get('cycles_devices') or 'none detected'}")
     print(f"RAM         {mem.get('total_gb')} GB total, {mem.get('available_gb')} GB available")
     print(f"nvidia-smi  {report['gpu_nvidia_smi'] or 'not available'}")
+    a = report["assets"]
+    state = a.get("error") or f"{a.get('missing_files')} files missing"
+    print(f"Assets      {a.get('cache')} — {state}")
     return EXIT_OK
+
+
+def cmd_assets_fetch(args) -> int:
+    from exterior_agent.assets import fetch as asset_fetch
+    from exterior_agent.assets.catalog import load_catalog
+
+    try:
+        catalog = load_catalog(args.catalog)
+    except (OSError, ValueError) as exc:
+        _err(f"ERROR catalog: {exc}")
+        return EXIT_INPUT
+    cache = asset_fetch.cache_dir(args.cache)
+    report = asset_fetch.fetch_assets(catalog, cache, download=asset_fetch.download_https)
+    print(f"cache {cache}: {len(report.downloaded)} downloaded, {len(report.skipped)} up to date")
+    for line in report.failed:
+        _err(f"FAILED {line}")
+    return EXIT_FAILED if report.failed else EXIT_OK
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -145,6 +165,13 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--blender", help="path to blender.exe (else $EXTERIOR_AGENT_BLENDER or PATH)")
     p.add_argument("--stage-timeout", type=float, default=1800.0, help="seconds per stage")
     p.set_defaults(func=cmd_build)
+
+    p = sub.add_parser("assets", help="manage CC0 assets (textures, HDRI, models)")
+    asub = p.add_subparsers(dest="assets_command", required=True)
+    f = asub.add_parser("fetch", help="download and verify every catalog asset into the cache")
+    f.add_argument("--catalog", type=Path)
+    f.add_argument("--cache", help="cache dir (else $EXTERIOR_AGENT_ASSETS or the default)")
+    f.set_defaults(func=cmd_assets_fetch)
 
     p = sub.add_parser("doctor", help="report Python/Blender/GPU/RAM environment")
     p.add_argument("--blender")
