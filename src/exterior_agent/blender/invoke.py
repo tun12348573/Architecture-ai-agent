@@ -104,12 +104,19 @@ def run_blender(
             **group,
         )
 
+        callback_errors: list[str] = []
+
         def pump() -> None:
+            # Always keep draining stdout: a stalled pipe would block Blender until timeout.
             for line in proc.stdout:
                 log.write(line)
                 log.flush()
-                if on_line is not None:
-                    on_line(line.rstrip("\r\n"))
+                if on_line is not None and not callback_errors:
+                    try:
+                        on_line(line.rstrip("\r\n"))
+                    except Exception as exc:  # recorded and reported as a failed stage
+                        callback_errors.append(f"{type(exc).__name__}: {exc}")
+                        log.write(f"\n[exterior-agent] output handler failed: {exc}\n")
 
         reader = threading.Thread(target=pump, daemon=True)
         reader.start()
@@ -127,11 +134,12 @@ def run_blender(
         except KeyboardInterrupt:
             # The child runs in its own process group and never sees Ctrl+C: stop it here.
             _stop(proc)
+            reader.join(timeout=KILL_GRACE_S)
             log.write("\n[exterior-agent] interrupted (Ctrl+C); Blender stopped\n")
             raise
         reader.join(timeout=KILL_GRACE_S)
         if status is None:
-            status = "ok" if proc.returncode == 0 else "failed"
+            status = "ok" if proc.returncode == 0 and not callback_errors else "failed"
         log.write(f"\n[exterior-agent] exit={proc.returncode} status={status}\n")
     return BlenderResult(proc.returncode, status, time.monotonic() - start)
 

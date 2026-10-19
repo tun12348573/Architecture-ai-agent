@@ -84,3 +84,19 @@ def test_run_blender_ok_collects_lines(tmp_path):
     assert result.status == "ok" and result.returncode == 0
     assert lines == ["EA_PROGRESS {}", "done"]
     assert Path(tmp_path / "o.log").exists()
+
+
+def test_run_blender_callback_error_does_not_hang(tmp_path):
+    # Child writes far more than a pipe buffer after the callback fails.
+    code = "import sys\nfor i in range(40000): print('line', i, 'x' * 40)\n"
+
+    def explode(_line):
+        raise RuntimeError("progress handler broke")
+
+    start = time.monotonic()
+    result = run_blender([sys.executable, "-c", code], tmp_path / "e.log", 60, on_line=explode)
+    assert time.monotonic() - start < 30
+    assert result.status == "failed"
+    log = (tmp_path / "e.log").read_text(encoding="utf-8")
+    assert "progress handler broke" in log
+    assert "line 39999" in log
