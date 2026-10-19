@@ -144,7 +144,13 @@ def check_semantics(p: Project) -> list[ValidationIssue]:
     if issues:
         return issues
     if p.template == "modern_townhouse":
-        return check_modern(p)
+        issues = check_modern(p)
+        if issues:
+            return issues
+        # Imported here: geometry depends on the domain package (avoid an import cycle).
+        from exterior_agent.geometry.modern_checks import check_modern_geometry
+
+        return check_modern_geometry(p)
     return _check_basic(p)
 
 

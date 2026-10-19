@@ -78,6 +78,9 @@ def check_modern(p) -> list[ValidationIssue]:  # noqa: C901 - one flat list of r
             add(f"{base}.front_setback", "upper floors may only step back further")
         if fd - setbacks[i] < MIN_FLOOR_DEPTH - TOL:
             add(f"{base}.front_setback", f"leaves less than {MIN_FLOOR_DEPTH} m floor depth")
+        if f.terrace_pergola is not None and f.terrace_pergola.value:
+            if i == len(floors) - 1 or floors[i + 1].front_setback.value <= setbacks[i] + TOL:
+                add(f"{base}.terrace_pergola", "no terrace here: the floor above is not set back")
         for side in ("front", "rear"):
             openings = getattr(f, f"openings_{side}")
             spans = []
