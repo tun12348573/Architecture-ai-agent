@@ -23,8 +23,16 @@ def no_blender(monkeypatch):
 def test_validate_demo_exit_0(capsys):
     assert cli.main(["validate", str(DEMO_PATH)]) == 0
     out = capsys.readouterr().out
-    assert "OK demo-townhouse r001" in out
-    assert "needs_review: building.wall_thickness" in out
+    assert "OK demo-townhouse r002" in out
+    assert "needs_review:" not in out
+
+
+def test_validate_lists_needs_review(demo_data, tmp_path, capsys):
+    demo_data["building"]["wall_thickness"]["status"] = "needs_review"
+    path = tmp_path / "p.json"
+    path.write_text(json.dumps(demo_data), encoding="utf-8")
+    assert cli.main(["validate", str(path)]) == 0
+    assert "needs_review: building.wall_thickness" in capsys.readouterr().out
 
 
 def test_validate_invalid_exit_2(demo_data, tmp_path, capsys):

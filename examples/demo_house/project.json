@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "project_id": "demo-townhouse",
-  "project_revision": 1,
+  "project_revision": 2,
   "input_mode": "parameters",
   "label": "DEMO FIXTURE — not the owner's real building",
   "site": {
@@ -67,8 +67,8 @@
       "value": 0.2,
       "unit": "m",
       "source": "m1_spec_proposal",
-      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-      "status": "needs_review"
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+      "status": "confirmed"
     },
     "roof": {
       "type": {
@@ -82,8 +82,8 @@
         "value": 0.15,
         "unit": "m",
         "source": "m1_spec_proposal",
-        "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-        "status": "needs_review"
+        "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+        "status": "confirmed"
       }
     },
     "openings": [
@@ -95,29 +95,29 @@
           "value": 0.6,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "width": {
           "value": 1.0,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "height": {
           "value": 2.4,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "sill": {
           "value": 0.0,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         }
       },
       {
@@ -128,29 +128,29 @@
           "value": 2.3,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "width": {
           "value": 1.6,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "height": {
           "value": 1.4,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "sill": {
           "value": 0.9,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         }
       },
       {
@@ -161,29 +161,29 @@
           "value": 0.5,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "width": {
           "value": 0.9,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "height": {
           "value": 2.2,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "sill": {
           "value": 0.0,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         }
       },
       {
@@ -194,29 +194,29 @@
           "value": 2.5,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "width": {
           "value": 1.2,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "height": {
           "value": 1.2,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         },
         "sill": {
           "value": 1.0,
           "unit": "m",
           "source": "m1_spec_proposal",
-          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-          "status": "needs_review"
+          "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+          "status": "confirmed"
         }
       }
     ]
@@ -233,8 +233,8 @@
       },
       "unit": null,
       "source": "m1_spec_proposal",
-      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-      "status": "needs_review"
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+      "status": "confirmed"
     },
     "roof": {
       "value": {
@@ -247,8 +247,8 @@
       },
       "unit": null,
       "source": "m1_spec_proposal",
-      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-      "status": "needs_review"
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+      "status": "confirmed"
     },
     "door": {
       "value": {
@@ -261,8 +261,8 @@
       },
       "unit": null,
       "source": "m1_spec_proposal",
-      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-      "status": "needs_review"
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+      "status": "confirmed"
     },
     "window_glass": {
       "value": {
@@ -276,8 +276,8 @@
       },
       "unit": null,
       "source": "m1_spec_proposal",
-      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-      "status": "needs_review"
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+      "status": "confirmed"
     },
     "land": {
       "value": {
@@ -290,8 +290,8 @@
       },
       "unit": null,
       "source": "m1_spec_proposal",
-      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-      "status": "needs_review"
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+      "status": "confirmed"
     },
     "context_ground": {
       "value": {
@@ -304,8 +304,8 @@
       },
       "unit": null,
       "source": "m1_spec_proposal",
-      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5",
-      "status": "needs_review"
+      "source_ref": "docs/superpowers/specs/2026-10-19-m0-m1-design.md §5; confirmed by owner 2026-10-19",
+      "status": "confirmed"
     }
   },
   "render_profile": "preview"

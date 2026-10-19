@@ -43,7 +43,7 @@ def job(rev: Path) -> dict:
 def test_revision_dir_name(project, tmp_path):
     rev = revision_dir(tmp_path, project, SMOKE)
     assert rev.parent == tmp_path / "demo-townhouse"
-    assert rev.name == f"r001-{content_hash(project, SMOKE)[:8]}"
+    assert rev.name == f"r002-{content_hash(project, SMOKE)[:8]}"
     assert content_hash(project, SMOKE) != content_hash(project, resolve_render("preview"))
 
 
@@ -66,7 +66,7 @@ def test_build_completes_and_packages(project, tmp_path):
     assert verify_delivery(rev) == []
     delivery = json.loads((rev / "delivery.json").read_text(encoding="utf-8"))
     assert delivery["complete"] is True
-    assert "building.wall_thickness" in delivery["unresolved_assumptions"]
+    assert delivery["unresolved_assumptions"] == []
     assert delivery["blender_version"] == "Blender 5.2.2 LTS (fake)"
     assert delivery["render"] == SMOKE.to_dict()
     state = job(rev)
@@ -244,3 +244,10 @@ def test_stage_timeout_marks_failed_and_keeps_partial(project, tmp_path, monkeyp
     resumed = run_build(project, options(tmp_path))
     assert resumed.status == "completed"
     assert set(resumed.rendered_now).isdisjoint(outcome.rendered_now)
+
+
+def test_delivery_lists_unresolved_assumptions(demo_data, tmp_path):
+    demo_data["building"]["wall_thickness"]["status"] = "needs_review"
+    rev = run_build(parse_project(demo_data), options(tmp_path)).revision_dir
+    delivery = json.loads((rev / "delivery.json").read_text(encoding="utf-8"))
+    assert delivery["unresolved_assumptions"] == ["building.wall_thickness"]

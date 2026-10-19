@@ -28,11 +28,20 @@ def opening(data, opening_id):
 def test_demo_fixture_is_valid(demo_data):
     project = parse_project(demo_data)
     assert project.building.wall_height.value == 3.6
-    unresolved = unresolved_assumptions(project)
-    assert "building.wall_thickness" in unresolved
-    assert "building.openings[0].width" in unresolved
-    assert "materials.wall" in unresolved
-    assert "site.width" not in unresolved
+    assert project.project_revision == 2
+    assert unresolved_assumptions(project) == []  # owner confirmed all values 2026-10-19
+
+
+def test_needs_review_values_are_listed(demo_data):
+    demo_data["building"]["wall_thickness"]["status"] = "needs_review"
+    demo_data["building"]["openings"][0]["width"]["status"] = "needs_review"
+    demo_data["materials"]["wall"]["status"] = "needs_review"
+    unresolved = unresolved_assumptions(parse_project(demo_data))
+    assert unresolved == [
+        "building.wall_thickness",
+        "building.openings[0].width",
+        "materials.wall",
+    ]
 
 
 def test_missing_field_reported_with_path(demo_data):
