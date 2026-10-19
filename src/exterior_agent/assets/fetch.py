@@ -14,6 +14,7 @@ from exterior_agent.runtime.files import sha256_file
 
 CACHE_ENV = "EXTERIOR_AGENT_ASSETS"
 TIMEOUT_S = 60
+USER_AGENT = "exterior-agent/0.1 (asset fetch)"  # Poly Haven rejects urllib's default agent
 
 
 def cache_dir(explicit: str | None = None) -> Path:
@@ -58,7 +59,8 @@ def download_https(url: str, target: Path) -> None:
     parsed = urlparse(url)
     if parsed.scheme != "https" or parsed.hostname not in ALLOWED_HOSTS:
         raise ValueError(f"refusing to download {url}")
-    with urllib.request.urlopen(url, timeout=TIMEOUT_S) as response, open(target, "wb") as out:
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(request, timeout=TIMEOUT_S) as response, open(target, "wb") as out:
         shutil.copyfileobj(response, out)
 
 
