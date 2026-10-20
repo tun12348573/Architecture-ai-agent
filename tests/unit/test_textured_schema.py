@@ -18,7 +18,6 @@ def test_fixture_uses_catalog_assets(modern_data):
     assert p.materials.wall.value.texture == "beige_wall_001"
     assert p.world.hdri.value == "kloofendal_48d_partly_cloudy_puresky"
     assert [m.value for m in p.modern.roof.garden.plant_models] == [
-        "shrub_01",
         "shrub_02",
         "shrub_03",
         "shrub_04",

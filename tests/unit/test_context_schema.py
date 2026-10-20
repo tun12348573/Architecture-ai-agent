@@ -125,3 +125,11 @@ def test_cladding_below_opening_head(ctx_data):
     issues = paths(ctx_data)
     assert "modern.cladding" in issues
     assert "modern.canopy.height" not in issues
+
+
+def test_narrow_sidewalk_rejected_with_street_furniture(ctx_data):
+    ctx_data["context"]["sidewalk_width"]["value"] = 1.0
+    assert "context.sidewalk_width" in paths(ctx_data)
+    ctx_data["context"]["street_trees"]["value"] = False
+    ctx_data["context"]["street_lamps"]["value"] = False
+    parse_project(ctx_data)  # a bare narrow sidewalk is fine

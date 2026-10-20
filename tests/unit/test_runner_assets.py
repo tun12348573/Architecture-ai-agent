@@ -79,7 +79,7 @@ def test_textures_staged_and_licensed(fake_catalog, modern_data, tmp_path):
         assert f.read_bytes() == (cache / "beige_wall_001" / f.name).read_bytes()
     licenses = json.loads((rev / "materials" / "LICENSES.json").read_text(encoding="utf-8"))
     ids = {entry["id"] for entry in licenses}
-    assert {"beige_wall_001", "kloofendal_48d_partly_cloudy_puresky", "shrub_01"} <= ids
+    assert {"beige_wall_001", "kloofendal_48d_partly_cloudy_puresky", "shrub_02"} <= ids
     assert all(entry["license"] == "CC0" for entry in licenses)
     assert verify_delivery(rev) == []
     delivery = json.loads((rev / "delivery.json").read_text(encoding="utf-8"))

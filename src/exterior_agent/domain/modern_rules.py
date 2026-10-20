@@ -29,6 +29,7 @@ MODERN_MATERIAL_ROLES = (
 )
 CONTEXT_MATERIAL_ROLES = ("asphalt", "sidewalk", "kerb", "road_marking", "neighbour_glass")
 MAX_NEIGHBOURS_PER_SIDE = 4
+MIN_FURNISHED_SIDEWALK = 1.5  # kerb + tree pits / lamp posts
 
 
 def total_height(m) -> float:
@@ -62,6 +63,11 @@ def check_context(p) -> list[ValidationIssue]:
                     f"lintel above opening {o.id}")  # fmt: skip
     if c is None:
         return issues
+    if (c.street_trees.value or c.street_lamps.value) and (
+        c.sidewalk_width.value < MIN_FURNISHED_SIDEWALK - TOL
+    ):
+        add("context.sidewalk_width", f"street trees/lamps need a sidewalk of at least "
+            f"{MIN_FURNISHED_SIDEWALK} m")  # fmt: skip
     if c.front.value not in ("road", "park"):
         add("context.front", "front must be 'road' or 'park'")
     roles = list(CONTEXT_MATERIAL_ROLES)

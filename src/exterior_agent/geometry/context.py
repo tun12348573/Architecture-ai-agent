@@ -18,7 +18,8 @@ KERB_WIDTH = 0.15
 NEIGHBOUR_GAP = 0.02  # no coplanar faces against the main house side walls
 NEIGHBOUR_FLOOR_HEIGHT = 3.3
 NEIGHBOUR_RECESS = 0.1  # windows sit this far behind the neighbour's facade
-STREET_HALF_LENGTH = 30.0
+STREET_HALF_LENGTH = 60.0
+FAR_GROUND_SIZE = 2000.0  # twice the camera clip distance: no ground edge in any view
 PARK_DEPTH = 20.0
 DASH, DASH_GAP, DASH_WIDTH = 3.0, 3.0, 0.15
 NEIGHBOUR_TINTS = (  # multiplied onto materials.neighbour_wall
@@ -102,8 +103,8 @@ def context_objects(p) -> list[PlanObject]:
     half, kz = p.site.width.value / 2, -KERB_HEIGHT
     road_y0, road_y1 = -sw - rw, -sw
     specs = neighbour_specs(p)
-    back = max([p.site.depth.value] + [n.y1 for n in specs])
-    side = half + NEIGHBOUR_GAP
+    back = max([p.site.depth.value] + [n.y1 for n in specs]) + STREET_HALF_LENGTH
+    depth = p.site.depth.value
     out = [
         PlanObject(
             "Sidewalk_Front", COLLECTION, box_mesh((-L, -sw + KERB_WIDTH, kz), (L, 0.0, 0.0)),
@@ -114,9 +115,12 @@ def context_objects(p) -> list[PlanObject]:
         PlanObject("Road", COLLECTION, quad_mesh((-L, road_y0, kz), (L, road_y1, kz)),
                    "MAT_Asphalt"),
         # paved ground beside the lot, under the neighbours
-        PlanObject("Ground_Left", COLLECTION, quad_mesh((-L, 0.0, 0.0), (-side, back, 0.0)),
+        # z = 0 ground closing around the lot (beside, under the neighbours, and behind)
+        PlanObject("Ground_Left", COLLECTION, quad_mesh((-L, 0.0, 0.0), (-half, back, 0.0)),
                    "MAT_Sidewalk"),
-        PlanObject("Ground_Right", COLLECTION, quad_mesh((side, 0.0, 0.0), (L, back, 0.0)),
+        PlanObject("Ground_Rear", COLLECTION, quad_mesh((-half, depth, 0.0), (half, back, 0.0)),
+                   "MAT_Sidewalk"),
+        PlanObject("Ground_Right", COLLECTION, quad_mesh((half, 0.0, 0.0), (L, back, 0.0)),
                    "MAT_Sidewalk"),
     ]  # fmt: skip
     if c.front.value == "road":

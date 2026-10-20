@@ -129,3 +129,30 @@ def test_brick_staged_and_licensed(textured):
     licences = json.loads((rev / "materials" / "LICENSES.json").read_text(encoding="utf-8"))
     ids = {entry["id"] for entry in licences}
     assert {"brick_wall_09", "island_tree_02", "street_lamp_01", "potted_plant_02"} <= ids
+
+
+def test_assets_respect_fit(textured, textured_report):
+    _, rev = textured
+    plan = json.loads((rev / "scene_plan.json").read_text(encoding="utf-8"))
+    objects = textured_report["objects"]
+    for a in plan["assets"]:
+        if "fit" not in a:
+            continue
+        o, (x, y, z) = objects[a["name"]], a["location"]
+        half = a["fit"]["diameter"] / 2 + 1e-3
+        assert o["bbox_max"][0] - x <= half and x - o["bbox_min"][0] <= half, a["name"]
+        assert o["bbox_max"][1] - y <= half and y - o["bbox_min"][1] <= half, a["name"]
+        assert o["bbox_max"][2] - z <= a["fit"]["height"] + 1e-3, a["name"]
+
+
+def test_variant_packs_import_one_variant(textured, textured_report):
+    """shrub_02/03 ship 4 variants in a row: a whole pack squeezed into the planter is flat."""
+    _, rev = textured
+    plan = json.loads((rev / "scene_plan.json").read_text(encoding="utf-8"))
+    objects = textured_report["objects"]
+    minimum = {"shrub_02": 0.5, "shrub_03": 0.3}
+    for a in plan["assets"]:
+        asset_id = a["model"]["path"].split("/")[1]
+        if asset_id in minimum:
+            o = objects[a["name"]]
+            assert o["bbox_max"][2] - o["bbox_min"][2] >= minimum[asset_id], a["name"]

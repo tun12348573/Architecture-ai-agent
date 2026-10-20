@@ -45,8 +45,10 @@ def test_context_outside_lot(modern_data, variant):
     for o in objects:
         lo, hi = o.mesh.bounds()
         in_front = hi[1] <= 1e-9
-        beside = lo[0] >= half + NEIGHBOUR_GAP - 1e-9 or hi[0] <= -half - NEIGHBOUR_GAP + 1e-9
-        assert in_front or beside, o.name
+        behind = lo[1] >= p.site.depth.value - 1e-9
+        gap = 0.0 if o.name.startswith("Ground_") else NEIGHBOUR_GAP  # flat quads may touch
+        beside = lo[0] >= half + gap - 1e-9 or hi[0] <= -half - gap + 1e-9
+        assert in_front or beside or behind, o.name
 
 
 def test_neighbours_deterministic(modern_data):
@@ -126,3 +128,32 @@ def test_neighbours_not_taller_than_house(modern_data):
         modern_data["context"]["neighbours"]["seed"]["value"] = seed
         p = parse_project(modern_data)
         assert all(2 <= n.floors <= len(p.modern.floors) for n in neighbour_specs(p)), seed
+
+
+def test_far_ground_covers_view(project):
+    from exterior_agent.geometry.scene_plan import CAMERA_CLIP_END
+
+    plan = build_scene_plan(project, SMOKE)
+    ground = next(o for o in plan["objects"] if o["name"] == "Site_Context")
+    xs = [v[0] for v in ground["vertices"]]
+    assert max(xs) - min(xs) >= 2 * CAMERA_CLIP_END
+
+
+def test_ground_closes_around_lot(project):
+    """z = 0 ground beside, behind and under the lot: no ledge down to the far ground."""
+    half, depth = project.site.width.value / 2, project.site.depth.value
+    quads = [o for o in context_objects(project) if o.name.startswith("Ground_")]
+    from exterior_agent.geometry.modern_site import site_objects
+
+    quads += [o for o in site_objects(project) if o.name == "Lot_Base"]
+
+    def covered(x, y):
+        for o in quads:
+            lo, hi = o.mesh.bounds()
+            if lo[0] <= x <= hi[0] and lo[1] <= y <= hi[1] and abs(hi[2]) <= 0.01:
+                return True
+        return False
+
+    for x, y in ((half + 0.001, 5), (-half - 0.001, 5), (0, depth + 1), (half + 1, depth + 30),
+                 (0, depth / 2)):  # fmt: skip
+        assert covered(x, y), (x, y)

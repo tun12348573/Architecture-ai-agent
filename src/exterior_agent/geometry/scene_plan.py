@@ -65,6 +65,7 @@ MODERN_MATERIALS = {
     "MAT_Road_Marking": "road_marking",
     "MAT_Neighbour_Glass": "neighbour_glass",
 }
+ROOF_PLANT_HEIGHT = 1.2  # shrubs in the roof planter stay below the pergola
 NEIGHBOUR_PREFIX = "MAT_Neighbour_"  # + tint number: neighbour_wall tinted per house
 BUILDING_COLLECTIONS = {"Building", "Doors", "Windows", "Balconies", "Facade", "Roof"}
 
@@ -185,7 +186,7 @@ def _world_and_plants(project: Project, catalog) -> dict:
     placements = [
         AssetPlacement(
             f"Plant_Roof_{i + 1}", "Roof", roof_models[i % len(roof_models)], location,
-            round(i * PLANT_TURN, 6), 1.0,
+            round(i * PLANT_TURN, 6), 1.0, garden.planter_width.value + 0.2, ROOF_PLANT_HEIGHT,
         )
         for i, location in enumerate(roof_plant_positions(project) if roof_models else [])
     ] + context_asset_specs(project)  # fmt: skip
@@ -196,7 +197,13 @@ def _world_and_plants(project: Project, catalog) -> dict:
 
 def _asset_entry(a: AssetPlacement, model) -> dict:
     main = next(f for f in model.files if f.role == "gltf")
+    fit = (
+        {}
+        if a.fit_diameter is None
+        else {"fit": {"diameter": a.fit_diameter, "height": a.fit_height}}
+    )
     return {
+        **fit,
         "name": a.name,
         "collection": a.collection,
         "model": _asset_ref(model, main),

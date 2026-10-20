@@ -7,13 +7,14 @@ from exterior_agent.domain.modern_rules import (
     CAR_LENGTH,
     CAR_WIDTH,
 )
-from exterior_agent.geometry.context import KERB_HEIGHT
+from exterior_agent.geometry.context import FAR_GROUND_SIZE, KERB_HEIGHT
 from exterior_agent.geometry.mesh import Mesh, box_mesh, quad_mesh
 from exterior_agent.geometry.modern_massing import PlanObject
 from exterior_agent.geometry.primitives import merge_meshes
 from exterior_agent.geometry.walls import site_meshes
 
 FENCE_THICKNESS = 0.05
+LOT_BASE_Z = -0.005  # just under the yard quads (no coplanar faces)
 GATE_BAR = 0.04
 GATE_BAR_SPACING = 0.12
 BIKE_HEIGHT = 1.1
@@ -69,8 +70,8 @@ def _context_ground(p) -> Mesh:
     mesh = site_meshes(p)["Site_Context"]
     if p.context is None:
         return mesh
-    z = -KERB_HEIGHT - 0.01
-    return Mesh([(x, y, z) for x, y, _ in mesh.vertices], mesh.faces)
+    half, cy, z = FAR_GROUND_SIZE / 2, p.site.depth.value / 2, -KERB_HEIGHT - 0.01
+    return quad_mesh((-half, cy - half, z), (half, cy + half, z))
 
 
 def site_objects(p) -> list[PlanObject]:
@@ -90,6 +91,9 @@ def site_objects(p) -> list[PlanObject]:
         ),
         PlanObject("Site_Context", "Site", _context_ground(p), "MAT_Context_Ground"),
     ]
+    if p.context is not None:  # the far ground drops below the road: keep a floor under the house
+        base = quad_mesh((-half, 0.0, LOT_BASE_Z), (half, s.depth.value, LOT_BASE_Z))
+        out.append(PlanObject("Lot_Base", "Site", base, "MAT_Paving"))
     gw, fh = yard.gate_width.value, yard.fence_height.value
     for name, (a, c) in (("Fence_Left", (-half, -gw / 2)), ("Fence_Right", (gw / 2, half))):
         if c - a > 1e-9:

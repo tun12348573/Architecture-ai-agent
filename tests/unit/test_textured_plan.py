@@ -53,7 +53,7 @@ def test_plants_inside_planter(project):
     assert len(plants) >= 2 and [a["name"] for a in plants] == [
         f"Plant_Roof_{k}" for k in range(1, len(plants) + 1)
     ]
-    shrubs = {f"shrub_0{k}" for k in range(1, 5)}
+    shrubs = {f"shrub_0{k}" for k in range(2, 5)}
     assert {a["model"]["path"].split("/")[1] for a in plants} == shrubs
     for a in plants:
         x, y, z = a["location"]
@@ -68,7 +68,7 @@ def test_required_asset_files_complete(project):
     assert len(files) == len(set(files))
     catalog = load_catalog()
     expected = set()
-    for asset_id in ("beige_wall_001", "kloofendal_48d_partly_cloudy_puresky", "shrub_01"):
+    for asset_id in ("beige_wall_001", "kloofendal_48d_partly_cloudy_puresky", "shrub_02"):
         for f in catalog.get(asset_id).files:
             if asset_id != "beige_wall_001" or f.role in (
                 "base_color",

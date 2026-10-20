@@ -13,10 +13,15 @@ from exterior_agent.geometry.modern_massing import floor_base_z, floor_front_y
 PLANT_TURN = 2.399963  # golden angle: varied but deterministic rotations
 POT_INSET = 0.35  # from the balcony slab corner at the rail side
 TERRACE_POT_SIDE, TERRACE_POT_BACK = 0.5, 0.4
-TREE_SPACING, TREE_FIRST, TREE_KERB_OFFSET = 8.0, 3.0, 0.8
+TREE_SPACING, TREE_FIRST, TREE_KERB_OFFSET = 8.0, 4.0, 0.8
 LAMP_SPACING, LAMP_FIRST, LAMP_KERB_OFFSET = 20.0, 7.0, 0.4
 LOT_CLEARANCE = 1.0  # street trees/lamps keep |x| >= W/2 + this
-YARD_TREE_SIDE, YARD_TREE_SCALE = 0.8, 1.0  # native ~3.4 m fits a 4-5 m yard
+YARD_TREE_MAX_RADIUS, YARD_TREE_HEIGHT, YARD_WALKWAY = 1.5, 2.6, 1.0  # walkway: |x| < 1 m
+YARD_MARGIN = 0.3  # to the fence and the facade
+TREE_MAX_RADIUS, TREE_MAX_HEIGHT, TREE_MIN_RADIUS = 4.0, 7.0, 1.0  # island_tree_02 is wide
+LOT_MARGIN = 0.3  # street-tree canopies keep this far from the lot side lines
+POT_FIT = (0.6, 1.0)
+FRONT_VIEWS = ("01_front", "05_front_left", "06_front_right")
 TREE_BASE_SCALE = 1.8  # island_tree_02 is ~3.4 m tall; street trees ~5-7 m
 PARK_ROWS = (4.0, 11.0)  # metres behind the park's road edge
 PARK_SPACING, PARK_JITTER = 7.0, 1.0
@@ -30,6 +35,10 @@ class AssetPlacement:
     location: tuple[float, float, float]
     rotation_z: float
     scale: float
+    # Upper bounds Blender enforces by shrinking the model (never enlarging it): the footprint
+    # fits a circle of this diameter at any rotation, and the top stays below this height.
+    fit_diameter: float | None = None
+    fit_height: float | None = None
 
 
 def _pots(p) -> list[tuple[float, float, float]]:
@@ -76,6 +85,44 @@ def _park_trees(p, rng: random.Random) -> list[tuple[float, float]]:
     return out
 
 
+def _front_sightlines(p) -> list[tuple[tuple, tuple]]:
+    """(camera, facade point) segments of the front views; trees must not cross them."""
+    from exterior_agent.geometry.cameras import fit_cameras  # avoid an import cycle
+    from exterior_agent.geometry.scene_plan import modern_bounds
+
+    m = p.modern
+    w = m.footprint_width.value
+    cams = [c.location for c in fit_cameras(*modern_bounds(p)) if c.id in FRONT_VIEWS]
+    targets = [
+        (x, floor_front_y(p, n) - 0.05, floor_base_z(m, n) + m.floors[n - 1].height.value / 2)
+        for n in range(1, len(m.floors) + 1)
+        for x in (-w / 4, 0.0, w / 4)
+    ]
+    return [(c, t) for c in cams for t in targets]
+
+
+def _blocks(sightlines, x: float, y: float, r: float, h: float, steps: int = 200) -> bool:
+    """Does the cylinder (x, y, radius r, height h) cross any sightline?"""
+    for c, t in sightlines:
+        for k in range(steps + 1):
+            u = k / steps
+            px, py, pz = (c[i] + u * (t[i] - c[i]) for i in range(3))
+            if pz < h and (px - x) ** 2 + (py - y) ** 2 < r * r:
+                return True
+    return False
+
+
+def _yard_tree(p) -> tuple[tuple[float, float, float], float] | None:
+    """Garden yard: one tree between the side boundary and the walkway, or none if no room."""
+    if p.modern.front_yard.kind.value != "garden":
+        return None
+    half, fs = p.site.width.value / 2, p.site.front_setback.value
+    r = min(YARD_TREE_MAX_RADIUS, (half - YARD_WALKWAY) / 2, fs / 2 - YARD_MARGIN)
+    if r < 0.5:
+        return None
+    return (-(half + YARD_WALKWAY) / 2, fs / 2, 0.0), r
+
+
 def context_asset_specs(p) -> list[AssetPlacement]:
     c = p.context
     if c is None:
@@ -84,12 +131,13 @@ def context_asset_specs(p) -> list[AssetPlacement]:
     half, sw = p.site.width.value / 2, c.sidewalk_width.value
     out: list[AssetPlacement] = []
 
-    def add(name, collection, model, loc, k, scale=1.0):
-        out.append(AssetPlacement(name, collection, model, loc, round(k * PLANT_TURN, 6), scale))
+    def add(name, collection, model, loc, k, scale=1.0, fit=(None, None)):
+        turn = round(k * PLANT_TURN, 6)
+        out.append(AssetPlacement(name, collection, model, loc, turn, scale, *fit))
 
     if c.pots.value:
         for k, loc in enumerate(_pots(p), start=1):
-            add(f"Pot_{k}", "Plants", c.models.pot.value, loc, k)
+            add(f"Pot_{k}", "Plants", c.models.pot.value, loc, k, fit=POT_FIT)
     if c.street_trees.value:
         tree = c.models.tree.value
         if c.front.value == "road":
@@ -98,12 +146,19 @@ def context_asset_specs(p) -> list[AssetPlacement]:
             ]
         else:
             spots = _park_trees(p, rng)
-        for k, (x, y) in enumerate(spots, start=1):
+        sightlines = _front_sightlines(p)
+        k = 0
+        for x, y in spots:
             scale = round(TREE_BASE_SCALE * rng.uniform(0.85, 1.15), 3)
-            add(f"Tree_{k}", "Context", tree, (x, y, 0.0), k, scale)
-        if p.modern.front_yard.kind.value == "garden":
-            loc = (-half + YARD_TREE_SIDE, p.site.front_setback.value / 2, 0.0)
-            add("Tree_Yard", "Context", tree, loc, 0, YARD_TREE_SCALE)
+            r = min(TREE_MAX_RADIUS, abs(x) - half - LOT_MARGIN)  # canopy never enters the lot
+            if r < TREE_MIN_RADIUS or _blocks(sightlines, x, y, r, TREE_MAX_HEIGHT):
+                continue
+            k += 1
+            add(f"Tree_{k}", "Context", tree, (x, y, 0.0), k, scale, (2 * r, TREE_MAX_HEIGHT))
+        yard = _yard_tree(p)
+        if yard is not None:
+            loc, r = yard
+            add("Tree_Yard", "Context", tree, loc, 0, 1.0, (2 * r, YARD_TREE_HEIGHT))
     if c.street_lamps.value:
         for k, x in enumerate(_street_xs(half, LAMP_FIRST, LAMP_SPACING), start=1):
             add(f"Lamp_{k}", "Context", c.models.lamp.value, (x, -sw + LAMP_KERB_OFFSET, 0.0), k)
