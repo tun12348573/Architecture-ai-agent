@@ -63,9 +63,13 @@ def material_inputs(mat) -> dict:
     """Which node type feeds the Principled BSDF base colour (None for a plain value)."""
     tree = mat.node_tree
     bsdf = next((n for n in tree.nodes if n.type == "BSDF_PRINCIPLED"), None) if tree else None
-    if bsdf is None or not bsdf.inputs["Base Color"].links:
-        return {"base_color_from": None}
-    return {"base_color_from": bsdf.inputs["Base Color"].links[0].from_node.type}
+    if bsdf is None:
+        return {"base_color_from": None, "transmission": 0.0}
+    links = bsdf.inputs["Base Color"].links
+    return {
+        "base_color_from": links[0].from_node.type if links else None,
+        "transmission": bsdf.inputs["Transmission Weight"].default_value,
+    }
 
 
 def object_entry(obj) -> dict:

@@ -11,7 +11,7 @@ from exterior_agent.geometry.modern_massing import (
 )
 from exterior_agent.geometry.primitives import framed_glazing, local_box, merge_meshes
 
-PROFILE = 0.06  # aluminium frame member width
+PROFILES = {"door_4leaf": 0.08, "window": 0.06}  # aluminium frame member width per kind
 PROFILE_DEPTH = 0.08
 LEAF_THICKNESS = 0.05
 LOUVER_GAP = 0.05  # clearance between louver blades and the wall face
@@ -117,7 +117,7 @@ def _openings(p) -> list[PlanObject]:
                     v_center=t / 2,
                     columns=COLUMNS[o.kind],
                     transom_height=transom if o.kind == "door_4leaf" else 0.0,
-                    profile=PROFILE,
+                    profile=PROFILES[o.kind],
                     depth=PROFILE_DEPTH,
                 )
                 prefix, collection = (

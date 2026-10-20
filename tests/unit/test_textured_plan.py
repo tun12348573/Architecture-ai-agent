@@ -22,10 +22,10 @@ def test_smoke_plan_is_flat(project):
 def test_preview_plan_references_textures(project):
     plan = build_scene_plan(project, resolve_render("preview"))
     wall = next(m for m in plan["materials"] if m["name"] == "MAT_Wall")
-    asset = load_catalog().get("painted_plaster_wall")
+    asset = load_catalog().get("beige_wall_001")
     base = next(f for f in asset.files if f.role == "base_color")
     assert wall["textures"]["base_color"] == {
-        "path": f"materials/painted_plaster_wall/{base.path}",
+        "path": f"materials/beige_wall_001/{base.path}",
         "sha256": base.sha256,
     }
     assert set(wall["textures"]) == {"base_color", "roughness", "normal"}
@@ -67,9 +67,9 @@ def test_required_asset_files_complete(project):
     assert len(files) == len(set(files))
     catalog = load_catalog()
     expected = set()
-    for asset_id in ("painted_plaster_wall", "kloofendal_48d_partly_cloudy_puresky", "shrub_01"):
+    for asset_id in ("beige_wall_001", "kloofendal_48d_partly_cloudy_puresky", "shrub_01"):
         for f in catalog.get(asset_id).files:
-            if asset_id != "painted_plaster_wall" or f.role in (
+            if asset_id != "beige_wall_001" or f.role in (
                 "base_color",
                 "roughness",
                 "normal",

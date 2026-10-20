@@ -105,3 +105,12 @@ def test_plan_follows_parameters(demo_data):
     plan = build_scene_plan(parse_project(demo_data), resolve_render("smoke"))
     wall = next(o for o in plan["objects"] if o["name"] == "Wall_Front")
     assert max(v[2] for v in wall["vertices"]) == pytest.approx(3.2)
+
+
+def test_transmission_only_when_set(modern_data, demo_data):
+    smoke = resolve_render("smoke")
+    modern = build_scene_plan(parse_project(modern_data), smoke)
+    glass = next(m for m in modern["materials"] if m["name"] == "MAT_Glass")
+    assert glass["transmission"] == 1.0
+    demo = build_scene_plan(parse_project(demo_data), smoke)
+    assert all("transmission" not in m for m in demo["materials"])

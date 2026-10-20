@@ -15,7 +15,7 @@ def paths(data) -> set[str]:
 
 def test_fixture_uses_catalog_assets(modern_data):
     p = parse_project(modern_data)
-    assert p.materials.wall.value.texture == "painted_plaster_wall"
+    assert p.materials.wall.value.texture == "beige_wall_001"
     assert p.world.hdri.value == "kloofendal_48d_partly_cloudy_puresky"
     assert [m.value for m in p.modern.roof.garden.plant_models] == ["shrub_01", "shrub_02"]
 

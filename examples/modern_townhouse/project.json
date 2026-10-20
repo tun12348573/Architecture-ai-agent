@@ -643,11 +643,11 @@
           1.0
         ],
         "roughness": 0.8,
-        "texture": "painted_plaster_wall"
+        "texture": "beige_wall_001"
       },
       "unit": null,
-      "source": "m2_spec_proposal",
-      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
       "status": "needs_review"
     },
     "roof": {
@@ -682,16 +682,17 @@
     "window_glass": {
       "value": {
         "base_color": [
-          0.6,
-          0.72,
-          0.8
+          0.92,
+          0.96,
+          0.94
         ],
-        "roughness": 0.05,
-        "alpha": 0.3
+        "roughness": 0.02,
+        "alpha": 1.0,
+        "transmission": 1.0
       },
       "unit": null,
-      "source": "m2_spec_proposal",
-      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
       "status": "needs_review"
     },
     "land": {
@@ -740,15 +741,15 @@
     "aluminium": {
       "value": {
         "base_color": [
-          0.18,
-          0.18,
-          0.19
+          0.06,
+          0.06,
+          0.06
         ],
         "roughness": 0.4
       },
       "unit": null,
-      "source": "m2_spec_proposal",
-      "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
       "status": "needs_review"
     },
     "louver": {

@@ -15,6 +15,8 @@ from pathlib import Path
 
 import bpy
 
+GLASS_IOR = 1.45
+
 
 def parse_args() -> argparse.Namespace:
     argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
@@ -91,7 +93,10 @@ def make_material(spec: dict, base: Path) -> bpy.types.Material:
     bsdf.inputs["Base Color"].default_value = rgba
     bsdf.inputs["Roughness"].default_value = spec["roughness"]
     mat.diffuse_color = (*spec["base_color"], spec["alpha"])
-    if spec["alpha"] < 1.0:
+    if spec.get("transmission", 0.0) > 0:  # clear refractive glass instead of alpha blending
+        bsdf.inputs["Transmission Weight"].default_value = spec["transmission"]
+        bsdf.inputs["IOR"].default_value = GLASS_IOR
+    elif spec["alpha"] < 1.0:
         bsdf.inputs["Alpha"].default_value = spec["alpha"]
         if hasattr(mat, "surface_render_method"):
             mat.surface_render_method = "BLENDED"

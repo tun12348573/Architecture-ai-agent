@@ -91,3 +91,9 @@ def test_everything_inside_lot(objects):
     for name, o in objects.items():
         lo, hi = b(o)
         assert lo[1] >= -TOL and lo[0] >= -2.5 - TOL and hi[0] <= 2.5 + TOL, name
+
+
+def test_door_4leaf_profile_is_80mm(objects):
+    stile = objects["Door_D1_Frame"].mesh.vertices[:8]  # first member: left stile
+    xs = [v[0] for v in stile]
+    assert max(xs) - min(xs) == pytest.approx(0.08, abs=TOL)

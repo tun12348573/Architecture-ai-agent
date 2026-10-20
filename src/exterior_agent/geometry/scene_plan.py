@@ -76,12 +76,15 @@ def _empty(name: str, lo, hi) -> dict:
 
 
 def _material(name: str, spec) -> dict:
-    return {
+    out = {
         "name": name,
         "base_color": list(spec.base_color),
         "roughness": spec.roughness,
         "alpha": spec.alpha,
     }
+    if spec.transmission > 0:  # only when set: plans of older projects stay byte-identical
+        out["transmission"] = spec.transmission
+    return out
 
 
 def _basic_objects_and_materials(project: Project) -> tuple[list[dict], list[dict]]:

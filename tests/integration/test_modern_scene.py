@@ -123,3 +123,12 @@ def test_minimal_config_builds(blender_cmd, tmp_path):
     outcome = run_build(parse_project(data), options(tmp_path / "minimal out"))
     assert outcome.status == "completed", outcome.message
     assert verify_delivery(outcome.revision_dir) == []
+
+
+def test_glass_transmits(blender_cmd, built, tmp_path):
+    from exterior_agent.runtime.delivery import read_glb
+
+    _, rev = built
+    report = inspect(blender_cmd, tmp_path, blend=rev / "model.blend")
+    assert report["material_inputs"]["MAT_Glass"]["transmission"] == pytest.approx(1.0)
+    assert "KHR_materials_transmission" in read_glb(rev / "model.glb").get("extensionsUsed", [])
