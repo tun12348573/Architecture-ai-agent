@@ -9,6 +9,17 @@ Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun1234
 - Spec: [docs/superpowers/specs/2026-10-19-m0-m1-design.md](superpowers/specs/2026-10-19-m0-m1-design.md)
 - Plan: [docs/superpowers/plans/2026-10-19-m0-m1.md](superpowers/plans/2026-10-19-m0-m1.md)
 
+## M2b — ảnh gần như thật (nhánh `m2b`, 2026-10-20)
+
+**Đã triển khai, kiểm chứng cục bộ; chờ review cuối + merge.** Plan: [2026-10-19-m2b-photoreal.md](superpowers/plans/2026-10-19-m2b-photoreal.md).
+
+- 11 tài sản CC0 Poly Haven (8 texture 1k, HDRI `kloofendal_48d_partly_cloudy_puresky` 2k, cây `shrub_01`/`shrub_02` 1k), 35 file, 30 MiB; `exterior-agent assets fetch` thật: 35 tải về, chạy lại 35 bỏ qua. Poly Haven chặn User-Agent mặc định của urllib → đã đặt User-Agent riêng.
+- Vật liệu PBR (màu, độ nhám, normal map theo UV mét), bầu trời HDRI, cây glTF trên bồn mái, `.blend` đường dẫn tương đối (kiểm cả khi chép thư mục sang chỗ khác), GLB có texture.
+- Profile `final`: Cycles GPU (CUDA) 1920×1080, **128 samples** (chủ dự án chọn sau benchmark), khử nhiễu OpenImageDenoise; cảnh có HDRI dùng AgX và đèn mặt trời 1.0 (ảnh benchmark trước đó bị cháy sáng nền).
+- Benchmark thật 2026-10-20 (`output\benchmarks\modern-townhouse\20261020T015749Z`, 2 view): 64 → 14.1 s/ảnh, 128 → 17.3, 256 → 23.8, 512 → 37.2; VRAM đỉnh ~1247 MiB; RAM trống thấp nhất **0.08 GB** lúc dựng scene. Ảnh 64 và 512 gần như không phân biệt.
+- Build final thật: `exterior-agent build "examples\modern_townhouse\project.json" --profile final` → `output\modern-townhouse\r001-5694135f\`, **3.6 phút** cho 10 ảnh (17–20 s/ảnh). Contact sheet xem bằng mắt (manual): texture, HDRI, pergola gỗ, lan can kính hiện rõ; nền đã hết cháy trắng.
+- Còn kém (chưa xử lý): nền xung quanh là mặt phẳng xám trơn; xe/xe máy là khối mẫu; cây trên mái nhỏ, thưa.
+
 ## M2a — template nhà phố hiện đại (đã merge vào `main`, 2026-10-19)
 
 **Đã triển khai, review cuối xong, merge vào `main`; chưa push lên GitHub.** Spec: [2026-10-19-m2-modern-townhouse-design.md](superpowers/specs/2026-10-19-m2-modern-townhouse-design.md) · Plan: [2026-10-19-m2a-modern-template.md](superpowers/plans/2026-10-19-m2a-modern-template.md).
@@ -97,6 +108,7 @@ Python host 3.13.3 · Blender 5.2.2 LTS (Python nhúng 3.13.13) · pydantic 2.14
 
 ## Bước tiếp theo
 
-1. Push `main` lên GitHub để CI chạy; viết plan M2b (ảnh gần như thật).
+1. Review cuối + merge M2b, push `main` để CI chạy.
+2. Sau đó: tân cổ điển (mẫu C) hoặc cải thiện bối cảnh (nền, cây, xe) — chờ chủ dự án chọn.
 
 Lệnh chạy tiếp ngay: `.\scripts\check.ps1` rồi `exterior-agent build "examples\demo_house\project.json"`.

@@ -2,7 +2,7 @@
 
 Trợ lý dựng hình ảnh **ngoại thất** kiến trúc: tham số đã kiểm tra → một scene Blender duy nhất → 10 ảnh từ 10 góc chuẩn → file `.blend` sửa được, `.glb` và gói giao hàng có checksum.
 
-Trạng thái hiện tại: **M0 + M1** (xem [docs/STATUS.md](docs/STATUS.md)). Chưa có AI, chưa đọc CAD/ảnh, chưa có API/cloud. Nội thất vẫn làm trong JEGA. Chính sách phiên bản: [docs/dependency-policy.md](docs/dependency-policy.md).
+Trạng thái hiện tại: **M0 + M1 + M2a + M2b** (xem [docs/STATUS.md](docs/STATUS.md)). Chưa có AI, chưa đọc CAD/ảnh, chưa có API/cloud. Nội thất vẫn làm trong JEGA. Chính sách phiên bản: [docs/dependency-policy.md](docs/dependency-policy.md).
 
 > `examples/demo_house/project.json` là **DEMO FIXTURE**, không phải nhà thật. Các giá trị đề xuất (dày tường, lỗ cửa, vật liệu…) được đánh dấu `needs_review`.
 
@@ -85,6 +85,24 @@ Khối `modern` gồm `floors[]` (1–5 tầng; mỗi tầng `height`, `front_se
 
 Tắt một thành phần: để danh sách rỗng (`"balconies": []`, `"frames": []`, `"louvers": []`), xoá khối (`canopy`, `roof.garden`, `terrace_pergola`), hoặc đặt `car` = `false`, `motorbikes` = `0`. Tổng chiều cao (các tầng + tum thang/tường chắn) tối đa 25 m. Vật liệu hiện là màu phẳng; texture/HDRI là M2b. Project `1.0` (nhà demo M1) vẫn build như cũ.
 
+## Ảnh gần như thật (M2b): tài sản CC0, final, benchmark
+
+Texture, bầu trời HDRI và mô hình cây lấy từ Poly Haven (**CC0**), ghim bằng sha256 trong `assets\catalog.json`. Tải một lần vào cache ngoài git (mặc định `C:\Tools\exterior-agent-assets`, đổi bằng `$env:EXTERIOR_AGENT_ASSETS`):
+
+```powershell
+exterior-agent assets fetch                     # tải + kiểm sha256; chạy lại chỉ tải file thiếu/hỏng
+exterior-agent doctor                           # dòng "Assets" cho biết còn thiếu bao nhiêu file
+exterior-agent build "examples\modern_townhouse\project.json" --profile final     # Cycles GPU (CUDA), 128 samples, khử nhiễu
+exterior-agent build "examples\modern_townhouse\project.json" --profile final --samples 64
+exterior-agent benchmark "examples\modern_townhouse\project.json" --samples 64,128,256,512   # thời gian/VRAM/RAM từng mức
+```
+
+- Vật liệu chọn texture bằng `"texture": "<asset id>"` trong `materials.<vai trò>.value`; màu `base_color` nhân với texture (để `[1, 1, 1]` nếu muốn giữ nguyên màu texture). Bầu trời: khối `world` (`hdri`, `strength`, `rotation_deg`). Cây trên mái: `roof.garden.plant_models`.
+- Chỉ project `modern_townhouse` dùng tài sản; profile `smoke` và nhà demo M1 luôn màu phẳng, không cần cache.
+- Gói giao có thêm `materials\<asset>\...` (chỉ file đã dùng) và `materials\LICENSES.json`; `delivery.json` liệt kê `assets` (CC0) và `placeholders` (xe/xe máy là khối mẫu). `.blend` dùng đường dẫn tương đối `//materials/...` nên chép cả thư mục revision sang máy khác vẫn mở được.
+- Thiếu tài sản → build dừng trước Blender với thông báo chạy `exterior-agent assets fetch`. GPU hết bộ nhớ → thông báo gợi ý giảm `--samples`/cây hoặc `--engine cycles --device cpu`.
+- `benchmark` ghi `output\benchmarks\<project_id>\<thời điểm>\benchmark.json` và ảnh từng mức (`s64\`, `s128\`…), mỗi lần chỉ một Blender.
+
 ## Kết quả
 
 Mỗi lần build tạo thư mục mới, **không bao giờ ghi đè**:
@@ -117,7 +135,7 @@ Exporter báo thành công là chưa đủ. Mở `model.glb` bằng một viewer
 
 ## Giới hạn
 
-- Nhà demo M1: một tầng, mái bằng. Template hiện đại M2a: 1–5 tầng mái bằng, vật liệu màu phẳng (texture/HDRI ở M2b); xe/xe máy là khối mẫu đơn giản.
+- Nhà demo M1: một tầng, mái bằng. Template hiện đại: 1–5 tầng mái bằng, texture CC0 + HDRI (M2b); xe/xe máy vẫn là khối mẫu (Poly Haven không có mô hình xe CC0); nền xung quanh là mặt phẳng xám trơn.
 - Chưa đọc DXF/ảnh/phác thảo; chưa có AI, API, cloud.
 - OptiX không chạy trên driver NVIDIA hiện tại của laptop; `--device gpu` dùng CUDA trước. Eevee/GPU chưa được kiểm trên CI.
 - Không hứa hiệu năng hay 4K; số đo thời gian xem `docs/STATUS.md`.
@@ -131,4 +149,5 @@ Exporter báo thành công là chưa đủ. Mở `model.glb` bằng một viewer
 | `resume refused` | Thư mục revision đã bị sửa hoặc khác phiên bản; xoá thư mục đó hoặc tăng `project_revision` |
 | Render Eevee lỗi | Thử `--engine cycles` (CPU); xem `logs\render.log` |
 | `--device gpu` lỗi | Cập nhật driver NVIDIA hoặc dùng `--engine cycles --device cpu` |
-| Máy chậm / hết RAM | Đóng ứng dụng khác; dùng `--profile smoke` để thử nhanh; chỉ chạy một build mỗi lần |
+| Máy chậm / hết RAM | Đóng ứng dụng khác (benchmark đo được chỉ còn 0.08 GB RAM trống lúc dựng scene); dùng `--profile smoke` để thử nhanh; chỉ chạy một build mỗi lần |
+| `asset file(s) missing or corrupt` | Chạy `exterior-agent assets fetch` (cần mạng lần đầu) |
