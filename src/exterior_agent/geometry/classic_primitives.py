@@ -33,6 +33,9 @@ def _outward(vertices: list[Vec3], faces: list[tuple[int, ...]]) -> Mesh:
     return Mesh(vertices, faces)
 
 
+oriented = _outward  # public: build a mesh from consistent faces, wound outward
+
+
 def _skin(rings: list[list[int]], closed_loop: bool) -> list[tuple[int, ...]]:
     """Quads between consecutive rings (each ring is a closed polygon of vertex indices)."""
     faces = []

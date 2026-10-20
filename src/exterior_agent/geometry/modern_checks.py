@@ -121,3 +121,28 @@ def check_modern_geometry(p) -> list[ValidationIssue]:
             first = b if a in walls else a
             add(first, f"{a} and {b} pass through each other ({v:.3f} m³)")
     return issues
+
+
+def check_classic_geometry(p) -> list[ValidationIssue]:
+    """Unique names and everything inside the lot.
+
+    Pairwise overlap is not checked: sloped plates, gables and ornaments make AABB overlap
+    meaningless; the facade tests check that nothing obstructs an opening instead.
+    """
+    from exterior_agent.geometry.classic_massing import classic_massing_objects
+
+    issues: list[ValidationIssue] = []
+    objects = classic_massing_objects(p)
+    names = [o.name for o in objects]
+    for name in sorted({n for n in names if names.count(n) > 1}):
+        issues.append(
+            ValidationIssue("classic", f"two components produce the same object {name!r}")
+        )
+    half, depth = p.site.width.value / 2, p.site.depth.value
+    for o in objects:
+        if o.mesh is None:
+            continue
+        (lo, hi) = o.mesh.bounds()
+        if lo[0] < -half - TOL or hi[0] > half + TOL or lo[1] < -TOL or hi[1] > depth + TOL:
+            issues.append(ValidationIssue("classic", f"{o.name} extends outside the lot"))
+    return issues

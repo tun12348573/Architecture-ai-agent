@@ -7,7 +7,8 @@ from exterior_agent.geometry.context import quad_wall
 from exterior_agent.geometry.mesh import Mesh
 from exterior_agent.geometry.modern_massing import PlanObject, floor_base_z, floor_front_y
 
-GLAZED = ("window", "door_4leaf")
+GLAZED = {"modern_townhouse": ("window", "door_4leaf"),
+          "neoclassical_townhouse": ("window", "door", "door_wood")}  # fmt: skip
 BACKDROP_DEPTH = 1.5  # metres behind the inner wall face
 BACKDROP_MARGIN = 0.6  # beyond each opening edge, clipped to the room
 INTERIOR_MATERIAL = {"name": "MAT_Interior", "base_color": [0.04, 0.035, 0.03],
@@ -15,7 +16,7 @@ INTERIOR_MATERIAL = {"name": "MAT_Interior", "base_color": [0.04, 0.035, 0.03],
 
 
 def backdrop_objects(p) -> list[PlanObject]:
-    m = p.modern
+    m, glazed = p.body, GLAZED[p.template]
     if p.materials.window_glass.value.transmission <= 0:
         return []
     t, half = m.wall_thickness.value, m.footprint_width.value / 2
@@ -28,7 +29,7 @@ def backdrop_objects(p) -> list[PlanObject]:
         depth = min(BACKDROP_DEPTH, (y_in1 - y_in0) / 3)
         for side, y, flip in (("front", y_in0 + depth, False), ("rear", y_in1 - depth, True)):
             for o in getattr(f, f"openings_{side}"):
-                if o.kind not in GLAZED:
+                if o.kind not in glazed:
                     continue
                 # facade offsets run left→right seen from outside: the rear wall is mirrored
                 a = -half + o.offset.value
