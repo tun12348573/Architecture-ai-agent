@@ -19,6 +19,7 @@ from exterior_agent.domain.validate import (
     unresolved_assumptions,
 )
 from exterior_agent.runtime import doctor
+from exterior_agent.runtime.assets_stage import AssetsMissing
 from exterior_agent.runtime.runner import BuildBusy, BuildOptions, ResumeRefused, run_build
 
 EXIT_OK, EXIT_FAILED, EXIT_INPUT, EXIT_NO_BLENDER, EXIT_CANCELLED = 0, 1, 2, 3, 130
@@ -132,6 +133,66 @@ def cmd_doctor(args) -> int:
     return EXIT_OK
 
 
+def _sample_levels(text: str) -> list[int]:
+    try:
+        levels = [int(x) for x in text.split(",")]
+    except ValueError:
+        msg = f"--samples must be a comma-separated list of integers, got {text!r}"
+        raise ValueError(msg) from None
+    if not levels or any(n < 1 for n in levels):
+        raise ValueError("--samples values must be at least 1")
+    return levels
+
+
+def cmd_benchmark(args) -> int:
+    from datetime import UTC, datetime
+
+    from exterior_agent.domain.project import CANONICAL_CAMERA_IDS
+    from exterior_agent.runtime.benchmark import BenchmarkFailed, run_benchmark
+    from exterior_agent.runtime.runner import build_lock
+
+    try:
+        levels = _sample_levels(args.samples)
+        views = args.views.split(",")
+        unknown = [v for v in views if v not in CANONICAL_CAMERA_IDS]
+        if unknown:
+            raise ValueError(f"unknown views {unknown}; use canonical camera ids")
+    except ValueError as exc:
+        _err(f"ERROR {exc}")
+        return EXIT_INPUT
+    project = _load(args.project)
+    if project is None:
+        return EXIT_INPUT
+    try:
+        render = resolve_render(args.profile)
+        blender = find_blender(args.blender)
+    except ValueError as exc:
+        _err(f"ERROR render: {exc}")
+        return EXIT_INPUT
+    except BlenderNotFound as exc:
+        _err(f"ERROR {exc}")
+        return EXIT_NO_BLENDER
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    out = args.out.resolve() / project.project_id / stamp
+    try:
+        with build_lock(args.out.resolve()):
+            report = run_benchmark(project, render, levels, views, out, blender)
+    except (BenchmarkFailed, BuildBusy) as exc:
+        _err(f"ERROR {exc}")
+        return EXIT_FAILED
+    except AssetsMissing as exc:
+        _err(f"ERROR {exc}")
+        return EXIT_INPUT
+    print(f"{'samples':>8} {'s/view':>8} {'VRAM MiB':>9} {'RAM free GB':>12}")
+    for lv in report["levels"]:
+        print(
+            f"{lv['samples']:>8} {lv['seconds_per_view_avg']:>8} "
+            f"{lv['vram_used_mib_peak']!s:>9} {lv['ram_available_gb_min']!s:>12}"
+        )
+    print(f"images and benchmark.json: {out}")
+    return EXIT_OK
+
+
 def cmd_assets_fetch(args) -> int:
     from exterior_agent.assets import fetch as asset_fetch
     from exterior_agent.assets.catalog import load_catalog
@@ -168,6 +229,15 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--stage-timeout", type=float, default=1800.0, help="seconds per stage")
     p.add_argument("--samples", type=int, help="override the profile's render samples")
     p.set_defaults(func=cmd_build)
+
+    p = sub.add_parser("benchmark", help="time renders at several sample levels (one at a time)")
+    p.add_argument("project", type=Path)
+    p.add_argument("--profile", choices=sorted(PROFILES), default="final")
+    p.add_argument("--samples", default="64,128,256,512")
+    p.add_argument("--views", default="01_front,10_aerial")
+    p.add_argument("--out", type=Path, default=Path("output") / "benchmarks")
+    p.add_argument("--blender")
+    p.set_defaults(func=cmd_benchmark)
 
     p = sub.add_parser("assets", help="manage CC0 assets (textures, HDRI, models)")
     asub = p.add_subparsers(dest="assets_command", required=True)
