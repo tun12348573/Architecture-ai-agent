@@ -85,6 +85,35 @@ class FrontYard(Strict):
     motorbikes: Count
 
 
+class Cladding(Strict):
+    zone: Choice  # "ground_front": floor-1 front wall around its openings
+    thickness: Length
+
+
+class Neighbours(Strict):
+    per_side: Count
+    seed: Count
+
+
+class ContextModels(Strict):
+    tree: Choice  # asset ids of kind "model"
+    lamp: Choice
+    pot: Choice
+
+
+class StreetContext(Strict):
+    """Illustrative street around the lot (never measured data)."""
+
+    front: Choice  # "road" | "park"
+    sidewalk_width: Length
+    road_width: Length
+    neighbours: Neighbours | None = None
+    street_lamps: Flag
+    street_trees: Flag
+    pots: Flag
+    models: ContextModels
+
+
 class ModernBuilding(Strict):
     footprint_width: Length
     footprint_depth: Length
@@ -95,5 +124,6 @@ class ModernBuilding(Strict):
     frames: list[FacadeFrame] = Field(default_factory=list)
     louvers: list[Louvers] = Field(default_factory=list)
     canopy: Canopy | None = None
+    cladding: Cladding | None = None
     roof: ModernRoof
     front_yard: FrontYard

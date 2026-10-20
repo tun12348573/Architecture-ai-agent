@@ -114,6 +114,7 @@ class MaterialSpec(Strict):
     base_color: tuple[float, float, float]
     roughness: float = Field(ge=0, le=1)
     alpha: float = Field(default=1.0, ge=0, le=1)
+    transmission: float = Field(default=0.0, ge=0, le=1)  # >0: clear refractive glass (Cycles)
     texture: str | None = None  # asset id in assets/catalog.json (modern template only)
 
     @field_validator("base_color")

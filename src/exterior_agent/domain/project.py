@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import Field
 
-from exterior_agent.domain.modern import ModernBuilding
+from exterior_agent.domain.modern import ModernBuilding, StreetContext
 from exterior_agent.domain.params import (  # noqa: F401 - re-exported for existing imports
     Choice,
     Count,
@@ -73,6 +73,14 @@ class Materials(Strict):
     soil: MaterialParam | None = None
     pergola_wood: MaterialParam | None = None
     props: MaterialParam | None = None
+    # Street context and cladding roles (M2c, required only when used).
+    cladding: MaterialParam | None = None
+    asphalt: MaterialParam | None = None
+    sidewalk: MaterialParam | None = None
+    kerb: MaterialParam | None = None
+    road_marking: MaterialParam | None = None
+    neighbour_wall: MaterialParam | None = None
+    neighbour_glass: MaterialParam | None = None
 
 
 class World(Strict):
@@ -112,6 +120,7 @@ class Project(Strict):
     building: Building | None = None
     modern: ModernBuilding | None = None
     world: World | None = None
+    context: StreetContext | None = None
     materials: Materials
     cameras: list[CameraDef] = Field(default_factory=lambda: list(CANONICAL_CAMERAS))
     render_profile: Literal["preview", "final", "smoke"] = "preview"

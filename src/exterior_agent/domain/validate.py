@@ -117,6 +117,8 @@ def _template_issues(p: Project) -> list[ValidationIssue]:
         for m in (getattr(p.materials, r) for r in type(p.materials).model_fields)
     ):
         return [ValidationIssue("template", "textures and HDRI worlds need modern_townhouse")]
+    elif p.context is not None:
+        return [ValidationIssue("template", "a street context needs modern_townhouse")]
     return []
 
 
