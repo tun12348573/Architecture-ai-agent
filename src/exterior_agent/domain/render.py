@@ -19,7 +19,7 @@ class RenderSettings:
 
 PROFILES: dict[str, RenderSettings] = {
     "preview": RenderSettings("preview", 1280, 720, "BLENDER_EEVEE", None, 16),
-    "final": RenderSettings("final", 1920, 1080, "BLENDER_EEVEE", None, 64),
+    "final": RenderSettings("final", 1920, 1080, "CYCLES", "GPU", 128),  # denoised (OIDN)
     "smoke": RenderSettings("smoke", 128, 72, "CYCLES", "CPU", 4),
 }
 ENGINES = {"eevee": "BLENDER_EEVEE", "cycles": "CYCLES"}

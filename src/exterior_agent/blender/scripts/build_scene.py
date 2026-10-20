@@ -8,6 +8,7 @@ Only stdlib + bpy: Blender's embedded Python has no project dependencies.
 
 import argparse
 import json
+import math
 import os
 import sys
 from pathlib import Path
@@ -37,7 +38,51 @@ def clear_scene() -> None:
             collection.remove(block)
 
 
-def make_material(spec: dict) -> bpy.types.Material:
+def _socket(sockets, identifier: str):
+    return next(s for s in sockets if s.identifier == identifier)
+
+
+def _image_node(tree, path: Path, non_color: bool, scale_m: float):
+    image = bpy.data.images.load(str(path), check_existing=True)
+    if non_color:
+        image.colorspace_settings.name = "Non-Color"
+    node = tree.nodes.new("ShaderNodeTexImage")
+    node.image = image
+    uv = tree.nodes.new("ShaderNodeUVMap")
+    mapping = tree.nodes.new("ShaderNodeMapping")
+    mapping.inputs["Scale"].default_value = (1 / scale_m, 1 / scale_m, 1.0)  # UVs are metres
+    tree.links.new(uv.outputs["UV"], mapping.inputs["Vector"])
+    tree.links.new(mapping.outputs["Vector"], node.inputs["Vector"])
+    return node
+
+
+def add_textures(mat, spec: dict, base: Path) -> None:
+    """PBR maps from the revision's materials/; base colour tinted only when not white."""
+    tree = mat.node_tree
+    bsdf = next(n for n in tree.nodes if n.type == "BSDF_PRINCIPLED")
+    tex, scale = spec["textures"], spec.get("texture_scale_m", 1.0)
+    if "base_color" in tex:
+        color = _image_node(tree, base / tex["base_color"]["path"], False, scale)
+        if tuple(spec["base_color"]) == (1.0, 1.0, 1.0):
+            tree.links.new(color.outputs["Color"], bsdf.inputs["Base Color"])
+        else:
+            mix = tree.nodes.new("ShaderNodeMix")
+            mix.data_type, mix.blend_type = "RGBA", "MULTIPLY"
+            mix.inputs[0].default_value = 1.0
+            tree.links.new(color.outputs["Color"], _socket(mix.inputs, "A_Color"))
+            _socket(mix.inputs, "B_Color").default_value = (*spec["base_color"], 1.0)
+            tree.links.new(_socket(mix.outputs, "Result_Color"), bsdf.inputs["Base Color"])
+    if "roughness" in tex:
+        rough = _image_node(tree, base / tex["roughness"]["path"], True, scale)
+        tree.links.new(rough.outputs["Color"], bsdf.inputs["Roughness"])
+    if "normal" in tex:
+        normal = _image_node(tree, base / tex["normal"]["path"], True, scale)
+        normal_map = tree.nodes.new("ShaderNodeNormalMap")
+        tree.links.new(normal.outputs["Color"], normal_map.inputs["Color"])
+        tree.links.new(normal_map.outputs["Normal"], bsdf.inputs["Normal"])
+
+
+def make_material(spec: dict, base: Path) -> bpy.types.Material:
     mat = bpy.data.materials.new(spec["name"])
     if mat.node_tree is None:  # older API: nodes are opt-in
         mat.use_nodes = True
@@ -50,6 +95,8 @@ def make_material(spec: dict) -> bpy.types.Material:
         bsdf.inputs["Alpha"].default_value = spec["alpha"]
         if hasattr(mat, "surface_render_method"):
             mat.surface_render_method = "BLENDED"
+    if "textures" in spec:
+        add_textures(mat, spec, base)
     return mat
 
 
@@ -102,7 +149,7 @@ def add_camera(spec: dict, scene) -> bpy.types.Object:
     return obj
 
 
-def setup_world_and_light(plan: dict, scene) -> None:
+def setup_world_and_light(plan: dict, scene, base: Path) -> None:
     sun = bpy.data.lights.new("Sun", type="SUN")
     sun.energy = plan["sun"]["strength"]
     obj = bpy.data.objects.new("Sun", sun)
@@ -114,9 +161,53 @@ def setup_world_and_light(plan: dict, scene) -> None:
     world.color = plan["world_color"]
     if world.node_tree is None:
         world.use_nodes = True
-    background = next(n for n in world.node_tree.nodes if n.type == "BACKGROUND")
+    tree = world.node_tree
+    background = next(n for n in tree.nodes if n.type == "BACKGROUND")
     background.inputs["Color"].default_value = (*plan["world_color"], 1.0)
     background.inputs["Strength"].default_value = 1.0
+    if "world" in plan:  # HDRI sky
+        w = plan["world"]
+        env = tree.nodes.new("ShaderNodeTexEnvironment")
+        env.image = bpy.data.images.load(str(base / w["hdri"]["path"]), check_existing=True)
+        coords = tree.nodes.new("ShaderNodeTexCoord")
+        mapping = tree.nodes.new("ShaderNodeMapping")
+        mapping.inputs["Rotation"].default_value = (0.0, 0.0, math.radians(w["rotation_deg"]))
+        tree.links.new(coords.outputs["Generated"], mapping.inputs["Vector"])
+        tree.links.new(mapping.outputs["Vector"], env.inputs["Vector"])
+        tree.links.new(env.outputs["Color"], background.inputs["Color"])
+        background.inputs["Strength"].default_value = w["strength"]
+
+
+def add_plant(spec: dict, scene, base: Path) -> None:
+    """Import a CC0 glTF model and join its meshes into one object named by the plan."""
+    before = set(bpy.data.objects)
+    bpy.ops.import_scene.gltf(filepath=str(base / spec["model"]["path"]))
+    new = [o for o in bpy.data.objects if o not in before]
+    meshes = [o for o in new if o.type == "MESH"]
+    view_layer = bpy.context.view_layer
+    for o in bpy.context.selected_objects:
+        o.select_set(False)
+    for o in meshes:
+        o.select_set(True)
+    view_layer.objects.active = meshes[0]
+    if len(meshes) > 1:
+        bpy.ops.object.join()
+    plant = view_layer.objects.active
+    bpy.ops.object.parent_clear(type="CLEAR_KEEP_TRANSFORM")
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    # join() already deleted the merged meshes; drop the remaining import helpers (empties)
+    for o in [o for o in bpy.data.objects if o not in before and o != plant]:
+        bpy.data.objects.remove(o)
+    lowest = min(v.co.z for v in plant.data.vertices)  # stand the model on its base point
+    for v in plant.data.vertices:
+        v.co.z -= lowest
+    plant.name = spec["name"]
+    plant.location = spec["location"]
+    plant.rotation_euler = (0.0, 0.0, spec["rotation_z"])
+    plant.scale = (spec["scale"],) * 3
+    for coll in list(plant.users_collection):
+        coll.objects.unlink(plant)
+    get_collection(spec["collection"], scene).objects.link(plant)
 
 
 def setup_render(render: dict, scene) -> None:
@@ -129,7 +220,9 @@ def setup_render(render: dict, scene) -> None:
     scene.render.image_settings.color_depth = "8"
     if render["engine"] == "CYCLES":
         scene.cycles.samples = render["samples"]
-        scene.cycles.use_denoising = False
+        scene.cycles.use_denoising = render["profile"] != "smoke"
+        if scene.cycles.use_denoising:
+            scene.cycles.denoiser = "OPENIMAGEDENOISE"
         scene.cycles.device = render["device"] or "CPU"
     else:
         scene.eevee.taa_render_samples = render["samples"]
@@ -141,20 +234,28 @@ def setup_render(render: dict, scene) -> None:
 
 def main() -> None:
     args = parse_args()
-    plan = json.loads(Path(args.plan).read_text(encoding="utf-8"))
+    plan_path = Path(args.plan).resolve()
+    base = plan_path.parent  # asset paths in the plan are relative to the revision dir
+    plan = json.loads(plan_path.read_text(encoding="utf-8"))
     clear_scene()
     scene = bpy.context.scene
-    materials = {m["name"]: make_material(m) for m in plan["materials"]}
+    materials = {m["name"]: make_material(m, base) for m in plan["materials"]}
     for spec in plan["objects"]:
         add_object(spec, scene, materials)
+    for spec in plan.get("assets", []):
+        add_plant(spec, scene, base)
     cameras = [add_camera(spec, scene) for spec in plan["cameras"]]
     scene.camera = cameras[0]
-    setup_world_and_light(plan, scene)
+    setup_world_and_light(plan, scene, base)
     setup_render(plan["render"], scene)
 
     blend = Path(args.blend)
     tmp_blend = blend.with_name(blend.stem + ".tmp.blend")
+    bpy.context.preferences.filepaths.save_version = 0  # no .blend1 backups in the revision
     bpy.ops.wm.save_as_mainfile(filepath=str(tmp_blend), check_existing=False, relative_remap=True)
+    if any(img.source == "FILE" for img in bpy.data.images):
+        bpy.ops.file.make_paths_relative()  # //materials/... keeps the revision portable
+        bpy.ops.wm.save_mainfile()
     os.replace(tmp_blend, blend)
 
     glb = Path(args.glb)
