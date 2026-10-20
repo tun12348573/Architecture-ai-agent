@@ -9,9 +9,9 @@ Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun1234
 - Spec: [docs/superpowers/specs/2026-10-19-m0-m1-design.md](superpowers/specs/2026-10-19-m0-m1-design.md)
 - Plan: [docs/superpowers/plans/2026-10-19-m0-m1.md](superpowers/plans/2026-10-19-m0-m1.md)
 
-## M2c — bối cảnh phố, ốp gạch, kính trong (nhánh `m2c`, 2026-10-20)
+## M2c — bối cảnh phố, ốp gạch, kính trong (merge vào `main` 2026-10-20)
 
-**Đã triển khai + review cuối (sửa xong), chờ merge.** Spec: [2026-10-20-m2c-street-context-design.md](superpowers/specs/2026-10-20-m2c-street-context-design.md) · Plan: [2026-10-20-m2c-street-context.md](superpowers/plans/2026-10-20-m2c-street-context.md) · Ledger: `.superpowers/sdd/2026-10-20-m2c-street-context/progress.md`.
+**Đã merge vào `main` (chưa push).** Sau merge: `check.ps1` pass (295 unit, audit sạch); integration Blender 5.2.2 thật 29/29. Spec: [2026-10-20-m2c-street-context-design.md](superpowers/specs/2026-10-20-m2c-street-context-design.md) · Plan: [2026-10-20-m2c-street-context.md](superpowers/plans/2026-10-20-m2c-street-context.md) · Ledger: `.superpowers/sdd/2026-10-20-m2c-street-context/progress.md`.
 
 - Đã có (unit + integration Blender thật): khối `context` (road/park, vỉa hè, bó vỉa, vạch kẻ, nhà hàng xóm theo seed), ốp gạch tầng trệt, kính `transmission` (+ `KHR_materials_transmission` trong GLB), khung cửa 4 cánh 80 mm màu đen, tường `beige_wall_001`, chậu/cây/đèn, bồn mái dày (0.8 m), mô hình nạp một lần + linked duplicate, `delivery.json` mục `illustrative`. Demo đã bỏ xe.
 - `island_tree_02` gốc chỉ cao 3.41 m → cây đường nhân 1.8 (≈ 5–7 m).
@@ -125,6 +125,6 @@ Python host 3.13.3 · Blender 5.2.2 LTS (Python nhúng 3.13.13) · pydantic 2.14
 ## Bước tiếp theo
 
 1. Push `main` lên GitHub (chờ chủ dự án) để CI chạy.
-2. Merge M2c (chờ chủ dự án), rồi tinh chỉnh theo ý chủ dự án (cây, góc chéo, màu tường) hoặc làm tân cổ điển (mẫu C).
+2. Tinh chỉnh theo ý chủ dự án (cây, góc chéo, màu tường) hoặc làm tân cổ điển (mẫu C).
 
 Lệnh chạy tiếp ngay: `.\scripts\check.ps1` rồi `exterior-agent build "examples\demo_house\project.json"`.
