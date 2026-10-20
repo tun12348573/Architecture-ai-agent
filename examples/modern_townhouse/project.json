@@ -635,17 +635,100 @@
         "status": "needs_review"
       },
       "car": {
-        "value": true,
+        "value": false,
         "unit": null,
-        "source": "m2_spec_proposal",
-        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "source": "owner",
+        "source_ref": "chat 2026-10-20: Bỏ xe",
         "status": "needs_review"
       },
       "motorbikes": {
+        "value": 0,
+        "unit": "count",
+        "source": "owner",
+        "source_ref": "chat 2026-10-20: Bỏ xe",
+        "status": "needs_review"
+      }
+    }
+  },
+  "context": {
+    "front": {
+      "value": "road",
+      "unit": null,
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "sidewalk_width": {
+      "value": 3.0,
+      "unit": "m",
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "road_width": {
+      "value": 7.0,
+      "unit": "m",
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "neighbours": {
+      "per_side": {
         "value": 2,
         "unit": "count",
-        "source": "m2_spec_proposal",
-        "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+        "source": "m2c_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+        "status": "needs_review"
+      },
+      "seed": {
+        "value": 7,
+        "unit": "count",
+        "source": "m2c_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+        "status": "needs_review"
+      }
+    },
+    "street_lamps": {
+      "value": true,
+      "unit": null,
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "street_trees": {
+      "value": true,
+      "unit": null,
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "pots": {
+      "value": true,
+      "unit": null,
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "models": {
+      "tree": {
+        "value": "island_tree_02",
+        "unit": null,
+        "source": "m2c_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+        "status": "needs_review"
+      },
+      "lamp": {
+        "value": "street_lamp_01",
+        "unit": null,
+        "source": "m2c_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+        "status": "needs_review"
+      },
+      "pot": {
+        "value": "potted_plant_02",
+        "unit": null,
+        "source": "m2c_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
         "status": "needs_review"
       }
     }
@@ -728,11 +811,12 @@
     "context_ground": {
       "value": {
         "base_color": [
-          0.55,
-          0.55,
-          0.52
+          1.0,
+          1.0,
+          1.0
         ],
-        "roughness": 1.0
+        "roughness": 1.0,
+        "texture": "leafy_grass"
       },
       "unit": null,
       "source": "m2_spec_proposal",
@@ -881,6 +965,94 @@
         ],
         "roughness": 0.85,
         "texture": "brick_wall_09"
+      },
+      "unit": null,
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "asphalt": {
+      "value": {
+        "base_color": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "roughness": 0.9,
+        "texture": "clean_asphalt"
+      },
+      "unit": null,
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "sidewalk": {
+      "value": {
+        "base_color": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "roughness": 0.85,
+        "texture": "concrete_pavement_02"
+      },
+      "unit": null,
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "kerb": {
+      "value": {
+        "base_color": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "roughness": 0.85,
+        "texture": "concrete"
+      },
+      "unit": null,
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "road_marking": {
+      "value": {
+        "base_color": [
+          0.9,
+          0.9,
+          0.85
+        ],
+        "roughness": 0.6
+      },
+      "unit": null,
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "neighbour_wall": {
+      "value": {
+        "base_color": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "roughness": 0.8,
+        "texture": "beige_wall_001"
+      },
+      "unit": null,
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "status": "needs_review"
+    },
+    "neighbour_glass": {
+      "value": {
+        "base_color": [
+          0.05,
+          0.06,
+          0.07
+        ],
+        "roughness": 0.05
       },
       "unit": null,
       "source": "m2c_spec_proposal",

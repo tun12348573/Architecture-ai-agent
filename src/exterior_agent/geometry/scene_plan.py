@@ -6,6 +6,7 @@ from exterior_agent.assets.catalog import load_catalog
 from exterior_agent.domain.project import Project
 from exterior_agent.domain.render import RenderSettings
 from exterior_agent.geometry.cameras import euler_xyz, fit_cameras
+from exterior_agent.geometry.context import NEIGHBOUR_TINTS, context_objects
 from exterior_agent.geometry.layout import building_bounds, site_bounds
 from exterior_agent.geometry.mesh import Bounds, Mesh
 from exterior_agent.geometry.modern_cladding import cladding_objects
@@ -52,7 +53,13 @@ MODERN_MATERIALS = {
     "MAT_Context_Ground": "context_ground",
     "MAT_Props": "props",
     "MAT_Cladding": "cladding",
+    "MAT_Asphalt": "asphalt",
+    "MAT_Sidewalk": "sidewalk",
+    "MAT_Kerb": "kerb",
+    "MAT_Road_Marking": "road_marking",
+    "MAT_Neighbour_Glass": "neighbour_glass",
 }
+NEIGHBOUR_PREFIX = "MAT_Neighbour_"  # + tint number: neighbour_wall tinted per house
 BUILDING_COLLECTIONS = {"Building", "Doors", "Windows", "Balconies", "Facade", "Roof"}
 
 
@@ -193,7 +200,7 @@ def _modern_objects_and_materials(
     project: Project, textured: bool = False
 ) -> tuple[list[dict], list[dict]]:
     objects = []
-    for o in _modern_plan_objects(project):
+    for o in _modern_plan_objects(project) + context_objects(project):
         if o.mesh is None:
             objects.append(_empty(o.name, *o.empty_box))
             continue
@@ -216,6 +223,14 @@ def _modern_objects_and_materials(
             continue
         spec = getattr(project.materials, role).value
         entry = _material(name, spec)
+        if textured and spec.texture is not None:
+            entry.update(_textures(spec, catalog))
+        materials.append(entry)
+    for name in sorted(n for n in used if n.startswith(NEIGHBOUR_PREFIX) and n[-1].isdigit()):
+        spec = project.materials.neighbour_wall.value
+        entry = _material(name, spec)
+        tint = NEIGHBOUR_TINTS[int(name.removeprefix(NEIGHBOUR_PREFIX)) - 1]
+        entry["base_color"] = [round(a * b, 6) for a, b in zip(spec.base_color, tint, strict=True)]
         if textured and spec.texture is not None:
             entry.update(_textures(spec, catalog))
         materials.append(entry)

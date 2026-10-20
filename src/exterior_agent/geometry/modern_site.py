@@ -7,7 +7,8 @@ from exterior_agent.domain.modern_rules import (
     CAR_LENGTH,
     CAR_WIDTH,
 )
-from exterior_agent.geometry.mesh import box_mesh, quad_mesh
+from exterior_agent.geometry.context import KERB_HEIGHT
+from exterior_agent.geometry.mesh import Mesh, box_mesh, quad_mesh
 from exterior_agent.geometry.modern_massing import PlanObject
 from exterior_agent.geometry.primitives import merge_meshes
 from exterior_agent.geometry.walls import site_meshes
@@ -63,6 +64,15 @@ def _motorbike(x0: float, y0: float):
     )
 
 
+def _context_ground(p) -> Mesh:
+    """Far ground; dropped below the road when a street context is drawn on top of it."""
+    mesh = site_meshes(p)["Site_Context"]
+    if p.context is None:
+        return mesh
+    z = -KERB_HEIGHT - 0.01
+    return Mesh([(x, y, z) for x, y, _ in mesh.vertices], mesh.faces)
+
+
 def site_objects(p) -> list[PlanObject]:
     m, s = p.modern, p.site
     half = s.width.value / 2
@@ -78,7 +88,7 @@ def site_objects(p) -> list[PlanObject]:
             quad_mesh((-half, yr, 0.0), (half, s.depth.value, 0.0)),
             "MAT_Grass",
         ),
-        PlanObject("Site_Context", "Site", site_meshes(p)["Site_Context"], "MAT_Context_Ground"),
+        PlanObject("Site_Context", "Site", _context_ground(p), "MAT_Context_Ground"),
     ]
     gw, fh = yard.gate_width.value, yard.fence_height.value
     for name, (a, c) in (("Fence_Left", (-half, -gw / 2)), ("Fence_Right", (gw / 2, half))):

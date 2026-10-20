@@ -26,7 +26,9 @@ EXPECTED = (
     | {"Canopy", "Cladding_F1_Front", "Door_D1_Frame", "Door_D1_Glass", "Door_D2"}
     | {f"Window_W{k}_{part}" for k in range(1, 6) for part in ("Frame", "Glass")}
     | {"Yard_Front", "Yard_Rear", "Site_Context", "Fence_Left", "Fence_Right", "Gate"}
-    | {"Prop_Car", "Prop_Motorbike_1", "Prop_Motorbike_2"}
+    | {"Sidewalk_Front", "Kerb_Front", "Road", "Road_Marking", "Sidewalk_Opposite"}
+    | {"Ground_Left", "Ground_Right"}
+    | {f"Neighbour_{s}{k}{g}" for s in "LR" for k in (1, 2) for g in ("", "_Glass")}
 )
 
 

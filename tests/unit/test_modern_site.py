@@ -2,7 +2,13 @@ import pytest
 
 from exterior_agent.domain.validate import TOL, parse_project
 from exterior_agent.geometry.modern_site import FENCE_THICKNESS, site_objects
+from tests.unit.conftest import with_props
 from tests.unit.geom_helpers import box_overlap_volume
+
+
+@pytest.fixture
+def modern_data(modern_data):
+    return with_props(modern_data)
 
 
 def objs(data):

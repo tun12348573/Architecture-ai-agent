@@ -12,6 +12,13 @@ from exterior_agent.domain.render import resolve_render
 from exterior_agent.domain.validate import parse_project
 from exterior_agent.runtime.delivery import verify_delivery
 from exterior_agent.runtime.runner import BuildOptions, ResumeRefused, run_build
+from tests.unit.conftest import with_props
+
+
+@pytest.fixture
+def modern_data(modern_data):
+    return with_props(modern_data)
+
 
 FAKE_BLENDER = [
     sys.executable,
