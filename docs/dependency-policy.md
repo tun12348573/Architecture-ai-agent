@@ -20,7 +20,7 @@
 
 - Chỉ dùng tài sản **CC0** của Poly Haven (https://polyhaven.com/license). Mỗi file ghim URL, kích thước và **sha256** trong `assets/catalog.json` (commit); file thật nằm trong cache ngoài git.
 - Thêm/đổi tài sản: `python scripts/pin_assets.py <id>:<texture|hdri|model>:<1k|2k>` (đối chiếu md5 của Poly Haven, tính sha256), rồi `exterior-agent assets fetch` và chạy lại kiểm tra. Không sửa tay sha256.
-- Chỉ tải qua HTTPS từ `dl.polyhaven.org`; đường dẫn file phải là đường dẫn tương đối an toàn. Không chạy hay import gì từ file tải về.
+- Chỉ tải qua HTTPS từ `dl.polyhaven.org`; đường dẫn file phải là đường dẫn tương đối an toàn. Python phía host không chạy hay import gì từ file tải về; Blender chỉ import mô hình glTF đã ghim sha256 (dữ liệu hình học, không có script).
 
 ## GitHub Actions
 

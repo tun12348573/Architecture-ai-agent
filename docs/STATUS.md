@@ -16,7 +16,8 @@ Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun1234
 - 11 tài sản CC0 Poly Haven (8 texture 1k, HDRI `kloofendal_48d_partly_cloudy_puresky` 2k, cây `shrub_01`/`shrub_02` 1k), 35 file, 30 MiB; `exterior-agent assets fetch` thật: 35 tải về, chạy lại 35 bỏ qua. Poly Haven chặn User-Agent mặc định của urllib → đã đặt User-Agent riêng.
 - Vật liệu PBR (màu, độ nhám, normal map theo UV mét), bầu trời HDRI, cây glTF trên bồn mái, `.blend` đường dẫn tương đối (kiểm cả khi chép thư mục sang chỗ khác), GLB có texture.
 - Profile `final`: Cycles GPU (CUDA) 1920×1080, **128 samples** (chủ dự án chọn sau benchmark), khử nhiễu OpenImageDenoise; cảnh có HDRI dùng AgX và đèn mặt trời 1.0 (ảnh benchmark trước đó bị cháy sáng nền).
-- Benchmark thật 2026-10-20 (`output\benchmarks\modern-townhouse\20261020T015749Z`, 2 view): 64 → 14.1 s/ảnh, 128 → 17.3, 256 → 23.8, 512 → 37.2; VRAM đỉnh ~1247 MiB; RAM trống thấp nhất **0.08 GB** lúc dựng scene. Ảnh 64 và 512 gần như không phân biệt.
+- Benchmark thật 2026-10-20 (`output\benchmarks\modern-townhouse\20261020T015749Z`, 2 view): 64 → 14.1 s/ảnh, 128 → 17.3, 256 → 23.8, 512 → 37.2; VRAM đỉnh ~1247 MiB; RAM trống thấp nhất **0.08 GB** (mẫu lấy lúc bắt đầu render mức samples đầu tiên, không phải lúc dựng scene). Ảnh 64 và 512 gần như không phân biệt.
+- Lưu ý: tên thư mục `r###-<hash8>` băm từ project đã chuẩn hoá + cài đặt render; M2b thêm field mới (mặc định rỗng) và đổi profile `final`, nên project 1.0/M2a không đổi tham số vẫn ra tên thư mục mới **một lần** khi build lại (revision cũ giữ nguyên).
 - Build final thật: `exterior-agent build "examples\modern_townhouse\project.json" --profile final` → `output\modern-townhouse\r001-5694135f\`, **3.6 phút** cho 10 ảnh (17–20 s/ảnh). Contact sheet xem bằng mắt (manual): texture, HDRI, pergola gỗ, lan can kính hiện rõ; nền đã hết cháy trắng.
 - Còn kém (chưa xử lý): nền xung quanh là mặt phẳng xám trơn; xe/xe máy là khối mẫu; cây trên mái nhỏ, thưa.
 

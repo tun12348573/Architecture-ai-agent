@@ -149,5 +149,5 @@ Exporter báo thành công là chưa đủ. Mở `model.glb` bằng một viewer
 | `resume refused` | Thư mục revision đã bị sửa hoặc khác phiên bản; xoá thư mục đó hoặc tăng `project_revision` |
 | Render Eevee lỗi | Thử `--engine cycles` (CPU); xem `logs\render.log` |
 | `--device gpu` lỗi | Cập nhật driver NVIDIA hoặc dùng `--engine cycles --device cpu` |
-| Máy chậm / hết RAM | Đóng ứng dụng khác (benchmark đo được chỉ còn 0.08 GB RAM trống lúc dựng scene); dùng `--profile smoke` để thử nhanh; chỉ chạy một build mỗi lần |
+| Máy chậm / hết RAM | Đóng ứng dụng khác (benchmark đo được chỉ còn 0.08 GB RAM trống lúc bắt đầu render mức đầu tiên); dùng `--profile smoke` để thử nhanh; chỉ chạy một build mỗi lần |
 | `asset file(s) missing or corrupt` | Chạy `exterior-agent assets fetch` (cần mạng lần đầu) |
