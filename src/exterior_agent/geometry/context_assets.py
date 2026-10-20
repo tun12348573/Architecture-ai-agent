@@ -16,7 +16,8 @@ TERRACE_POT_SIDE, TERRACE_POT_BACK = 0.5, 0.4
 TREE_SPACING, TREE_FIRST, TREE_KERB_OFFSET = 8.0, 3.0, 0.8
 LAMP_SPACING, LAMP_FIRST, LAMP_KERB_OFFSET = 20.0, 7.0, 0.4
 LOT_CLEARANCE = 1.0  # street trees/lamps keep |x| >= W/2 + this
-YARD_TREE_SIDE, YARD_TREE_SCALE = 0.8, 0.6
+YARD_TREE_SIDE, YARD_TREE_SCALE = 0.8, 1.0  # native ~3.4 m fits a 4-5 m yard
+TREE_BASE_SCALE = 1.8  # island_tree_02 is ~3.4 m tall; street trees ~5-7 m
 PARK_ROWS = (4.0, 11.0)  # metres behind the park's road edge
 PARK_SPACING, PARK_JITTER = 7.0, 1.0
 
@@ -98,7 +99,8 @@ def context_asset_specs(p) -> list[AssetPlacement]:
         else:
             spots = _park_trees(p, rng)
         for k, (x, y) in enumerate(spots, start=1):
-            add(f"Tree_{k}", "Context", tree, (x, y, 0.0), k, round(rng.uniform(0.85, 1.15), 3))
+            scale = round(TREE_BASE_SCALE * rng.uniform(0.85, 1.15), 3)
+            add(f"Tree_{k}", "Context", tree, (x, y, 0.0), k, scale)
         if p.modern.front_yard.kind.value == "garden":
             loc = (-half + YARD_TREE_SIDE, p.site.front_setback.value / 2, 0.0)
             add("Tree_Yard", "Context", tree, loc, 0, YARD_TREE_SCALE)

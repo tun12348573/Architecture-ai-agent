@@ -183,10 +183,28 @@ def setup_world_and_light(plan: dict, scene, base: Path) -> None:
         background.inputs["Strength"].default_value = w["strength"]
 
 
-def add_plant(spec: dict, scene, base: Path) -> None:
-    """Import a CC0 glTF model and join its meshes into one object named by the plan."""
+def add_asset(spec: dict, scene, base: Path, cache: dict) -> None:
+    """Place a CC0 glTF model; each model file is imported once, copies share its mesh."""
+    path = spec["model"]["path"]
+    if path in cache:
+        obj = cache[path].copy()  # linked duplicate: same mesh data, own transform
+        scene.collection.objects.link(obj)
+    else:
+        obj = cache[path] = import_model(base / path)
+    obj.name = spec["name"]
+    obj.location = spec["location"]
+    obj.rotation_mode = "XYZ"  # glTF import leaves QUATERNION; euler would be ignored
+    obj.rotation_euler = (0.0, 0.0, spec["rotation_z"])
+    obj.scale = (spec["scale"],) * 3
+    for coll in list(obj.users_collection):
+        coll.objects.unlink(obj)
+    get_collection(spec["collection"], scene).objects.link(obj)
+
+
+def import_model(path: Path) -> bpy.types.Object:
+    """Import a glTF model and join its meshes into one object standing on its centred base."""
     before = set(bpy.data.objects)
-    bpy.ops.import_scene.gltf(filepath=str(base / spec["model"]["path"]))
+    bpy.ops.import_scene.gltf(filepath=str(path))
     new = [o for o in bpy.data.objects if o not in before]
     meshes = [o for o in new if o.type == "MESH"]
     view_layer = bpy.context.view_layer
@@ -212,14 +230,7 @@ def add_plant(spec: dict, scene, base: Path) -> None:
         v.co.x -= cx
         v.co.y -= cy
         v.co.z -= lowest
-    plant.name = spec["name"]
-    plant.location = spec["location"]
-    plant.rotation_mode = "XYZ"  # glTF import leaves QUATERNION; euler would be ignored
-    plant.rotation_euler = (0.0, 0.0, spec["rotation_z"])
-    plant.scale = (spec["scale"],) * 3
-    for coll in list(plant.users_collection):
-        coll.objects.unlink(plant)
-    get_collection(spec["collection"], scene).objects.link(plant)
+    return plant
 
 
 def setup_render(render: dict, scene, photoreal: bool = False) -> None:
@@ -255,8 +266,9 @@ def main() -> None:
     materials = {m["name"]: make_material(m, base) for m in plan["materials"]}
     for spec in plan["objects"]:
         add_object(spec, scene, materials)
+    models: dict = {}
     for spec in plan.get("assets", []):
-        add_plant(spec, scene, base)
+        add_asset(spec, scene, base, models)
     cameras = [add_camera(spec, scene) for spec in plan["cameras"]]
     scene.camera = cameras[0]
     setup_world_and_light(plan, scene, base)

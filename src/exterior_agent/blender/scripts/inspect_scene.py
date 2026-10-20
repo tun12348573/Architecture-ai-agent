@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import bpy
+import numpy as np
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
@@ -38,20 +39,32 @@ def load(args: argparse.Namespace) -> None:
     bpy.ops.import_scene.gltf(filepath=args.glb)
 
 
+def _array(collection, attr: str, width: int, dtype=np.float64) -> np.ndarray:
+    out = np.empty(len(collection) * width, dtype=dtype)
+    collection.foreach_get(attr, out)
+    return out.reshape(-1, width) if width > 1 else out
+
+
 def uv_max_error(obj) -> float:
-    """Largest difference between stored UVs and the metric box projection of each face."""
+    """Largest difference between stored UVs and the metric box projection of each face.
+
+    Vectorised: imported CC0 models carry hundreds of thousands of loops.
+    """
     mesh = obj.data
-    uv = mesh.uv_layers[0].data
-    worst = 0.0
-    for poly in mesh.polygons:
-        axis = max(range(3), key=lambda k: abs(poly.normal[k]))
-        keep = {0: (1, 2), 1: (0, 2), 2: (0, 1)}[axis]
-        for loop_index in poly.loop_indices:
-            co = obj.matrix_world @ mesh.vertices[mesh.loops[loop_index].vertex_index].co
-            expected = (co[keep[0]], co[keep[1]])
-            got = uv[loop_index].uv
-            worst = max(worst, abs(got[0] - expected[0]), abs(got[1] - expected[1]))
-    return worst
+    if not mesh.loops:
+        return 0.0
+    world = np.array(obj.matrix_world)
+    co = _array(mesh.vertices, "co", 3) @ world[:3, :3].T + world[:3, 3]
+    vertex_of_loop = _array(mesh.loops, "vertex_index", 1, np.int32)
+    axis = np.abs(_array(mesh.polygons, "normal", 3)).argmax(axis=1)
+    start = _array(mesh.polygons, "loop_start", 1, np.int32)
+    total = _array(mesh.polygons, "loop_total", 1, np.int32)
+    order = np.argsort(start)  # polygons own contiguous loop ranges
+    axis_of_loop = np.repeat(axis[order], total[order])
+    keep = np.array([[1, 2], [0, 2], [0, 1]])[axis_of_loop]
+    expected = np.take_along_axis(co[vertex_of_loop], keep, axis=1)
+    uv = _array(mesh.uv_layers[0].data, "uv", 2)
+    return float(np.abs(uv - expected).max())
 
 
 def world_nodes() -> list[str]:
@@ -80,11 +93,14 @@ def object_entry(obj) -> dict:
     }
     if obj.type == "MESH":
         entry["uv_layers"] = len(obj.data.uv_layers)
+        entry["mesh"] = obj.data.name
         entry["rotation_z_world"] = obj.matrix_world.to_euler("XYZ").z
         if obj.data.uv_layers:
             entry["uv_max_error"] = uv_max_error(obj)
     if obj.type == "MESH" and obj.data.vertices:
-        world = [obj.matrix_world @ v.co for v in obj.data.vertices]
+        # 8 bound-box corners, not every vertex: exact for plan objects (no rotation); for
+        # z-turned assets the z range and the centre stay exact, x/y extents may grow
+        world = [obj.matrix_world @ Vector(c) for c in obj.bound_box]
         entry["bbox_min"] = [min(v[i] for v in world) for i in range(3)]
         entry["bbox_max"] = [max(v[i] for v in world) for i in range(3)]
     return entry

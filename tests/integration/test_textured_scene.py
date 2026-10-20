@@ -95,3 +95,37 @@ def test_plants_keep_their_rotation(blender_cmd, textured, tmp_path):
         got = objects[spec["name"]]["rotation_z_world"] % (2 * math.pi)
         want = spec["rotation_z"] % (2 * math.pi)
         assert min(abs(got - want), 2 * math.pi - abs(got - want)) < 1e-3, spec["name"]
+
+
+@pytest.fixture(scope="module")
+def textured_report(blender_cmd, textured, tmp_path_factory):
+    _, rev = textured
+    return inspect(blender_cmd, tmp_path_factory.mktemp("inspect"), blend=rev / "model.blend")
+
+
+def test_trees_are_linked_duplicates(textured_report):
+    objects = textured_report["objects"]
+    trees = [o for n, o in objects.items() if n.startswith("Tree_")]
+    assert len(trees) >= 2
+    assert len({o["mesh"] for o in trees}) == 1  # one imported mesh shared by every copy
+
+
+def test_tree_height_sane(textured_report):
+    for name, o in textured_report["objects"].items():
+        if name.startswith("Tree_"):
+            assert 3.0 <= o["bbox_max"][2] - o["bbox_min"][2] <= 15.0, name
+
+
+def test_context_collection_present(textured_report):
+    objects = textured_report["objects"]
+    for name in ("Neighbour_L1", "Road", "Sidewalk_Front", "Tree_1", "Lamp_1"):
+        assert "Context" in objects[name]["collections"], name
+    assert "Plants" in objects["Pot_1"]["collections"]
+
+
+def test_brick_staged_and_licensed(textured):
+    _, rev = textured
+    assert (rev / "materials" / "brick_wall_09").is_dir()
+    licences = json.loads((rev / "materials" / "LICENSES.json").read_text(encoding="utf-8"))
+    ids = {entry["id"] for entry in licences}
+    assert {"brick_wall_09", "island_tree_02", "street_lamp_01", "potted_plant_02"} <= ids

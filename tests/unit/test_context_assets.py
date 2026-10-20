@@ -4,7 +4,7 @@ import pytest
 
 from exterior_agent.domain.render import resolve_render
 from exterior_agent.domain.validate import parse_project
-from exterior_agent.geometry.context_assets import context_asset_specs
+from exterior_agent.geometry.context_assets import TREE_BASE_SCALE, context_asset_specs
 from exterior_agent.geometry.modern_massing import (
     floor_base_z,
     floor_front_y,
@@ -67,8 +67,9 @@ def test_assets_deterministic(project):
 
 
 def test_tree_scale_range(project):
+    # island_tree_02 is ~3.4 m tall: street trees are scaled to ~5-7 m, varied by ±15 %
     for s in by_prefix(context_asset_specs(project), "Tree_"):
-        assert 0.85 <= s.scale <= 1.15
+        assert 0.85 * TREE_BASE_SCALE <= s.scale <= 1.15 * TREE_BASE_SCALE
 
 
 def test_flags_switch_assets_off(modern_data):
