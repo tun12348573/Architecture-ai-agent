@@ -1,6 +1,6 @@
 # M2c — Thiết kế: bối cảnh phố, vật liệu và cửa chính thật hơn
 
-Ngày: 2026-10-20 · Trạng thái: **chờ chủ dự án duyệt** · Nền: M2b đã merge vào `main` (`docs/STATUS.md`).
+Ngày: 2026-10-20 · Trạng thái: **đã duyệt** (chủ dự án, 2026-10-20: "duyệt") · Nền: M2b đã merge vào `main` (`docs/STATUS.md`).
 Ký hiệu: **[chủ dự án]** = chủ dự án đã nói/chọn; **[đề xuất]** = quyết định của người viết spec, chủ dự án có thể sửa.
 
 ## 1. Mục đích
