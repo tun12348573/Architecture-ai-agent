@@ -8,6 +8,7 @@ from exterior_agent.domain.render import RenderSettings
 from exterior_agent.geometry.cameras import euler_xyz, fit_cameras
 from exterior_agent.geometry.layout import building_bounds, site_bounds
 from exterior_agent.geometry.mesh import Bounds, Mesh
+from exterior_agent.geometry.modern_cladding import cladding_objects
 from exterior_agent.geometry.modern_facade import facade_objects
 from exterior_agent.geometry.modern_massing import massing_objects, roof_plant_positions
 from exterior_agent.geometry.modern_site import site_objects
@@ -50,6 +51,7 @@ MODERN_MATERIALS = {
     "MAT_Pergola_Wood": "pergola_wood",
     "MAT_Context_Ground": "context_ground",
     "MAT_Props": "props",
+    "MAT_Cladding": "cladding",
 }
 BUILDING_COLLECTIONS = {"Building", "Doors", "Windows", "Balconies", "Facade", "Roof"}
 
@@ -111,7 +113,12 @@ def _basic_objects_and_materials(project: Project) -> tuple[list[dict], list[dic
 
 
 def _modern_plan_objects(project: Project):
-    return massing_objects(project) + facade_objects(project) + site_objects(project)
+    return (
+        massing_objects(project)
+        + facade_objects(project)
+        + cladding_objects(project)
+        + site_objects(project)
+    )
 
 
 def _union(boxes: list[Bounds]) -> Bounds:

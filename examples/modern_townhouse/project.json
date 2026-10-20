@@ -511,6 +511,22 @@
         "status": "needs_review"
       }
     },
+    "cladding": {
+      "zone": {
+        "value": "ground_front",
+        "unit": null,
+        "source": "m2c_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+        "status": "needs_review"
+      },
+      "thickness": {
+        "value": 0.02,
+        "unit": "m",
+        "source": "m2c_spec_proposal",
+        "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+        "status": "needs_review"
+      }
+    },
     "roof": {
       "parapet_height": {
         "value": 1.1,
@@ -854,6 +870,21 @@
       "unit": null,
       "source": "m2_spec_proposal",
       "source_ref": "docs/superpowers/specs/2026-10-19-m2-modern-townhouse-design.md §7",
+      "status": "needs_review"
+    },
+    "cladding": {
+      "value": {
+        "base_color": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "roughness": 0.85,
+        "texture": "brick_wall_09"
+      },
+      "unit": null,
+      "source": "m2c_spec_proposal",
+      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
       "status": "needs_review"
     }
   },
