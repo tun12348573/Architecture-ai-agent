@@ -601,6 +601,20 @@
             "source": "m2_spec_proposal",
             "source_ref": "docs/superpowers/plans/2026-10-19-m2b-photoreal.md Task 2",
             "status": "needs_review"
+          },
+          {
+            "value": "shrub_03",
+            "unit": null,
+            "source": "m2c_spec_proposal",
+            "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+            "status": "needs_review"
+          },
+          {
+            "value": "shrub_04",
+            "unit": null,
+            "source": "m2c_spec_proposal",
+            "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+            "status": "needs_review"
           }
         ]
       }

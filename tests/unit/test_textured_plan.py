@@ -49,11 +49,12 @@ def test_plants_inside_planter(project):
     plan = build_scene_plan(project, resolve_render("preview"))
     planter = next(o for o in massing_objects(project) if o.name == "Planter_Roof_1")
     (lo, hi) = planter.mesh.bounds()
-    plants = plan["assets"]
+    plants = [a for a in plan["assets"] if a["collection"] == "Roof"]
     assert len(plants) >= 2 and [a["name"] for a in plants] == [
         f"Plant_Roof_{k}" for k in range(1, len(plants) + 1)
     ]
-    assert {a["model"]["path"].split("/")[1] for a in plants} == {"shrub_01", "shrub_02"}
+    shrubs = {f"shrub_0{k}" for k in range(1, 5)}
+    assert {a["model"]["path"].split("/")[1] for a in plants} == shrubs
     for a in plants:
         x, y, z = a["location"]
         assert lo[0] < x < hi[0] and lo[1] < y < hi[1]

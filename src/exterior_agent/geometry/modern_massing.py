@@ -120,7 +120,7 @@ def massing_objects(p) -> list[PlanObject]:
     return out
 
 
-PLANT_SPACING = 1.5
+PLANT_SPACING = 0.8
 
 
 def roof_plant_positions(p) -> list[tuple[float, float, float]]:

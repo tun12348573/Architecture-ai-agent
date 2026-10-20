@@ -7,6 +7,11 @@ from exterior_agent.domain.project import Project
 from exterior_agent.domain.render import RenderSettings
 from exterior_agent.geometry.cameras import euler_xyz, fit_cameras
 from exterior_agent.geometry.context import NEIGHBOUR_TINTS, context_objects
+from exterior_agent.geometry.context_assets import (
+    PLANT_TURN,
+    AssetPlacement,
+    context_asset_specs,
+)
 from exterior_agent.geometry.layout import building_bounds, site_bounds
 from exterior_agent.geometry.mesh import Bounds, Mesh
 from exterior_agent.geometry.modern_cladding import cladding_objects
@@ -150,7 +155,6 @@ def modern_bounds(project: Project) -> tuple[Bounds, Bounds]:
 
 
 TEXTURE_ROLES = ("base_color", "roughness", "normal")
-PLANT_TURN = 2.399963  # golden angle: varied but deterministic plant rotations
 
 
 def _asset_ref(asset, f) -> dict:
@@ -176,24 +180,30 @@ def _world_and_plants(project: Project, catalog) -> dict:
             "rotation_deg": w.rotation_deg.value,
         }
     garden = project.modern.roof.garden
-    models = [catalog.get(m.value) for m in (garden.plant_models if garden else [])]
-    if models:
-        extra["assets"] = []
-        for i, location in enumerate(roof_plant_positions(project)):
-            model = models[i % len(models)]
-            main = next(f for f in model.files if f.role == "gltf")
-            extra["assets"].append(
-                {
-                    "name": f"Plant_Roof_{i + 1}",
-                    "collection": "Roof",
-                    "model": _asset_ref(model, main),
-                    "includes": [_asset_ref(model, f) for f in model.files if f.role == "include"],
-                    "location": list(location),
-                    "rotation_z": round(i * PLANT_TURN, 6),
-                    "scale": 1.0,
-                }
-            )
+    roof_models = [m.value for m in (garden.plant_models if garden else [])]
+    placements = [
+        AssetPlacement(
+            f"Plant_Roof_{i + 1}", "Roof", roof_models[i % len(roof_models)], location,
+            round(i * PLANT_TURN, 6), 1.0,
+        )
+        for i, location in enumerate(roof_plant_positions(project) if roof_models else [])
+    ] + context_asset_specs(project)  # fmt: skip
+    if placements:
+        extra["assets"] = [_asset_entry(a, catalog.get(a.model)) for a in placements]
     return extra
+
+
+def _asset_entry(a: AssetPlacement, model) -> dict:
+    main = next(f for f in model.files if f.role == "gltf")
+    return {
+        "name": a.name,
+        "collection": a.collection,
+        "model": _asset_ref(model, main),
+        "includes": [_asset_ref(model, f) for f in model.files if f.role == "include"],
+        "location": list(a.location),
+        "rotation_z": a.rotation_z,
+        "scale": a.scale,
+    }
 
 
 def _modern_objects_and_materials(

@@ -10,7 +10,7 @@ from exterior_agent.assets.fetch import cache_dir, verify_cached
 from exterior_agent.blender.invoke import find_blender
 from exterior_agent.domain.render import resolve_render
 from exterior_agent.domain.validate import TOL, parse_project
-from exterior_agent.geometry.modern_massing import massing_objects
+from exterior_agent.geometry.modern_massing import massing_objects, roof_plant_positions
 from exterior_agent.runtime.delivery import read_glb
 from exterior_agent.runtime.runner import BuildOptions, run_build
 from tests.integration.conftest import REPO_ROOT, inspect
@@ -52,7 +52,7 @@ def test_plants_in_roof_planter(blender_cmd, textured, tmp_path):
     lo, hi = planter.mesh.bounds()
     objects = inspect(blender_cmd, tmp_path, blend=rev / "model.blend")["objects"]
     plants = {n: o for n, o in objects.items() if n.startswith("Plant_Roof_")}
-    assert len(plants) == 3
+    assert len(plants) == len(roof_plant_positions(project))
     for name, entry in plants.items():
         assert "Roof" in entry["collections"], name
         assert entry["bbox_min"][2] == pytest.approx(hi[2], abs=0.05), name

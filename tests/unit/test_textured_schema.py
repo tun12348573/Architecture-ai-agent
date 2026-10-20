@@ -17,7 +17,12 @@ def test_fixture_uses_catalog_assets(modern_data):
     p = parse_project(modern_data)
     assert p.materials.wall.value.texture == "beige_wall_001"
     assert p.world.hdri.value == "kloofendal_48d_partly_cloudy_puresky"
-    assert [m.value for m in p.modern.roof.garden.plant_models] == ["shrub_01", "shrub_02"]
+    assert [m.value for m in p.modern.roof.garden.plant_models] == [
+        "shrub_01",
+        "shrub_02",
+        "shrub_03",
+        "shrub_04",
+    ]
 
 
 def test_unknown_texture_rejected(modern_data):
