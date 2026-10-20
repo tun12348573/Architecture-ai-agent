@@ -171,7 +171,12 @@ def check_semantics(p: Project) -> list[ValidationIssue]:
 
         return check_modern_geometry(p)
     if p.template == "neoclassical_townhouse":
-        return check_classic(p) + check_context(p) + check_assets(p)
+        issues = check_classic(p) + check_context(p) + check_assets(p)
+        if issues:
+            return issues
+        from exterior_agent.geometry.modern_checks import check_classic_geometry
+
+        return check_classic_geometry(p)
     return _check_basic(p)
 
 

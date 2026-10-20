@@ -6,6 +6,8 @@ from exterior_agent.assets.catalog import load_catalog
 from exterior_agent.domain.project import Project
 from exterior_agent.domain.render import RenderSettings
 from exterior_agent.geometry.cameras import euler_xyz, fit_cameras
+from exterior_agent.geometry.classic_facade import classic_facade_objects
+from exterior_agent.geometry.classic_massing import classic_massing_objects
 from exterior_agent.geometry.context import NEIGHBOUR_TINTS, context_objects
 from exterior_agent.geometry.context_assets import (
     PLANT_TURN,
@@ -64,10 +66,17 @@ MODERN_MATERIALS = {
     "MAT_Kerb": "kerb",
     "MAT_Road_Marking": "road_marking",
     "MAT_Neighbour_Glass": "neighbour_glass",
+    # neoclassical_townhouse roles (M2d)
+    "MAT_Trim": "trim",
+    "MAT_Panel": "panel",
+    "MAT_Roof_Tiles": "roof_tiles",
+    "MAT_Iron": "iron",
+    "MAT_Door_Wood": "door_wood",
 }
 ROOF_PLANT_HEIGHT = 1.2  # shrubs in the roof planter stay below the pergola
 NEIGHBOUR_PREFIX = "MAT_Neighbour_"  # + tint number: neighbour_wall tinted per house
-BUILDING_COLLECTIONS = {"Building", "Doors", "Windows", "Balconies", "Facade", "Roof"}
+BUILDING_COLLECTIONS = {"Building", "Doors", "Windows", "Balconies", "Facade", "Roof", "Bay"}
+TOWNHOUSES = ("modern_townhouse", "neoclassical_townhouse")
 
 
 def _mesh(name: str, collection: str, mesh: Mesh, material_key: str) -> dict:
@@ -100,6 +109,8 @@ def _material(name: str, spec) -> dict:
     }
     if spec.transmission > 0:  # only when set: plans of older projects stay byte-identical
         out["transmission"] = spec.transmission
+    if spec.metallic > 0:
+        out["metallic"] = spec.metallic
     return out
 
 
@@ -127,6 +138,13 @@ def _basic_objects_and_materials(project: Project) -> tuple[list[dict], list[dic
 
 
 def _modern_plan_objects(project: Project):
+    """Building + site objects of a townhouse template (camera bounds and lot checks use these)."""
+    if project.template == "neoclassical_townhouse":
+        return (
+            classic_massing_objects(project)
+            + classic_facade_objects(project)
+            + site_objects(project)
+        )
     return (
         massing_objects(project)
         + facade_objects(project)
@@ -142,8 +160,8 @@ def _union(boxes: list[Bounds]) -> Bounds:
     )
 
 
-def modern_bounds(project: Project) -> tuple[Bounds, Bounds]:
-    """(building, site) bounds used to fit the cameras of a modern_townhouse project."""
+def template_bounds(project: Project) -> tuple[Bounds, Bounds]:
+    """(building, site) bounds used to fit the cameras of a townhouse project."""
     building = _union(
         [
             o.mesh.bounds()
@@ -154,6 +172,9 @@ def modern_bounds(project: Project) -> tuple[Bounds, Bounds]:
     s = project.site
     lot = ((-s.width.value / 2, 0.0, 0.0), (s.width.value / 2, s.depth.value, building[1][2]))
     return building, _union([building, lot])
+
+
+modern_bounds = template_bounds  # name used before the neoclassical template
 
 
 TEXTURE_ROLES = ("base_color", "roughness", "normal")
@@ -181,7 +202,7 @@ def _world_and_plants(project: Project, catalog) -> dict:
             "strength": w.strength.value,
             "rotation_deg": w.rotation_deg.value,
         }
-    garden = project.modern.roof.garden
+    garden = getattr(project.body.roof, "garden", None)
     roof_models = [m.value for m in (garden.plant_models if garden else [])]
     placements = [
         AssetPlacement(
@@ -218,7 +239,9 @@ def _modern_objects_and_materials(
     project: Project, textured: bool = False
 ) -> tuple[list[dict], list[dict]]:
     objects = []
-    extra_objects = context_objects(project) + backdrop_objects(project)
+    extra_objects = context_objects(project)
+    if project.template == "modern_townhouse":  # classic massing already places its backdrops
+        extra_objects += backdrop_objects(project)
     for o in _modern_plan_objects(project) + extra_objects:
         if o.mesh is None:
             objects.append(_empty(o.name, *o.empty_box))
@@ -260,10 +283,10 @@ def _modern_objects_and_materials(
 
 def build_scene_plan(project: Project, render: RenderSettings) -> dict:
     extra: dict = {}
-    if project.template == "modern_townhouse":
+    if project.template in TOWNHOUSES:
         textured = render.profile != "smoke"  # smoke stays flat and asset-free
         objects, materials = _modern_objects_and_materials(project, textured)
-        building, site = modern_bounds(project)
+        building, site = template_bounds(project)
         if textured:
             extra = _world_and_plants(project, load_catalog())
     else:

@@ -48,7 +48,7 @@ def neighbour_specs(p) -> list[NeighbourSpec]:
     if c is None or c.neighbours is None:
         return []
     rng = random.Random(c.neighbours.seed.value)
-    half, depth = p.site.width.value / 2, p.modern.footprint_depth.value
+    half, depth = p.site.width.value / 2, p.body.footprint_depth.value
     out = []
     for side, sign in (("L", -1), ("R", 1)):
         edge = half + NEIGHBOUR_GAP  # distance from the centre line to the next free x
@@ -57,7 +57,7 @@ def neighbour_specs(p) -> list[NeighbourSpec]:
             width = round(rng.uniform(4.0, 6.0), 3)
             y0 = round(rng.uniform(0.0, 3.0), 3)
             y1 = round(y0 + depth + rng.uniform(-2.0, 2.0), 3)
-            floors = rng.randint(2, max(2, len(p.modern.floors)))  # never tower over the house
+            floors = rng.randint(2, max(2, len(p.body.floors)))  # never tower over the house
             tint = rng.randrange(len(NEIGHBOUR_TINTS))
             inner, outer = sign * edge, sign * round(edge + width, 6)
             x0, x1 = min(inner, outer), max(inner, outer)

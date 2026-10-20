@@ -42,6 +42,8 @@ class AssetPlacement:
 
 
 def _pots(p) -> list[tuple[float, float, float]]:
+    if p.template != "modern_townhouse":
+        return []  # ponytail: classic balconies are iron/balustrade, no flat slab for pots yet
     m = p.modern
     half = m.footprint_width.value / 2
     out = []
@@ -88,11 +90,11 @@ def _park_trees(p, rng: random.Random) -> list[tuple[float, float]]:
 def _front_sightlines(p) -> list[tuple[tuple, tuple]]:
     """(camera, facade point) segments of the front views; trees must not cross them."""
     from exterior_agent.geometry.cameras import fit_cameras  # avoid an import cycle
-    from exterior_agent.geometry.scene_plan import modern_bounds
+    from exterior_agent.geometry.scene_plan import template_bounds
 
-    m = p.modern
+    m = p.body
     w = m.footprint_width.value
-    cams = [c.location for c in fit_cameras(*modern_bounds(p)) if c.id in FRONT_VIEWS]
+    cams = [c.location for c in fit_cameras(*template_bounds(p)) if c.id in FRONT_VIEWS]
     targets = [
         (x, floor_front_y(p, n) - 0.05, floor_base_z(m, n) + m.floors[n - 1].height.value / 2)
         for n in range(1, len(m.floors) + 1)
@@ -114,7 +116,7 @@ def _blocks(sightlines, x: float, y: float, r: float, h: float, steps: int = 200
 
 def _yard_tree(p) -> tuple[tuple[float, float, float], float] | None:
     """Garden yard: one tree between the side boundary and the walkway, or none if no room."""
-    if p.modern.front_yard.kind.value != "garden":
+    if p.body.front_yard.kind.value != "garden":
         return None
     half, fs = p.site.width.value / 2, p.site.front_setback.value
     r = min(YARD_TREE_MAX_RADIUS, (half - YARD_WALKWAY) / 2, fs / 2 - YARD_MARGIN)
