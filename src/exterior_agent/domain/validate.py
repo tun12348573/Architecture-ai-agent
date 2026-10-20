@@ -112,6 +112,11 @@ def _template_issues(p: Project) -> list[ValidationIssue]:
             ]
     elif p.building is None or p.modern is not None:
         return [ValidationIssue("template", "basic_house needs a 'building' block and no 'modern'")]
+    elif p.world is not None or any(
+        m is not None and m.value.texture is not None
+        for m in (getattr(p.materials, r) for r in type(p.materials).model_fields)
+    ):
+        return [ValidationIssue("template", "textures and HDRI worlds need modern_townhouse")]
     return []
 
 

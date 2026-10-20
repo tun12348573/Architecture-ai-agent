@@ -113,6 +113,19 @@ def _blender(blender: list[str] | None, not_found: str | None) -> dict:
     return report
 
 
+def _assets() -> dict:
+    from exterior_agent.assets.catalog import load_catalog
+    from exterior_agent.assets.fetch import cache_dir, verify_cached
+
+    cache = cache_dir()
+    try:
+        catalog = load_catalog()
+    except (OSError, ValueError) as exc:
+        return {"cache": str(cache), "error": f"catalog unreadable: {exc}"}
+    missing = sum(len(verify_cached(cache, a)) for a in catalog.assets)
+    return {"cache": str(cache), "assets": len(catalog.assets), "missing_files": missing}
+
+
 def collect(blender: list[str] | None, not_found: str | None = None) -> dict:
     return {
         "python": {"version": platform.python_version(), "executable": sys.executable},
@@ -121,4 +134,5 @@ def collect(blender: list[str] | None, not_found: str | None = None) -> dict:
         "blender": _blender(blender, not_found),
         "memory": _memory(),
         "gpu_nvidia_smi": _nvidia_smi(),
+        "assets": _assets(),
     }

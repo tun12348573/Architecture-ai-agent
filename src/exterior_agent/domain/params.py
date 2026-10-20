@@ -81,6 +81,26 @@ class Flag(Param[bool]):
         return unit
 
 
+class Scalar(Param[float]):
+    """Unitless number (e.g. light strength, angle in degrees named by the field)."""
+
+    value: StrictFloat
+
+    @field_validator("unit")
+    @classmethod
+    def _no_unit(cls, unit: str | None) -> str | None:
+        if unit is not None:
+            raise ValueError("unit must be null for a scalar")
+        return unit
+
+    @field_validator("value")
+    @classmethod
+    def _finite(cls, value: float) -> float:
+        if not math.isfinite(value):
+            raise ValueError("must be a finite number")
+        return value
+
+
 class Choice(Param[str]):
     @field_validator("unit")
     @classmethod
@@ -94,6 +114,7 @@ class MaterialSpec(Strict):
     base_color: tuple[float, float, float]
     roughness: float = Field(ge=0, le=1)
     alpha: float = Field(default=1.0, ge=0, le=1)
+    texture: str | None = None  # asset id in assets/catalog.json (modern template only)
 
     @field_validator("base_color")
     @classmethod

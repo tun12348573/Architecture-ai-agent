@@ -66,6 +66,7 @@ class RoofGarden(Strict):
     planter_width: Length
     planter_height: Length
     pergola: Flag
+    plant_models: list[Choice] = Field(default_factory=list)  # asset ids of kind "model"
 
 
 class ModernRoof(Strict):

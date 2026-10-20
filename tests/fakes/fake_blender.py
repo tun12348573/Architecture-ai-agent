@@ -50,6 +50,9 @@ def render(args: list[str], fail: str) -> int:
     images = Path(opt(args, "--images"))
     images.mkdir(parents=True, exist_ok=True)
     sleep = float(os.environ.get("FAKE_BLENDER_SLEEP", "0"))
+    if os.environ.get("FAKE_BLENDER_OOM"):
+        print("Error: System is out of GPU memory", flush=True)
+        return 1
     hang_after = os.environ.get("FAKE_BLENDER_HANG_AFTER")
     for n, cam_id in enumerate(opt(args, "--cameras").split(",")):
         if hang_after is not None and n == int(hang_after):
@@ -83,6 +86,22 @@ def main() -> int:
             print(f"fake blender: relative path for {flag}: {value}", flush=True)
             return 3
     fail = os.environ.get("FAKE_BLENDER_FAIL", "")
+    lock = os.environ.get("FAKE_BLENDER_LOCKCHECK")
+    if lock:  # fail loudly if two fake Blenders ever run at the same time
+        try:
+            fd = os.open(lock, os.O_CREAT | os.O_EXCL)
+        except FileExistsError:
+            print("fake blender: another Blender is running", flush=True)
+            return 9
+        os.close(fd)
+        try:
+            return _run_script(script, script_args, fail)
+        finally:
+            os.remove(lock)
+    return _run_script(script, script_args, fail)
+
+
+def _run_script(script: str, script_args: list[str], fail: str) -> int:
     if script == "build_scene.py":
         return build(script_args, fail)
     if script == "render_views.py":

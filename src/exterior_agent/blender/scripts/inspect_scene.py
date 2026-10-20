@@ -7,6 +7,7 @@ rays.json: [{"object", "origin", "direction", "distance"}] in world space -> lis
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -53,6 +54,20 @@ def uv_max_error(obj) -> float:
     return worst
 
 
+def world_nodes() -> list[str]:
+    world = bpy.context.scene.world
+    return sorted(n.type for n in world.node_tree.nodes) if world and world.node_tree else []
+
+
+def material_inputs(mat) -> dict:
+    """Which node type feeds the Principled BSDF base colour (None for a plain value)."""
+    tree = mat.node_tree
+    bsdf = next((n for n in tree.nodes if n.type == "BSDF_PRINCIPLED"), None) if tree else None
+    if bsdf is None or not bsdf.inputs["Base Color"].links:
+        return {"base_color_from": None}
+    return {"base_color_from": bsdf.inputs["Base Color"].links[0].from_node.type}
+
+
 def object_entry(obj) -> dict:
     entry = {
         "type": obj.type,
@@ -61,6 +76,7 @@ def object_entry(obj) -> dict:
     }
     if obj.type == "MESH":
         entry["uv_layers"] = len(obj.data.uv_layers)
+        entry["rotation_z_world"] = obj.matrix_world.to_euler("XYZ").z
         if obj.data.uv_layers:
             entry["uv_max_error"] = uv_max_error(obj)
     if obj.type == "MESH" and obj.data.vertices:
@@ -95,6 +111,18 @@ def main() -> None:
             if obj.type == "CAMERA"
         },
         "materials": [m.name for m in bpy.data.materials],
+        "images": [
+            {
+                "name": img.name,
+                "filepath": img.filepath,
+                "exists": os.path.exists(bpy.path.abspath(img.filepath)),
+            }
+            for img in bpy.data.images
+            if img.source == "FILE"
+        ],
+        "world_nodes": world_nodes(),
+        "view_transform": bpy.context.scene.view_settings.view_transform,
+        "material_inputs": {m.name: material_inputs(m) for m in bpy.data.materials},
         "rays": [],
     }
     if args.rays:

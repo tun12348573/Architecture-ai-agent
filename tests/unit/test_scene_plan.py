@@ -46,7 +46,7 @@ def test_preview_and_final_profiles():
     assert resolve_render("preview") == RenderSettings(
         "preview", 1280, 720, "BLENDER_EEVEE", None, 16
     )
-    assert resolve_render("final") == RenderSettings("final", 1920, 1080, "BLENDER_EEVEE", None, 64)
+    assert resolve_render("final") == RenderSettings("final", 1920, 1080, "CYCLES", "GPU", 128)
 
 
 def test_cycles_gpu_override():

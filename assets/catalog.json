@@ -1,0 +1,395 @@
+{
+  "schema": "asset_catalog/1",
+  "assets": [
+    {
+      "id": "brushed_concrete",
+      "kind": "texture",
+      "license": "CC0",
+      "authors": [
+        "Dario Barresi",
+        "Dimitrios Savva"
+      ],
+      "source_page": "https://polyhaven.com/a/brushed_concrete",
+      "resolution": "1k",
+      "scale_m": 2.5,
+      "files": [
+        {
+          "path": "brushed_concrete_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brushed_concrete/brushed_concrete_diff_1k.jpg",
+          "size": 847278,
+          "role": "base_color",
+          "sha256": "4054ed6eb65cd063356ffb4a88706b7d7b78c5435051c48bf0ee64290f04bc8c"
+        },
+        {
+          "path": "brushed_concrete_rough_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brushed_concrete/brushed_concrete_rough_1k.jpg",
+          "size": 701983,
+          "role": "roughness",
+          "sha256": "24da5e4c3d17b7db1b4764b3cd1fd5c5680c27ef2c86e0d6a312f74d2d0599bd"
+        },
+        {
+          "path": "brushed_concrete_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/brushed_concrete/brushed_concrete_nor_gl_1k.jpg",
+          "size": 849228,
+          "role": "normal",
+          "sha256": "f4953a881f34627cefcc22f780d392314635e31bb41f75cf3888a5af55c21820"
+        }
+      ]
+    },
+    {
+      "id": "concrete",
+      "kind": "texture",
+      "license": "CC0",
+      "authors": [
+        "Rob Tuytel"
+      ],
+      "source_page": "https://polyhaven.com/a/concrete",
+      "resolution": "1k",
+      "scale_m": 4.0,
+      "files": [
+        {
+          "path": "concrete_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete/concrete_diff_1k.jpg",
+          "size": 543902,
+          "role": "base_color",
+          "sha256": "046c0e2aebe31e6043a6bc074e779f6a345f1d823d0ca1c69446c5cabadefa8a"
+        },
+        {
+          "path": "concrete_rough_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete/concrete_rough_1k.jpg",
+          "size": 215714,
+          "role": "roughness",
+          "sha256": "0dc74e17295160cf2fc214bf22a57fddc68f261e2cbacebb706f5b3fa5d07458"
+        },
+        {
+          "path": "concrete_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete/concrete_nor_gl_1k.jpg",
+          "size": 114447,
+          "role": "normal",
+          "sha256": "298a0e93040c9d76d239a894bdf28a9787755ea5f22baa068ffa8075369ee428"
+        }
+      ]
+    },
+    {
+      "id": "concrete_pavers",
+      "kind": "texture",
+      "license": "CC0",
+      "authors": [
+        "Amal Kumar"
+      ],
+      "source_page": "https://polyhaven.com/a/concrete_pavers",
+      "resolution": "1k",
+      "scale_m": 1.92,
+      "files": [
+        {
+          "path": "concrete_pavers_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_pavers/concrete_pavers_diff_1k.jpg",
+          "size": 757968,
+          "role": "base_color",
+          "sha256": "eea1fb8b498154754f4961ce0792092ef56cadc3d210becbb0dc3bf6c96c261d"
+        },
+        {
+          "path": "concrete_pavers_rough_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_pavers/concrete_pavers_rough_1k.jpg",
+          "size": 324326,
+          "role": "roughness",
+          "sha256": "27fb26837b95523b4ff8d663745466005ac6ae9797e6f5ced1192eaebf6c1469"
+        },
+        {
+          "path": "concrete_pavers_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_pavers/concrete_pavers_nor_gl_1k.jpg",
+          "size": 918300,
+          "role": "normal",
+          "sha256": "761c8332b4b53ab06931adf83f5f8f4fa5b7559a1a8267bc7ef865f890b17894"
+        }
+      ]
+    },
+    {
+      "id": "concrete_tiles",
+      "kind": "texture",
+      "license": "CC0",
+      "authors": [
+        "Dimitrios Savva"
+      ],
+      "source_page": "https://polyhaven.com/a/concrete_tiles",
+      "resolution": "1k",
+      "scale_m": 1.85,
+      "files": [
+        {
+          "path": "concrete_tiles_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_tiles/concrete_tiles_diff_1k.jpg",
+          "size": 868831,
+          "role": "base_color",
+          "sha256": "9a27af696bf55f65dca0c99c1add9c6c785b7d74fa9e6ec81013218776edef9d"
+        },
+        {
+          "path": "concrete_tiles_rough_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_tiles/concrete_tiles_rough_1k.jpg",
+          "size": 470959,
+          "role": "roughness",
+          "sha256": "63533c6837bf2e53c14be2a25c4353970821b70b6ad9c26287a9fd6fb7b9c252"
+        },
+        {
+          "path": "concrete_tiles_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/concrete_tiles/concrete_tiles_nor_gl_1k.jpg",
+          "size": 917948,
+          "role": "normal",
+          "sha256": "c2abce5a979e77540dd954f07cee7f577b4ff1d481563ebcb5bb9541ef24e33f"
+        }
+      ]
+    },
+    {
+      "id": "farm_soil",
+      "kind": "texture",
+      "license": "CC0",
+      "authors": [
+        "Amal Kumar"
+      ],
+      "source_page": "https://polyhaven.com/a/farm_soil",
+      "resolution": "1k",
+      "scale_m": 2.0,
+      "files": [
+        {
+          "path": "farm_soil_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/farm_soil/farm_soil_diff_1k.jpg",
+          "size": 735837,
+          "role": "base_color",
+          "sha256": "bfa2850109d1018ecb25342d9f17a5a81e826f7c67edfcaa7c878b60e62cc010"
+        },
+        {
+          "path": "farm_soil_rough_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/farm_soil/farm_soil_rough_1k.jpg",
+          "size": 279247,
+          "role": "roughness",
+          "sha256": "e20991112d705bfb0fce2fe2e8f770b5ec62dfd31c5636aa096b9e0dd2765c17"
+        },
+        {
+          "path": "farm_soil_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/farm_soil/farm_soil_nor_gl_1k.jpg",
+          "size": 1541114,
+          "role": "normal",
+          "sha256": "d67b68bf19c1176af28b19cbc55e13365ef4653faa7a00650fe9ffed5e03b35a"
+        }
+      ]
+    },
+    {
+      "id": "kloofendal_48d_partly_cloudy_puresky",
+      "kind": "hdri",
+      "license": "CC0",
+      "authors": [
+        "Greg Zaal",
+        "Jarod Guest"
+      ],
+      "source_page": "https://polyhaven.com/a/kloofendal_48d_partly_cloudy_puresky",
+      "resolution": "2k",
+      "scale_m": null,
+      "files": [
+        {
+          "path": "kloofendal_48d_partly_cloudy_puresky_2k.hdr",
+          "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/2k/kloofendal_48d_partly_cloudy_puresky_2k.hdr",
+          "size": 5451493,
+          "role": "hdri",
+          "sha256": "5244534e9cf5b606f2ff513aa00ddb161b0a4826ffd88a0d3bd03ac29247d198"
+        }
+      ]
+    },
+    {
+      "id": "leafy_grass",
+      "kind": "texture",
+      "license": "CC0",
+      "authors": [
+        "Charlotte Baglioni"
+      ],
+      "source_page": "https://polyhaven.com/a/leafy_grass",
+      "resolution": "1k",
+      "scale_m": 2.0,
+      "files": [
+        {
+          "path": "leafy_grass_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/leafy_grass/leafy_grass_diff_1k.jpg",
+          "size": 1195394,
+          "role": "base_color",
+          "sha256": "cfa40bc9d9417d1852db8753a8d5917f110c40101179f63543c382e39bc05e4a"
+        },
+        {
+          "path": "leafy_grass_rough_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/leafy_grass/leafy_grass_rough_1k.jpg",
+          "size": 511385,
+          "role": "roughness",
+          "sha256": "0c2a1d91aacb8e54a496051b59854e51e456fe858abeade778e308359ef16463"
+        },
+        {
+          "path": "leafy_grass_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/leafy_grass/leafy_grass_nor_gl_1k.jpg",
+          "size": 1466049,
+          "role": "normal",
+          "sha256": "832328216adc0a7e1f70a31d5ee48c9ab7f2152d83816122736cf42ac4b2ebd6"
+        }
+      ]
+    },
+    {
+      "id": "oak_wood_planks",
+      "kind": "texture",
+      "license": "CC0",
+      "authors": [
+        "Dimitrios Savva"
+      ],
+      "source_page": "https://polyhaven.com/a/oak_wood_planks",
+      "resolution": "1k",
+      "scale_m": 1.2,
+      "files": [
+        {
+          "path": "oak_wood_planks_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_wood_planks/oak_wood_planks_diff_1k.jpg",
+          "size": 696814,
+          "role": "base_color",
+          "sha256": "f715ed3e4346e94f971ef8dd61221ff6cc774886c20f65381e01e1dc0bb0a634"
+        },
+        {
+          "path": "oak_wood_planks_rough_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_wood_planks/oak_wood_planks_rough_1k.jpg",
+          "size": 845590,
+          "role": "roughness",
+          "sha256": "10ced559145df3c537bf1ccef6dc767ef6c47e134c21a9650bab261fa95ecacf"
+        },
+        {
+          "path": "oak_wood_planks_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/oak_wood_planks/oak_wood_planks_nor_gl_1k.jpg",
+          "size": 392213,
+          "role": "normal",
+          "sha256": "b4272cb2818f8f33f2620a2dc093c962f34920e9d485a4e132eb6d69de1ba950"
+        }
+      ]
+    },
+    {
+      "id": "painted_plaster_wall",
+      "kind": "texture",
+      "license": "CC0",
+      "authors": [
+        "Amal Kumar"
+      ],
+      "source_page": "https://polyhaven.com/a/painted_plaster_wall",
+      "resolution": "1k",
+      "scale_m": 2.0,
+      "files": [
+        {
+          "path": "painted_plaster_wall_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/painted_plaster_wall/painted_plaster_wall_diff_1k.jpg",
+          "size": 686726,
+          "role": "base_color",
+          "sha256": "440310f05af089f2c93353167573403cbc3f805948203237b5d26431eeb9e19c"
+        },
+        {
+          "path": "painted_plaster_wall_rough_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/painted_plaster_wall/painted_plaster_wall_rough_1k.jpg",
+          "size": 354762,
+          "role": "roughness",
+          "sha256": "e0564c297b22ab1cf4ef02a82157b84ce3b92eb4fd49d9c64b7256a8b300af82"
+        },
+        {
+          "path": "painted_plaster_wall_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/painted_plaster_wall/painted_plaster_wall_nor_gl_1k.jpg",
+          "size": 900461,
+          "role": "normal",
+          "sha256": "8eb01647d126eb5341e2c325821ad48c8ca11349dbef53447c95422c5d91cc9d"
+        }
+      ]
+    },
+    {
+      "id": "shrub_01",
+      "kind": "model",
+      "license": "CC0",
+      "authors": [
+        "Rico Cilliers"
+      ],
+      "source_page": "https://polyhaven.com/a/shrub_01",
+      "resolution": "1k",
+      "scale_m": null,
+      "files": [
+        {
+          "path": "shrub_01_1k.gltf",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/shrub_01/shrub_01_1k.gltf",
+          "size": 2895,
+          "role": "gltf",
+          "sha256": "c3bb3340687d46c684b9dab82f5b2f92b7b0fe761842423d3c9e19f59a839393"
+        },
+        {
+          "path": "textures/shrub_01_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/shrub_01/shrub_01_nor_gl_1k.jpg",
+          "size": 746497,
+          "role": "include",
+          "sha256": "076870a39a4e21a364cf94566e6dd1852a29045fdf1f23393637235b19d1c2e8"
+        },
+        {
+          "path": "shrub_01.bin",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/shrub_01/shrub_01.bin",
+          "size": 5239664,
+          "role": "include",
+          "sha256": "a8646f51386c84b12a6be8324dd0c2357c393c9108aac911847a203cf490b426"
+        },
+        {
+          "path": "textures/shrub_01_arm_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/shrub_01/shrub_01_arm_1k.jpg",
+          "size": 386309,
+          "role": "include",
+          "sha256": "8faecdc28d8f03ba0ac139be16e617e8bfd0778780ec1d7850812230378b89be"
+        },
+        {
+          "path": "textures/shrub_01_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/shrub_01/shrub_01_diff_1k.jpg",
+          "size": 502162,
+          "role": "include",
+          "sha256": "fe60e639d694e1807c0a3ae97dd1d5a7e7b3f84e5fc32d0610b868ce48f36331"
+        }
+      ]
+    },
+    {
+      "id": "shrub_02",
+      "kind": "model",
+      "license": "CC0",
+      "authors": [
+        "Rico Cilliers"
+      ],
+      "source_page": "https://polyhaven.com/a/shrub_02",
+      "resolution": "1k",
+      "scale_m": null,
+      "files": [
+        {
+          "path": "shrub_02_1k.gltf",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/1k/shrub_02/shrub_02_1k.gltf",
+          "size": 8083,
+          "role": "gltf",
+          "sha256": "99de0a70fe88ad414615cc8d8e020617c8512e2abfe08b911b153a6fcc40d93e"
+        },
+        {
+          "path": "textures/shrub_02_arm_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/shrub_02/shrub_02_arm_1k.jpg",
+          "size": 313715,
+          "role": "include",
+          "sha256": "7186bf604d5c02f873aef6de2346cc06b6fa48f47d054edbef36d2c3772c0890"
+        },
+        {
+          "path": "textures/shrub_02_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/shrub_02/shrub_02_nor_gl_1k.jpg",
+          "size": 490815,
+          "role": "include",
+          "sha256": "54c24e433365d5410223b7ebd2b33042b80831f80976e10768114db5ef6911d7"
+        },
+        {
+          "path": "shrub_02.bin",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/gltf/4k/shrub_02/shrub_02.bin",
+          "size": 758692,
+          "role": "include",
+          "sha256": "5c1b79da1cfdbac90599542ccd1f75ba433a3a4d356b1ea03655adb39b0e2c96"
+        },
+        {
+          "path": "textures/shrub_02_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Models/jpg/1k/shrub_02/shrub_02_diff_1k.jpg",
+          "size": 395120,
+          "role": "include",
+          "sha256": "9956eff294034d70516d867e9668428a23d782feb3d4c34061dce5e44bacd5a8"
+        }
+      ]
+    }
+  ]
+}

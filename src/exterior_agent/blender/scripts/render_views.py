@@ -26,6 +26,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--images", required=True)
     parser.add_argument("--cameras", required=True)
     parser.add_argument("--device", choices=("CPU", "GPU"))
+    parser.add_argument("--samples", type=int)
     return parser.parse_args(argv)
 
 
@@ -56,6 +57,11 @@ def main() -> None:
             print("EA_DEVICE " + json.dumps({"gpu": enable_gpu(scene)}), flush=True)
         else:
             scene.cycles.device = "CPU"
+    if args.samples:
+        if scene.render.engine == "CYCLES":
+            scene.cycles.samples = args.samples
+        else:
+            scene.eevee.taa_render_samples = args.samples
     images = Path(args.images)
     images.mkdir(parents=True, exist_ok=True)
     for cam_id in args.cameras.split(","):
