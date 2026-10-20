@@ -83,3 +83,15 @@ def test_hdri_scene_uses_agx_and_softer_sun(blender_cmd, textured, tmp_path):
     assert report["view_transform"] == "AgX"
     plan = json.loads((rev / "scene_plan.json").read_text(encoding="utf-8"))
     assert plan["sun"]["strength"] < 3.0  # the HDRI already contains the sun
+
+
+def test_plants_keep_their_rotation(blender_cmd, textured, tmp_path):
+    import math
+
+    _, rev = textured
+    plan = json.loads((rev / "scene_plan.json").read_text(encoding="utf-8"))
+    objects = inspect(blender_cmd, tmp_path, blend=rev / "model.blend")["objects"]
+    for spec in plan["assets"]:
+        got = objects[spec["name"]]["rotation_z_world"] % (2 * math.pi)
+        want = spec["rotation_z"] % (2 * math.pi)
+        assert min(abs(got - want), 2 * math.pi - abs(got - want)) < 1e-3, spec["name"]

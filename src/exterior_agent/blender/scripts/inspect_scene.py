@@ -76,6 +76,7 @@ def object_entry(obj) -> dict:
     }
     if obj.type == "MESH":
         entry["uv_layers"] = len(obj.data.uv_layers)
+        entry["rotation_z_world"] = obj.matrix_world.to_euler("XYZ").z
         if obj.data.uv_layers:
             entry["uv_max_error"] = uv_max_error(obj)
     if obj.type == "MESH" and obj.data.vertices:

@@ -198,11 +198,18 @@ def add_plant(spec: dict, scene, base: Path) -> None:
     # join() already deleted the merged meshes; drop the remaining import helpers (empties)
     for o in [o for o in bpy.data.objects if o not in before and o != plant]:
         bpy.data.objects.remove(o)
-    lowest = min(v.co.z for v in plant.data.vertices)  # stand the model on its base point
-    for v in plant.data.vertices:
+    # stand the model on its base, centred in XY so rotation_z spins it in place
+    vs = plant.data.vertices
+    cx = (min(v.co.x for v in vs) + max(v.co.x for v in vs)) / 2
+    cy = (min(v.co.y for v in vs) + max(v.co.y for v in vs)) / 2
+    lowest = min(v.co.z for v in vs)
+    for v in vs:
+        v.co.x -= cx
+        v.co.y -= cy
         v.co.z -= lowest
     plant.name = spec["name"]
     plant.location = spec["location"]
+    plant.rotation_mode = "XYZ"  # glTF import leaves QUATERNION; euler would be ignored
     plant.rotation_euler = (0.0, 0.0, spec["rotation_z"])
     plant.scale = (spec["scale"],) * 3
     for coll in list(plant.users_collection):
