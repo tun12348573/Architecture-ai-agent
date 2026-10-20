@@ -94,6 +94,8 @@ def make_material(spec: dict, base: Path) -> bpy.types.Material:
     bsdf.inputs["Base Color"].default_value = rgba
     bsdf.inputs["Roughness"].default_value = spec["roughness"]
     mat.diffuse_color = (*spec["base_color"], spec["alpha"])
+    if spec.get("metallic", 0.0) > 0:
+        bsdf.inputs["Metallic"].default_value = spec["metallic"]
     if spec.get("transmission", 0.0) > 0:  # clear refractive glass instead of alpha blending
         bsdf.inputs["Transmission Weight"].default_value = spec["transmission"]
         bsdf.inputs["IOR"].default_value = GLASS_IOR
