@@ -332,6 +332,9 @@ class _Job:
             ),
             "packaged_at": _now(),
         }
+        illustrative = _illustrative(self.plan)
+        if illustrative:
+            info["illustrative"] = illustrative
         write_delivery(self.rev, info)
         problems = verify_delivery(self.rev)
         if problems:
@@ -349,6 +352,18 @@ class _Job:
         if status == "completed":
             _clean_temp(self.rev)
         return BuildOutcome(status, self.rev, list(self.rendered_now), False, message)
+
+
+ILLUSTRATIVE_NOTE = "minh hoạ, không phải hiện trạng hay số đo"
+
+
+def _illustrative(plan: dict) -> dict | None:
+    """Street context and CC0 plants/lamps are illustration, never measured site data."""
+    objects = sorted(o["name"] for o in plan["objects"] if o["collection"] == "Context")
+    assets = sorted(a["name"] for a in plan.get("assets", []))
+    if not objects and not assets:
+        return None
+    return {"note": ILLUSTRATIVE_NOTE, "objects": objects, "assets": assets}
 
 
 def lock_path() -> Path:

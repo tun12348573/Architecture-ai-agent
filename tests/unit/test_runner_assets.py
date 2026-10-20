@@ -139,3 +139,22 @@ def test_licences_regenerated_on_resume(fake_catalog, modern_data, tmp_path, mon
     assert resumed.status == "completed", resumed.message
     delivery = json.loads((resumed.revision_dir / "delivery.json").read_text(encoding="utf-8"))
     assert delivery["assets"] and (resumed.revision_dir / "materials" / "LICENSES.json").is_file()
+
+
+def test_delivery_lists_illustrative(fake_catalog, modern_data, tmp_path):
+    cache = tmp_path / "cache"
+    fill(cache, fake_catalog)
+    rev = build(modern_data, tmp_path, cache=cache).revision_dir
+    delivery = json.loads((rev / "delivery.json").read_text(encoding="utf-8"))
+    illustrative = delivery["illustrative"]
+    assert "không phải hiện trạng" in illustrative["note"]
+    assert {"Road", "Neighbour_L1", "Sidewalk_Front"} <= set(illustrative["objects"])
+    assert {"Tree_1", "Lamp_1", "Pot_1", "Plant_Roof_1"} <= set(illustrative["assets"])
+    assert verify_delivery(rev) == []
+
+
+def test_no_illustrative_without_context(fake_catalog, demo_data, tmp_path):
+    outcome = build(demo_data, tmp_path, profile="smoke")
+    assert outcome.status == "completed", outcome.message
+    delivery = json.loads((outcome.revision_dir / "delivery.json").read_text(encoding="utf-8"))
+    assert "illustrative" not in delivery
