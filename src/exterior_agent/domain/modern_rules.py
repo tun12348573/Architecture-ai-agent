@@ -260,18 +260,28 @@ def check_modern(p) -> list[ValidationIssue]:  # noqa: C901 - one flat list of r
     if sh.height.value < 2.0:
         add("modern.roof.stair_head.height", "stair head lower than 2.0 m")
 
-    y = m.front_yard
+    issues += check_front_yard(p, m.front_yard, "modern")
+    return issues + check_context(p) + check_assets(p)
+
+
+def check_front_yard(p, y, prefix: str) -> list[ValidationIssue]:
+    """Front-yard rules shared by the townhouse templates (paths start with `prefix`)."""
+    s, issues = p.site, []
+
+    def add(path: str, message: str) -> None:
+        issues.append(ValidationIssue(f"{prefix}.front_yard.{path}", message))
+
     if y.kind.value not in ("parking", "garden"):
-        add("modern.front_yard.kind", "kind must be 'parking' or 'garden'")
+        add("kind", "kind must be 'parking' or 'garden'")
     if y.gate_width.value > s.width.value + TOL:
-        add("modern.front_yard.gate_width", "gate wider than the site")
+        add("gate_width", "gate wider than the site")
     if y.car.value and (
         y.kind.value != "parking" or s.front_setback.value < CAR_LENGTH + 0.1 - TOL
     ):
-        add("modern.front_yard.car", f"car needs a parking yard at least {CAR_LENGTH + 0.1} m deep")
+        add("car", f"car needs a parking yard at least {CAR_LENGTH + 0.1} m deep")
     bikes = y.motorbikes.value
     if not 0 <= bikes <= MAX_MOTORBIKES:
-        add("modern.front_yard.motorbikes", f"0..{MAX_MOTORBIKES} motorbikes")
+        add("motorbikes", f"0..{MAX_MOTORBIKES} motorbikes")
     else:
         pitch = BIKE_WIDTH + BIKE_GAP
         if y.car.value:  # bikes alternate either side of the centred car
@@ -279,5 +289,9 @@ def check_modern(p) -> list[ValidationIssue]:  # noqa: C901 - one flat list of r
         else:
             fits = bikes * pitch - BIKE_GAP <= s.width.value + TOL
         if bikes and not fits:
-            add("modern.front_yard.motorbikes", "motorbikes do not fit across the front yard")
-    return issues + check_context(p) + check_assets(p)
+            add("motorbikes", "motorbikes do not fit across the front yard")
+    if (y.car.value or bikes) and p.materials.props is None:
+        issues.append(
+            ValidationIssue("materials.props", "material role required by car/motorbikes")
+        )
+    return issues

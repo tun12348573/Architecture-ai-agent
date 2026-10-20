@@ -254,7 +254,7 @@ def _modern_objects_and_materials(
                 "vertices": [list(v) for v in o.mesh.vertices],
                 "faces": [list(f) for f in o.mesh.faces],
                 "material": o.material,
-                "uvs": [[list(uv) for uv in face] for face in box_uvs(o.mesh)],
+                "uvs": [[list(uv) for uv in face] for face in (o.uvs or box_uvs(o.mesh))],
             }
         )
     used = {o["material"] for o in objects if o["type"] == "MESH"}

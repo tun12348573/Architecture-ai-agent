@@ -24,6 +24,7 @@ class PlanObject:
     mesh: Mesh | None
     material: str | None
     empty_box: Bounds | None = None
+    uvs: list | None = None  # per face, per corner (u, v) in metres; None → box projection
 
 
 def floor_base_z(m, n: int) -> float:

@@ -2,6 +2,7 @@
 
 import math
 
+from exterior_agent.domain.modern_rules import check_front_yard
 from exterior_agent.domain.validate_common import (
     MIN_LINTEL,
     MIN_PIER,
@@ -17,6 +18,8 @@ OCULUS_HEIGHT = 0.4  # oculus centre, as a fraction of the gable height
 OCULUS_MARGIN = 0.1
 COLUMN_CLEARANCE = 0.05  # capital (≈1.5 r wide) + this stays inside the bay edge
 PEDIMENT_CLEARANCE = 0.05
+FRAME_PROFILE = 0.06  # window/door frame member: an arch needs room for two of them
+MIN_DOOR_LEAF = 1.8  # door leaves below the arch springing / flat head
 REQUIRED_ROLES = ("wall", "window_glass", "frame", "trim", "panel", "roof_tiles", "iron",
                   "door_wood", "paving", "grass")  # fmt: skip
 
@@ -99,12 +102,23 @@ def check_classic(p) -> list[ValidationIssue]:  # noqa: C901 - one flat list of 
                     add(f"{op}.id", f"duplicate opening id {o.id!r}")
                 seen.add(o.id)
                 off, w, h, sill = o.offset.value, o.width.value, o.height.value, o.sill.value
-                if off < t - TOL:
-                    add(f"{op}.offset", f"must be at least {t} m from the corner")
-                if off + w > fw - t + TOL:
-                    add(f"{op}.width", "opening runs past the facade end")
-                if o.head == "arch" and h <= w / 2 + TOL:
-                    add(f"{op}.height", "an arch needs height greater than half its width")
+                edge = t
+                if side == "front" and m.pilasters is not None:
+                    edge = max(t, m.pilasters.width.value)  # keep clear of the corner pilasters
+                if off < edge - TOL:
+                    add(f"{op}.offset", f"must be at least {edge} m from the corner")
+                if off + w > fw - edge + TOL:
+                    add(f"{op}.width", "opening runs past the facade end or into a pilaster")
+                if o.head == "arch" and h < w / 2 + 2 * FRAME_PROFILE - TOL:
+                    add(f"{op}.height", f"an arch needs height of at least half its width + "
+                        f"{2 * FRAME_PROFILE:g} m")  # fmt: skip
+                leaf = h - w / 2 if o.head == "arch" else h
+                if o.kind in ("door", "door_wood") and leaf < MIN_DOOR_LEAF - TOL:
+                    add(f"{op}.height", f"door leaves must be at least {MIN_DOOR_LEAF} m tall")
+                if side == "rear":
+                    for extra in ("balcony", "hood", "keystone"):
+                        if getattr(o, extra) is not None:
+                            add(f"{op}.{extra}", f"{extra} is only built on the front facade")
                 if sill + h > clear - MIN_LINTEL + TOL:
                     add(f"{op}.height", f"leaves less than {MIN_LINTEL} m lintel")
                 if o.kind in ("door", "door_wood") and abs(sill) > TOL:
@@ -135,11 +149,27 @@ def check_classic(p) -> list[ValidationIssue]:  # noqa: C901 - one flat list of 
             return issues
         x0, x1 = bay_range(m)
         if b.columns.value:
+            r = b.column_radius.value
+            need = 2 * (column_inset(r) + r) + MIN_PIER
+            if b.width.value < need - TOL:
+                add("classic.bay.width", f"bay too narrow for its columns (min {need:.2f} m)")
             cols = column_ranges(m)
             for j, o in enumerate(m.floors[a - 1].openings_front):
                 lo, hi = o.offset.value, o.offset.value + o.width.value
                 if any(lo < c1 - TOL and hi > c0 + TOL for c0, c1 in cols):
                     add(f"classic.floors[{a - 1}].openings_front[{j}]", "opening hits a column")
+        room = s.front_setback.value - b.projection.value
+        for n in range(a + 1, z + 1):  # enclosed bay floors: openings sit on the bay wall or clear
+            for j, o in enumerate(m.floors[n - 1].openings_front):
+                lo, hi = o.offset.value, o.offset.value + o.width.value
+                inside = lo >= x0 + t - TOL and hi <= x1 - t + TOL
+                if not inside and not (hi <= x0 + TOL or lo >= x1 - TOL):
+                    add(f"classic.floors[{n - 1}].openings_front[{j}]",
+                        "opening must sit on the bay wall (at least the wall thickness from "
+                        "its edges) or clear of the bay")  # fmt: skip
+                if inside and o.balcony is not None and o.balcony.projection.value > room + TOL:
+                    add(f"classic.floors[{n - 1}].openings_front[{j}].balcony.projection",
+                        "balcony projects past the front boundary from the bay wall")  # fmt: skip
         if b.pediment is not None:
             ph = b.pediment.height.value
             if z == n:
@@ -150,10 +180,11 @@ def check_classic(p) -> list[ValidationIssue]:  # noqa: C901 - one flat list of 
                     inside = lo < x1 - TOL and hi > x0 + TOL
                     if inside and o.sill.value < ph + PEDIMENT_CLEARANCE - TOL:
                         add("classic.bay.pediment.height", f"pediment reaches opening {o.id}")
+                for j, o in enumerate(m.floors[z].openings_front):
+                    lo, hi = o.offset.value, o.offset.value + o.width.value
+                    over = lo < x1 - TOL and hi > x0 + TOL
+                    if over and o.balcony is not None and o.balcony.kind != "iron_straight":
+                        add(f"classic.floors[{z}].openings_front[{j}].balcony",
+                            "only an iron_straight balcony fits above the pediment")  # fmt: skip
 
-    y = m.front_yard
-    if y.kind.value not in ("parking", "garden"):
-        add("classic.front_yard.kind", "kind must be 'parking' or 'garden'")
-    if y.gate_width.value > s.width.value + TOL:
-        add("classic.front_yard.gate_width", "gate wider than the site")
-    return issues
+    return issues + check_front_yard(p, m.front_yard, "classic")

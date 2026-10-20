@@ -1,5 +1,7 @@
 """The neoclassical template in the scene plan: materials, cameras, site, street context."""
 
+import pytest
+
 from exterior_agent.domain.render import resolve_render
 from exterior_agent.domain.validate import parse_project
 from exterior_agent.geometry.scene_plan import build_scene_plan, template_bounds
@@ -62,3 +64,22 @@ def test_classic_street_context(classic_data):
     assert {"Road", "Sidewalk_Front", "Neighbour_L1"} <= names
     trees = [a for a in plan["assets"] if a["name"].startswith("Tree_")]
     assert trees
+
+
+def test_roof_tile_uvs_follow_slope(classic_data):
+    """u runs along the ridge (y), v up the slope in metres, at any allowed pitch."""
+    import math
+
+    for pitch in (30.0, 55.0):
+        classic_data["classic"]["roof"]["pitch_deg"]["value"] = pitch
+        p = parse_project(classic_data)
+        plan = build_scene_plan(p, SMOKE)
+        w2 = p.classic.footprint_width.value / 2
+        for name, eave in (("Roof_Tiles_L", -w2), ("Roof_Tiles_R", w2)):
+            o = next(o for o in plan["objects"] if o["name"] == name)
+            for face, uvs in zip(o["faces"], o["uvs"], strict=True):
+                for i, (u, v) in zip(face, uvs, strict=True):
+                    x, y, _ = o["vertices"][i]
+                    assert u == pytest.approx(y) and v == pytest.approx(
+                        abs(x - eave) / math.cos(math.radians(pitch))
+                    )

@@ -129,10 +129,11 @@ def check_classic_geometry(p) -> list[ValidationIssue]:
     Pairwise overlap is not checked: sloped plates, gables and ornaments make AABB overlap
     meaningless; the facade tests check that nothing obstructs an opening instead.
     """
+    from exterior_agent.geometry.classic_facade import classic_facade_objects
     from exterior_agent.geometry.classic_massing import classic_massing_objects
 
     issues: list[ValidationIssue] = []
-    objects = classic_massing_objects(p)
+    objects = classic_massing_objects(p) + classic_facade_objects(p)
     names = [o.name for o in objects]
     for name in sorted({n for n in names if names.count(n) > 1}):
         issues.append(

@@ -153,9 +153,14 @@ def _roof_objects(p) -> list[PlanObject]:
     out = []
     for name, sx in (("L", -1), ("R", 1)):
         pts = [(sx * w2, top), (0.0, top + h), (0.0, top + h + th), (sx * w2, top + th)]
-        out.append(
-            PlanObject(f"Roof_Tiles_{name}", "Roof", prism_xz(pts, y0, y1), "MAT_Roof_Tiles")
-        )
+        plate = prism_xz(pts, y0, y1)
+        cos_p = math.cos(math.radians(r.pitch_deg.value))
+        # tile rows run along the ridge: u = y, v = metres up the slope from the eave
+        uvs = [
+            [(plate.vertices[i][1], abs(plate.vertices[i][0] - sx * w2) / cos_p) for i in f]
+            for f in plate.faces
+        ]
+        out.append(PlanObject(f"Roof_Tiles_{name}", "Roof", plate, "MAT_Roof_Tiles", uvs=uvs))
         if r.gutters.value:
             xa, xb = sorted((sx * w2, sx * (w2 - GUTTER_WIDTH)))
             gutter = box_mesh((xa, y0, top), (xb, y1, top + GUTTER_HEIGHT))
