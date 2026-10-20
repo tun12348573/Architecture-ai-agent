@@ -118,3 +118,11 @@ def test_site_context_below_road(project):
 def test_no_car_in_fixture(project):
     plan = build_scene_plan(project, SMOKE)
     assert not [o["name"] for o in plan["objects"] if o["name"].startswith("Prop_")]
+
+
+def test_neighbours_not_taller_than_house(modern_data):
+    # taller neighbours hid the house in 10_aerial (benchmark 2026-10-20)
+    for seed in range(20):
+        modern_data["context"]["neighbours"]["seed"]["value"] = seed
+        p = parse_project(modern_data)
+        assert all(2 <= n.floors <= len(p.modern.floors) for n in neighbour_specs(p)), seed

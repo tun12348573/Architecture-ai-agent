@@ -56,7 +56,7 @@ def neighbour_specs(p) -> list[NeighbourSpec]:
             width = round(rng.uniform(4.0, 6.0), 3)
             y0 = round(rng.uniform(0.0, 3.0), 3)
             y1 = round(y0 + depth + rng.uniform(-2.0, 2.0), 3)
-            floors = rng.randint(2, 5)
+            floors = rng.randint(2, max(2, len(p.modern.floors)))  # never tower over the house
             tint = rng.randrange(len(NEIGHBOUR_TINTS))
             inner, outer = sign * edge, sign * round(edge + width, 6)
             x0, x1 = min(inner, outer), max(inner, outer)

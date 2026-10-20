@@ -28,6 +28,7 @@ EXPECTED = (
     | {"Yard_Front", "Yard_Rear", "Site_Context", "Fence_Left", "Fence_Right", "Gate"}
     | {"Sidewalk_Front", "Kerb_Front", "Road", "Road_Marking", "Sidewalk_Opposite"}
     | {"Ground_Left", "Ground_Right"}
+    | {f"Backdrop_{i}" for i in ("D1", "W1", "W2", "W3", "W4", "W5")}
     | {f"Neighbour_{s}{k}{g}" for s in "LR" for k in (1, 2) for g in ("", "_Glass")}
 )
 

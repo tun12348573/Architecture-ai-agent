@@ -1052,7 +1052,7 @@
           1.0
         ],
         "roughness": 0.8,
-        "texture": "beige_wall_001"
+        "texture": "painted_plaster_wall"
       },
       "unit": null,
       "source": "m2c_spec_proposal",

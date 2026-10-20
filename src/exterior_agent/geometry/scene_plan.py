@@ -16,6 +16,7 @@ from exterior_agent.geometry.layout import building_bounds, site_bounds
 from exterior_agent.geometry.mesh import Bounds, Mesh
 from exterior_agent.geometry.modern_cladding import cladding_objects
 from exterior_agent.geometry.modern_facade import facade_objects
+from exterior_agent.geometry.modern_interior import INTERIOR_MATERIAL, backdrop_objects
 from exterior_agent.geometry.modern_massing import massing_objects, roof_plant_positions
 from exterior_agent.geometry.modern_site import site_objects
 from exterior_agent.geometry.primitives import box_uvs
@@ -210,7 +211,8 @@ def _modern_objects_and_materials(
     project: Project, textured: bool = False
 ) -> tuple[list[dict], list[dict]]:
     objects = []
-    for o in _modern_plan_objects(project) + context_objects(project):
+    extra_objects = context_objects(project) + backdrop_objects(project)
+    for o in _modern_plan_objects(project) + extra_objects:
         if o.mesh is None:
             objects.append(_empty(o.name, *o.empty_box))
             continue
@@ -236,6 +238,8 @@ def _modern_objects_and_materials(
         if textured and spec.texture is not None:
             entry.update(_textures(spec, catalog))
         materials.append(entry)
+    if INTERIOR_MATERIAL["name"] in used:
+        materials.append(dict(INTERIOR_MATERIAL))
     for name in sorted(n for n in used if n.startswith(NEIGHBOUR_PREFIX) and n[-1].isdigit()):
         spec = project.materials.neighbour_wall.value
         entry = _material(name, spec)
