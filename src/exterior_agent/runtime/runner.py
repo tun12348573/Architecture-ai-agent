@@ -29,7 +29,7 @@ from exterior_agent.geometry.scene_plan import (
     required_material_names,
     required_object_names,
 )
-from exterior_agent.runtime.assets_stage import LICENSES, AssetsMissing, stage_assets
+from exterior_agent.runtime.assets_stage import AssetsMissing, stage_assets, write_licenses
 from exterior_agent.runtime.delivery import (
     make_contact_sheet,
     validate_glb,
@@ -339,8 +339,8 @@ class _Job:
         self.state["stages"]["package"]["status"] = "completed"
 
     def _licenses(self) -> list[dict]:
-        path = self.rev / LICENSES
-        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
+        # Regenerated from the plan at packaging time: an edited/deleted file cannot ship.
+        return write_licenses(self.plan, self.rev)
 
     def finish(self, status: Status, message: str) -> BuildOutcome:
         self.state["status"] = status

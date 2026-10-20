@@ -118,3 +118,17 @@ def test_samples_override(capsys):
     with pytest.raises(ValueError):
         resolve_render("final", samples=0)
     assert cli.main(["build", "examples/modern_townhouse/project.json", "--samples", "0"]) == 2
+
+
+def test_licences_regenerated_on_resume(fake_catalog, modern_data, tmp_path, monkeypatch):
+    cache = tmp_path / "cache"
+    fill(cache, fake_catalog)
+    monkeypatch.setenv("FAKE_BLENDER_FAIL", "render:1")
+    failed = build(modern_data, tmp_path, cache=cache)
+    assert failed.status == "failed"
+    (failed.revision_dir / "materials" / "LICENSES.json").unlink()
+    monkeypatch.delenv("FAKE_BLENDER_FAIL")
+    resumed = build(modern_data, tmp_path, cache=cache)
+    assert resumed.status == "completed", resumed.message
+    delivery = json.loads((resumed.revision_dir / "delivery.json").read_text(encoding="utf-8"))
+    assert delivery["assets"] and (resumed.revision_dir / "materials" / "LICENSES.json").is_file()

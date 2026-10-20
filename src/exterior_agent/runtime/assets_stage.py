@@ -37,6 +37,15 @@ def stage_assets(plan: dict, cache: Path, rev_dir: Path) -> dict[str, str]:
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(Path(cache) / asset_id / rel, target)
         staged[f"materials/{asset_id}/{rel}"] = sha
+    write_licenses(plan, rev_dir)
+    return staged
+
+
+def write_licenses(plan: dict, rev_dir: Path) -> list[dict]:
+    """(Re)write materials/LICENSES.json from the plan; empty list when no assets are used."""
+    files = required_asset_files(plan)
+    if not files:
+        return []
     catalog = load_catalog()
     used: dict[str, list[dict]] = {}
     for asset_id, rel, sha in files:
@@ -55,4 +64,4 @@ def stage_assets(plan: dict, cache: Path, rev_dir: Path) -> dict[str, str]:
             }
         )
     atomic_write_json(Path(rev_dir) / LICENSES, licenses)
-    return staged
+    return licenses
