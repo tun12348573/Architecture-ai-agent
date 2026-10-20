@@ -6,8 +6,10 @@ incomplete one resumes only when its fingerprint and recorded artifacts still ma
 
 import hashlib
 import json
+import os
 import platform
 import sys
+import tempfile
 import threading
 from collections.abc import Callable
 from contextlib import contextmanager
@@ -349,13 +351,19 @@ class _Job:
         return BuildOutcome(status, self.rev, list(self.rendered_now), False, message)
 
 
+def lock_path() -> Path:
+    """One lock per machine user, whatever --out is: build and benchmark exclude each other."""
+    return Path(os.environ.get("EXTERIOR_AGENT_LOCK") or Path(tempfile.gettempdir()) / LOCK_NAME)
+
+
 @contextmanager
-def build_lock(out_dir: Path):
-    """OS-level exclusive lock per output root: one build (one Blender) at a time.
-    The OS releases it when the process exits, so a crash never leaves a stale lock."""
-    out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    handle = open(out_dir / LOCK_NAME, "a+b")  # held open for the whole build
+def build_lock(out_dir: Path | None = None):
+    """OS-level exclusive lock: one Blender job at a time on this machine (brief §1).
+    The OS releases it when the process exits, so a crash never leaves a stale lock.
+    `out_dir` is accepted for call-site clarity only."""
+    path = lock_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle = open(path, "a+b")  # held open for the whole job
     try:
         try:
             if sys.platform == "win32":
@@ -365,7 +373,7 @@ def build_lock(out_dir: Path):
                 fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         except OSError as exc:
             raise BuildBusy(
-                f"another build is running with output in {out_dir}; wait for it to finish"
+                f"another build or benchmark is running ({path}); wait for it to finish"
             ) from exc
         try:
             yield

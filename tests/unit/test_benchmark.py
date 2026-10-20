@@ -63,3 +63,16 @@ def test_cli_rejects_bad_samples(samples, capsys):
 def test_cli_rejects_unknown_view(capsys):
     code = cli.main(["benchmark", "examples/demo_house/project.json", "--views", "99_nowhere"])
     assert code == 2
+
+
+def test_benchmark_and_build_share_one_lock(demo_data, tmp_path, monkeypatch, capsys):
+    from exterior_agent.runtime.runner import build_lock
+
+    monkeypatch.setattr(cli, "find_blender", lambda explicit=None: FAKE_BLENDER)
+    with build_lock(tmp_path / "build output"):  # a build is running elsewhere
+        code = cli.main(
+            ["benchmark", "examples/demo_house/project.json", "--profile", "smoke",
+             "--samples", "4", "--out", str(tmp_path / "bench output")]
+        )  # fmt: skip
+    assert code == 1
+    assert "another build" in capsys.readouterr().err
