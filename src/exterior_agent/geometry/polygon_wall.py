@@ -25,6 +25,8 @@ def arch_outline(u0: float, u1: float, z0: float, z1: float, segments: int = 24)
     zs = max(z0, z1 - r)
     arc = [(cu + r * math.cos(math.pi * k / segments), zs + r * math.sin(math.pi * k / segments))
            for k in range(1, segments)]  # fmt: skip
+    if zs - z0 <= EPS:  # pure half-disc (fanlight): no straight sides
+        return [(u0, z0), (u1, z0), *arc]
     return [(u0, z0), (u1, z0), (u1, zs), *arc, (u0, zs)]
 
 

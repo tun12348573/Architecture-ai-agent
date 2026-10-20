@@ -15,7 +15,7 @@ MIN_CLEAR = 2.4
 PITCH_RANGE = (25.0, 55.0)
 OCULUS_HEIGHT = 0.4  # oculus centre, as a fraction of the gable height
 OCULUS_MARGIN = 0.1
-COLUMN_CLEARANCE = 0.05  # column centre sits radius + this inside the bay edge
+COLUMN_CLEARANCE = 0.05  # capital (≈1.5 r wide) + this stays inside the bay edge
 PEDIMENT_CLEARANCE = 0.05
 REQUIRED_ROLES = ("wall", "window_glass", "frame", "trim", "panel", "roof_tiles", "iron",
                   "door_wood", "paving", "grass")  # fmt: skip
@@ -43,10 +43,16 @@ def bay_range(m) -> tuple[float, float]:
     return (0.0, b.width.value) if b.side.value == "left" else (w - b.width.value, w)
 
 
+def column_inset(r: float) -> float:
+    """Distance from the bay edge to a column centre: the capital flares to about 1.5 r."""
+    return 1.5 * r + COLUMN_CLEARANCE
+
+
 def column_ranges(m) -> list[tuple[float, float]]:
     x0, x1 = bay_range(m)
     r = m.bay.column_radius.value
-    centres = (x0 + r + COLUMN_CLEARANCE, x1 - r - COLUMN_CLEARANCE)
+    inset = column_inset(r)
+    centres = (x0 + inset, x1 - inset)
     return [(c - r, c + r) for c in centres]
 
 

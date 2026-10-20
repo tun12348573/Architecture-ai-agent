@@ -70,6 +70,15 @@ def _wall(p, n: int, side: str, frame: WallFrame, openings, t: float, h: float, 
     return prism_with_holes(rect_outline(0.0, frame.length, 0.0, h), holes, t, frame)
 
 
+def opening_frame(p, n: int, side: str, o) -> WallFrame:
+    """Wall frame an opening is cut into: the main facade, the rear, or the bay's front wall."""
+    if side == "front" and on_bay_wall(p.classic, n, o):
+        x0, x1, yb, _ = bay_world(p)
+        return WallFrame((x0, yb, floor_base_z(p.classic, n)), (1, 0, 0), (0, 1, 0), x1 - x0,
+                         bay_range(p.classic)[0])  # fmt: skip
+    return floor_frames(p, n)[side]
+
+
 def _floor_objects(p, n: int) -> list[PlanObject]:
     m = p.classic
     f = m.floors[n - 1]
@@ -122,7 +131,7 @@ def _bay_objects(p) -> list[PlanObject]:
     return out
 
 
-def _prism_xz(pts: list[tuple[float, float]], y0: float, y1: float) -> Mesh:
+def prism_xz(pts: list[tuple[float, float]], y0: float, y1: float) -> Mesh:
     """Extrude an (x, z) polygon along +Y."""
     n = len(pts)
     verts = [(x, y0, z) for x, z in pts] + [(x, y1, z) for x, z in pts]
@@ -145,7 +154,7 @@ def _roof_objects(p) -> list[PlanObject]:
     for name, sx in (("L", -1), ("R", 1)):
         pts = [(sx * w2, top), (0.0, top + h), (0.0, top + h + th), (sx * w2, top + th)]
         out.append(
-            PlanObject(f"Roof_Tiles_{name}", "Roof", _prism_xz(pts, y0, y1), "MAT_Roof_Tiles")
+            PlanObject(f"Roof_Tiles_{name}", "Roof", prism_xz(pts, y0, y1), "MAT_Roof_Tiles")
         )
         if r.gutters.value:
             xa, xb = sorted((sx * w2, sx * (w2 - GUTTER_WIDTH)))

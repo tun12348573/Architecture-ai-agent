@@ -68,7 +68,7 @@ def test_bay_past_front_boundary(classic_data):
 
 
 def test_opening_hits_column(classic_data):
-    front(classic_data, 1, 0)["offset"]["value"] = 0.2  # left column spans 0.05..0.41
+    front(classic_data, 1, 0)["offset"]["value"] = 0.2  # left column: 0.14..0.50
     assert "classic.floors[1].openings_front[0]" in paths(classic_data)
 
 
