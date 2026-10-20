@@ -200,9 +200,9 @@ Thêm một biến thể để test `park`: tạo trong test bằng cách chỉn
   - Build `final`; chủ dự án xem contact sheet, so với ảnh M2b.
   - Benchmark ghi vào STATUS. Ghi rõ đây là bước manual.
 
-## 10. Câu hỏi còn mở (chờ chủ dự án)
+## 10. Quyết định đã chốt
 
-1. **Nhà hàng xóm che mặt bên.** Nhà phố sát vách nên ở view `03_left`/`04_right` (và một phần các góc chéo phía sau), camera sẽ chỉ thấy tường nhà hàng xóm. Một scene cho mọi view thì đây là hình ảnh đúng thực tế. [Đề xuất] Bật hàng xóm mặc định. Khi cần xem mặt bên nhà chính, build một revision với `neighbours: null`. Chủ dự án xác nhận hoặc chọn cách khác.
+1. **Nhà hàng xóm che mặt bên** [chủ dự án, 2026-10-20: "đồng ý"]: bật hàng xóm mặc định. Ở view `03_left`/`04_right` (và một phần các góc chéo phía sau), camera sẽ thấy tường nhà hàng xóm, đúng thực tế. Khi cần xem mặt bên nhà chính, build một revision với `neighbours: null`. README hướng dẫn cách làm này.
 
 ## 11. Để lại cho người thực hiện
 
