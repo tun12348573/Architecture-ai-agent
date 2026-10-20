@@ -12,6 +12,13 @@ from exterior_agent.domain.render import resolve_render
 from exterior_agent.domain.validate import parse_project
 from exterior_agent.runtime.delivery import verify_delivery
 from exterior_agent.runtime.runner import BuildOptions, ResumeRefused, run_build
+from tests.unit.conftest import with_props
+
+
+@pytest.fixture
+def modern_data(modern_data):
+    return with_props(modern_data)
+
 
 FAKE_BLENDER = [
     sys.executable,
@@ -66,13 +73,13 @@ def test_textures_staged_and_licensed(fake_catalog, modern_data, tmp_path):
     outcome = build(modern_data, tmp_path, cache=cache)
     rev = outcome.revision_dir
     assert outcome.status == "completed", outcome.message
-    staged = rev / "materials" / "painted_plaster_wall"
+    staged = rev / "materials" / "beige_wall_001"
     assert staged.is_dir()
     for f in staged.iterdir():
-        assert f.read_bytes() == (cache / "painted_plaster_wall" / f.name).read_bytes()
+        assert f.read_bytes() == (cache / "beige_wall_001" / f.name).read_bytes()
     licenses = json.loads((rev / "materials" / "LICENSES.json").read_text(encoding="utf-8"))
     ids = {entry["id"] for entry in licenses}
-    assert {"painted_plaster_wall", "kloofendal_48d_partly_cloudy_puresky", "shrub_01"} <= ids
+    assert {"beige_wall_001", "kloofendal_48d_partly_cloudy_puresky", "shrub_02"} <= ids
     assert all(entry["license"] == "CC0" for entry in licenses)
     assert verify_delivery(rev) == []
     delivery = json.loads((rev / "delivery.json").read_text(encoding="utf-8"))
@@ -132,3 +139,22 @@ def test_licences_regenerated_on_resume(fake_catalog, modern_data, tmp_path, mon
     assert resumed.status == "completed", resumed.message
     delivery = json.loads((resumed.revision_dir / "delivery.json").read_text(encoding="utf-8"))
     assert delivery["assets"] and (resumed.revision_dir / "materials" / "LICENSES.json").is_file()
+
+
+def test_delivery_lists_illustrative(fake_catalog, modern_data, tmp_path):
+    cache = tmp_path / "cache"
+    fill(cache, fake_catalog)
+    rev = build(modern_data, tmp_path, cache=cache).revision_dir
+    delivery = json.loads((rev / "delivery.json").read_text(encoding="utf-8"))
+    illustrative = delivery["illustrative"]
+    assert "không phải hiện trạng" in illustrative["note"]
+    assert {"Road", "Neighbour_L1", "Sidewalk_Front"} <= set(illustrative["objects"])
+    assert {"Tree_1", "Lamp_1", "Pot_1", "Plant_Roof_1"} <= set(illustrative["assets"])
+    assert verify_delivery(rev) == []
+
+
+def test_no_illustrative_without_context(fake_catalog, demo_data, tmp_path):
+    outcome = build(demo_data, tmp_path, profile="smoke")
+    assert outcome.status == "completed", outcome.message
+    delivery = json.loads((outcome.revision_dir / "delivery.json").read_text(encoding="utf-8"))
+    assert "illustrative" not in delivery

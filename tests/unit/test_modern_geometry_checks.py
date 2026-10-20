@@ -6,6 +6,12 @@ import copy
 import pytest
 
 from exterior_agent.domain.validate import ProjectValidationError, parse_project
+from tests.unit.conftest import with_props
+
+
+@pytest.fixture
+def modern_data(modern_data):
+    return with_props(modern_data)
 
 
 def P(v, unit="m"):

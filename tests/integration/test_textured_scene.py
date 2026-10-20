@@ -10,7 +10,7 @@ from exterior_agent.assets.fetch import cache_dir, verify_cached
 from exterior_agent.blender.invoke import find_blender
 from exterior_agent.domain.render import resolve_render
 from exterior_agent.domain.validate import TOL, parse_project
-from exterior_agent.geometry.modern_massing import massing_objects
+from exterior_agent.geometry.modern_massing import massing_objects, roof_plant_positions
 from exterior_agent.runtime.delivery import read_glb
 from exterior_agent.runtime.runner import BuildOptions, run_build
 from tests.integration.conftest import REPO_ROOT, inspect
@@ -52,7 +52,7 @@ def test_plants_in_roof_planter(blender_cmd, textured, tmp_path):
     lo, hi = planter.mesh.bounds()
     objects = inspect(blender_cmd, tmp_path, blend=rev / "model.blend")["objects"]
     plants = {n: o for n, o in objects.items() if n.startswith("Plant_Roof_")}
-    assert len(plants) == 3
+    assert len(plants) == len(roof_plant_positions(project))
     for name, entry in plants.items():
         assert "Roof" in entry["collections"], name
         assert entry["bbox_min"][2] == pytest.approx(hi[2], abs=0.05), name
@@ -95,3 +95,64 @@ def test_plants_keep_their_rotation(blender_cmd, textured, tmp_path):
         got = objects[spec["name"]]["rotation_z_world"] % (2 * math.pi)
         want = spec["rotation_z"] % (2 * math.pi)
         assert min(abs(got - want), 2 * math.pi - abs(got - want)) < 1e-3, spec["name"]
+
+
+@pytest.fixture(scope="module")
+def textured_report(blender_cmd, textured, tmp_path_factory):
+    _, rev = textured
+    return inspect(blender_cmd, tmp_path_factory.mktemp("inspect"), blend=rev / "model.blend")
+
+
+def test_trees_are_linked_duplicates(textured_report):
+    objects = textured_report["objects"]
+    trees = [o for n, o in objects.items() if n.startswith("Tree_")]
+    assert len(trees) >= 2
+    assert len({o["mesh"] for o in trees}) == 1  # one imported mesh shared by every copy
+
+
+def test_tree_height_sane(textured_report):
+    for name, o in textured_report["objects"].items():
+        if name.startswith("Tree_"):
+            assert 3.0 <= o["bbox_max"][2] - o["bbox_min"][2] <= 15.0, name
+
+
+def test_context_collection_present(textured_report):
+    objects = textured_report["objects"]
+    for name in ("Neighbour_L1", "Road", "Sidewalk_Front", "Tree_1", "Lamp_1"):
+        assert "Context" in objects[name]["collections"], name
+    assert "Plants" in objects["Pot_1"]["collections"]
+
+
+def test_brick_staged_and_licensed(textured):
+    _, rev = textured
+    assert (rev / "materials" / "brick_wall_09").is_dir()
+    licences = json.loads((rev / "materials" / "LICENSES.json").read_text(encoding="utf-8"))
+    ids = {entry["id"] for entry in licences}
+    assert {"brick_wall_09", "island_tree_02", "street_lamp_01", "potted_plant_02"} <= ids
+
+
+def test_assets_respect_fit(textured, textured_report):
+    _, rev = textured
+    plan = json.loads((rev / "scene_plan.json").read_text(encoding="utf-8"))
+    objects = textured_report["objects"]
+    for a in plan["assets"]:
+        if "fit" not in a:
+            continue
+        o, (x, y, z) = objects[a["name"]], a["location"]
+        half = a["fit"]["diameter"] / 2 + 1e-3
+        assert o["bbox_max"][0] - x <= half and x - o["bbox_min"][0] <= half, a["name"]
+        assert o["bbox_max"][1] - y <= half and y - o["bbox_min"][1] <= half, a["name"]
+        assert o["bbox_max"][2] - z <= a["fit"]["height"] + 1e-3, a["name"]
+
+
+def test_variant_packs_import_one_variant(textured, textured_report):
+    """shrub_02/03 ship 4 variants in a row: a whole pack squeezed into the planter is flat."""
+    _, rev = textured
+    plan = json.loads((rev / "scene_plan.json").read_text(encoding="utf-8"))
+    objects = textured_report["objects"]
+    minimum = {"shrub_02": 0.5, "shrub_03": 0.3}
+    for a in plan["assets"]:
+        asset_id = a["model"]["path"].split("/")[1]
+        if asset_id in minimum:
+            o = objects[a["name"]]
+            assert o["bbox_max"][2] - o["bbox_min"][2] >= minimum[asset_id], a["name"]

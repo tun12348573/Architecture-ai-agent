@@ -7,6 +7,12 @@ from exterior_agent.domain.validate import (
     parse_project,
     unresolved_assumptions,
 )
+from tests.unit.conftest import with_props
+
+
+@pytest.fixture
+def modern_data(modern_data):
+    return with_props(modern_data)
 
 
 def issues_for(data) -> list:

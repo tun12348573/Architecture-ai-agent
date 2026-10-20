@@ -19,3 +19,10 @@ def demo_data() -> dict:
 @pytest.fixture
 def modern_data() -> dict:
     return copy.deepcopy(_MODERN)
+
+
+def with_props(data: dict) -> dict:
+    """Restore the M2a placeholders (car + 2 motorbikes); the demo dropped them in M2c."""
+    yard = data["modern"]["front_yard"]
+    yard["car"]["value"], yard["motorbikes"]["value"] = True, 2
+    return data

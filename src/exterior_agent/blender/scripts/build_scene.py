@@ -10,10 +10,13 @@ import argparse
 import json
 import math
 import os
+import re
 import sys
 from pathlib import Path
 
 import bpy
+
+GLASS_IOR = 1.45
 
 
 def parse_args() -> argparse.Namespace:
@@ -91,7 +94,10 @@ def make_material(spec: dict, base: Path) -> bpy.types.Material:
     bsdf.inputs["Base Color"].default_value = rgba
     bsdf.inputs["Roughness"].default_value = spec["roughness"]
     mat.diffuse_color = (*spec["base_color"], spec["alpha"])
-    if spec["alpha"] < 1.0:
+    if spec.get("transmission", 0.0) > 0:  # clear refractive glass instead of alpha blending
+        bsdf.inputs["Transmission Weight"].default_value = spec["transmission"]
+        bsdf.inputs["IOR"].default_value = GLASS_IOR
+    elif spec["alpha"] < 1.0:
         bsdf.inputs["Alpha"].default_value = spec["alpha"]
         if hasattr(mat, "surface_render_method"):
             mat.surface_render_method = "BLENDED"
@@ -178,11 +184,68 @@ def setup_world_and_light(plan: dict, scene, base: Path) -> None:
         background.inputs["Strength"].default_value = w["strength"]
 
 
-def add_plant(spec: dict, scene, base: Path) -> None:
-    """Import a CC0 glTF model and join its meshes into one object named by the plan."""
+def add_asset(spec: dict, scene, base: Path, cache: dict) -> None:
+    """Place a CC0 glTF model; each model file is imported once, copies share its mesh."""
+    path = spec["model"]["path"]
+    if path in cache:
+        obj = cache[path][0].copy()  # linked duplicate: same mesh data, own transform
+        scene.collection.objects.link(obj)
+    else:
+        obj = import_model(base / path)
+        cache[path] = (obj, *footprint(obj))
+    obj.name = spec["name"]
+    obj.location = spec["location"]
+    obj.rotation_mode = "XYZ"  # glTF import leaves QUATERNION; euler would be ignored
+    obj.rotation_euler = (0.0, 0.0, spec["rotation_z"])
+    scale = spec["scale"]
+    if "fit" in spec:  # shrink (never enlarge) into the plan's footprint circle and height
+        radius, height = cache[path][1:]
+        scale = min(scale, spec["fit"]["diameter"] / (2 * radius), spec["fit"]["height"] / height)
+    obj.scale = (scale,) * 3
+    for coll in list(obj.users_collection):
+        coll.objects.unlink(obj)
+    get_collection(spec["collection"], scene).objects.link(obj)
+
+
+def footprint(obj) -> tuple[float, float]:
+    """(half-diagonal of the XY bound box, height) of a base-aligned, XY-centred model.
+
+    The half-diagonal bounds the footprint at any rotation about z.
+    """
+    xs, ys, zs = zip(*obj.bound_box, strict=True)
+    return math.hypot(max(map(abs, xs)), max(map(abs, ys))), max(zs)
+
+
+VARIANT = re.compile(r"^(?P<stem>.+)_(?P<letter>[a-z])(\.\d+)?$")
+
+
+def first_variant(new: list) -> list:
+    """Packs such as shrub_02 ship variants <id>_a, <id>_b, ... side by side: keep only _a.
+
+    Roots that are parts of one model (pot, leaves, dirt) are kept together.
+    """
+    roots = [o for o in new if o.parent is None]
+    letters = {}
+    for o in roots:
+        m = VARIANT.match(o.name)
+        if m:
+            letters.setdefault(m["stem"], {})[m["letter"]] = o
+    packs = [v for v in letters.values() if len(v) >= 2 and "a" in v]
+    if not packs:
+        return new
+    drop = {o for v in packs for letter, o in v.items() if letter != "a"}
+    drop |= {c for o in drop for c in o.children_recursive}
+    keep = [o for o in new if o not in drop]  # before removal: removed objects cannot compare
+    for o in drop:
+        bpy.data.objects.remove(o)
+    return keep
+
+
+def import_model(path: Path) -> bpy.types.Object:
+    """Import a glTF model and join its meshes into one object standing on its centred base."""
     before = set(bpy.data.objects)
-    bpy.ops.import_scene.gltf(filepath=str(base / spec["model"]["path"]))
-    new = [o for o in bpy.data.objects if o not in before]
+    bpy.ops.import_scene.gltf(filepath=str(path))
+    new = first_variant([o for o in bpy.data.objects if o not in before])
     meshes = [o for o in new if o.type == "MESH"]
     view_layer = bpy.context.view_layer
     for o in bpy.context.selected_objects:
@@ -207,14 +270,9 @@ def add_plant(spec: dict, scene, base: Path) -> None:
         v.co.x -= cx
         v.co.y -= cy
         v.co.z -= lowest
-    plant.name = spec["name"]
-    plant.location = spec["location"]
-    plant.rotation_mode = "XYZ"  # glTF import leaves QUATERNION; euler would be ignored
-    plant.rotation_euler = (0.0, 0.0, spec["rotation_z"])
-    plant.scale = (spec["scale"],) * 3
-    for coll in list(plant.users_collection):
-        coll.objects.unlink(plant)
-    get_collection(spec["collection"], scene).objects.link(plant)
+    plant.data.update()  # refresh bound_box: footprint() reads it
+    bpy.context.view_layer.update()
+    return plant
 
 
 def setup_render(render: dict, scene, photoreal: bool = False) -> None:
@@ -250,8 +308,9 @@ def main() -> None:
     materials = {m["name"]: make_material(m, base) for m in plan["materials"]}
     for spec in plan["objects"]:
         add_object(spec, scene, materials)
+    models: dict = {}
     for spec in plan.get("assets", []):
-        add_plant(spec, scene, base)
+        add_asset(spec, scene, base, models)
     cameras = [add_camera(spec, scene) for spec in plan["cameras"]]
     scene.camera = cameras[0]
     setup_world_and_light(plan, scene, base)

@@ -9,6 +9,21 @@ Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun1234
 - Spec: [docs/superpowers/specs/2026-10-19-m0-m1-design.md](superpowers/specs/2026-10-19-m0-m1-design.md)
 - Plan: [docs/superpowers/plans/2026-10-19-m0-m1.md](superpowers/plans/2026-10-19-m0-m1.md)
 
+## M2c — bối cảnh phố, ốp gạch, kính trong (nhánh `m2c`, 2026-10-20)
+
+**Đã triển khai + review cuối (sửa xong), chờ merge.** Spec: [2026-10-20-m2c-street-context-design.md](superpowers/specs/2026-10-20-m2c-street-context-design.md) · Plan: [2026-10-20-m2c-street-context.md](superpowers/plans/2026-10-20-m2c-street-context.md) · Ledger: `.superpowers/sdd/2026-10-20-m2c-street-context/progress.md`.
+
+- Đã có (unit + integration Blender thật): khối `context` (road/park, vỉa hè, bó vỉa, vạch kẻ, nhà hàng xóm theo seed), ốp gạch tầng trệt, kính `transmission` (+ `KHR_materials_transmission` trong GLB), khung cửa 4 cánh 80 mm màu đen, tường `beige_wall_001`, chậu/cây/đèn, bồn mái dày (0.8 m), mô hình nạp một lần + linked duplicate, `delivery.json` mục `illustrative`. Demo đã bỏ xe.
+- `island_tree_02` gốc chỉ cao 3.41 m → cây đường nhân 1.8 (≈ 5–7 m).
+- `inspect_scene` (công cụ test) vector hoá bằng numpy: một lần inspect từ ~2 phút xuống ~27 s khi scene có cây.
+- Lưu ý: thêm trường tuỳ chọn (`context`, `cladding`, `transmission`) nên thư mục `r###-<hash8>` của project cũ đổi tên **một lần** khi build lại (scene giữ nguyên; hash M1 golden không đổi).
+- Benchmark thật 2026-10-20 (`output\benchmarks\modern-townhouse\20261020T062406Z`, 128 samples, 2 view): **32.2 s/ảnh**, VRAM đỉnh **1673 MiB**, RAM trống thấp nhất **0.15 GB** → đạt ngưỡng (≤ 40 s, ≤ 3.5 GB, không lỗi). M2b là 17.3 s/ảnh.
+- Ảnh benchmark lộ 3 lỗi, đã sửa: nhìn xuyên nhà thấy cửa sổ sau (→ tấm nền tối `Interior_Backdrop` sau mọi ô kính khi kính trong), hàng xóm 5 tầng che nhà trong `10_aerial` (→ hàng xóm không cao hơn số tầng nhà chính), hàng xóm cùng màu nhà chính (→ tường hàng xóm `painted_plaster_wall`).
+- Build `final` thật sau sửa: `exterior-agent build "examples\modern_townhouse\project.json" --profile final` → `output\modern-townhouse\r001-89dd5587\`; dựng scene 39.1 s + render 236 s (**≈ 4.6 phút**, 21–26 s/ảnh); `verify_delivery` sạch; `illustrative`: 26 mô hình. Bản trước sửa: `output\modern-townhouse\r001-b02ced2a`.
+- Review cuối (reviewer độc lập): 0 Critical, 5 Important (+1 nâng hạng) — đã sửa hết, mỗi lỗi có test RED→GREEN: bụi cây mái thò khỏi bồn (gói nhiều biến thể Poly Haven → chỉ lấy biến thể `_a`; giới hạn `fit` đường kính/chiều cao; lỗi gốc `bound_box` không cập nhật sau khi sửa đỉnh), tán cây đường lấn vào lô và che mặt tiền ở 01/05/06 (tán cách ranh lô ≥ 0.3 m, bỏ cây cắt tầm nhìn camera trước), cây sân `garden` đâm vào hàng xóm/lối đi, vỉa hè hẹp (< 1.5 m khi có cây/đèn → bị từ chối), mép nền ở ảnh trên cao (nền xa 2 km, phố ±60 m), gờ nền 16 cm quanh lô (nền z=0 khép kín + `Lot_Base`). `shrub_01` (dải hoa dài 2.6 m) bỏ khỏi bồn mái.
+- Kiểm tra bằng mắt (manual, `01_front`, `02_rear`, `05_front_left`, `10_aerial`): kính trong tối, khung đen, gạch thẻ tầng trệt, chậu ban công/terrace, đường + vạch kẻ + vỉa hè + đèn; không còn mép nền, gờ nền hay cây lấn lô; mái + pergola rõ từ trên cao. Viên gạch ~0.06 × 0.24 m (reviewer đo trên ảnh 01_front, manual).
+- Còn yếu / chờ chủ dự án quyết: (1) bộ lọc tầm nhìn bỏ hết cây gần nhà → phố trước nhà chỉ còn đèn, cây ở xa ±22 m trở ra; (2) góc chéo 05/06: chính khối nhà hàng xóm sát vách che phần lớn mặt tiền (nhà phố sát vách); (3) bụi cây mái nhỏ (giới hạn trong bồn 0.6 m); (4) tường chính màu be (`beige_wall_001`) — **chưa đạt mục tiêu “trắng ngà”** của spec; (5) nhà hàng xóm là khối trơn, **bỏ ban công** so với spec §4 (chỉ cửa lõm); (6) chân trời: nền xa `leafy_grass` hiện thành dải vàng phía sau hàng xóm.
+
 ## M2b — ảnh gần như thật (merge vào `main` 2026-10-20)
 
 **Đã merge vào `main` (chưa push).** Sau merge: `check.ps1` pass (240 unit, audit sạch); integration với Blender 5.2.2 thật 22/22 pass. Lỗi nhỏ để lại: #4 #5 #7 #9 #11 (ledger `.superpowers/sdd/2026-10-19-m2b-photoreal/progress.md`). Plan: [2026-10-19-m2b-photoreal.md](superpowers/plans/2026-10-19-m2b-photoreal.md).
@@ -110,6 +125,6 @@ Python host 3.13.3 · Blender 5.2.2 LTS (Python nhúng 3.13.13) · pydantic 2.14
 ## Bước tiếp theo
 
 1. Push `main` lên GitHub (chờ chủ dự án) để CI chạy.
-2. M2c — bối cảnh thật hơn (chủ dự án đã yêu cầu): đường, vỉa hè, đèn, nhà hàng xóm, nền có texture, cây nhiều/to hơn; bỏ xe mặc định. Sau đó: tân cổ điển (mẫu C).
+2. Merge M2c (chờ chủ dự án), rồi tinh chỉnh theo ý chủ dự án (cây, góc chéo, màu tường) hoặc làm tân cổ điển (mẫu C).
 
 Lệnh chạy tiếp ngay: `.\scripts\check.ps1` rồi `exterior-agent build "examples\demo_house\project.json"`.

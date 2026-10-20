@@ -6,9 +6,17 @@ from exterior_agent.assets.catalog import load_catalog
 from exterior_agent.domain.project import Project
 from exterior_agent.domain.render import RenderSettings
 from exterior_agent.geometry.cameras import euler_xyz, fit_cameras
+from exterior_agent.geometry.context import NEIGHBOUR_TINTS, context_objects
+from exterior_agent.geometry.context_assets import (
+    PLANT_TURN,
+    AssetPlacement,
+    context_asset_specs,
+)
 from exterior_agent.geometry.layout import building_bounds, site_bounds
 from exterior_agent.geometry.mesh import Bounds, Mesh
+from exterior_agent.geometry.modern_cladding import cladding_objects
 from exterior_agent.geometry.modern_facade import facade_objects
+from exterior_agent.geometry.modern_interior import INTERIOR_MATERIAL, backdrop_objects
 from exterior_agent.geometry.modern_massing import massing_objects, roof_plant_positions
 from exterior_agent.geometry.modern_site import site_objects
 from exterior_agent.geometry.primitives import box_uvs
@@ -50,7 +58,15 @@ MODERN_MATERIALS = {
     "MAT_Pergola_Wood": "pergola_wood",
     "MAT_Context_Ground": "context_ground",
     "MAT_Props": "props",
+    "MAT_Cladding": "cladding",
+    "MAT_Asphalt": "asphalt",
+    "MAT_Sidewalk": "sidewalk",
+    "MAT_Kerb": "kerb",
+    "MAT_Road_Marking": "road_marking",
+    "MAT_Neighbour_Glass": "neighbour_glass",
 }
+ROOF_PLANT_HEIGHT = 1.2  # shrubs in the roof planter stay below the pergola
+NEIGHBOUR_PREFIX = "MAT_Neighbour_"  # + tint number: neighbour_wall tinted per house
 BUILDING_COLLECTIONS = {"Building", "Doors", "Windows", "Balconies", "Facade", "Roof"}
 
 
@@ -76,12 +92,15 @@ def _empty(name: str, lo, hi) -> dict:
 
 
 def _material(name: str, spec) -> dict:
-    return {
+    out = {
         "name": name,
         "base_color": list(spec.base_color),
         "roughness": spec.roughness,
         "alpha": spec.alpha,
     }
+    if spec.transmission > 0:  # only when set: plans of older projects stay byte-identical
+        out["transmission"] = spec.transmission
+    return out
 
 
 def _basic_objects_and_materials(project: Project) -> tuple[list[dict], list[dict]]:
@@ -108,7 +127,12 @@ def _basic_objects_and_materials(project: Project) -> tuple[list[dict], list[dic
 
 
 def _modern_plan_objects(project: Project):
-    return massing_objects(project) + facade_objects(project) + site_objects(project)
+    return (
+        massing_objects(project)
+        + facade_objects(project)
+        + cladding_objects(project)
+        + site_objects(project)
+    )
 
 
 def _union(boxes: list[Bounds]) -> Bounds:
@@ -133,7 +157,6 @@ def modern_bounds(project: Project) -> tuple[Bounds, Bounds]:
 
 
 TEXTURE_ROLES = ("base_color", "roughness", "normal")
-PLANT_TURN = 2.399963  # golden angle: varied but deterministic plant rotations
 
 
 def _asset_ref(asset, f) -> dict:
@@ -159,31 +182,44 @@ def _world_and_plants(project: Project, catalog) -> dict:
             "rotation_deg": w.rotation_deg.value,
         }
     garden = project.modern.roof.garden
-    models = [catalog.get(m.value) for m in (garden.plant_models if garden else [])]
-    if models:
-        extra["assets"] = []
-        for i, location in enumerate(roof_plant_positions(project)):
-            model = models[i % len(models)]
-            main = next(f for f in model.files if f.role == "gltf")
-            extra["assets"].append(
-                {
-                    "name": f"Plant_Roof_{i + 1}",
-                    "collection": "Roof",
-                    "model": _asset_ref(model, main),
-                    "includes": [_asset_ref(model, f) for f in model.files if f.role == "include"],
-                    "location": list(location),
-                    "rotation_z": round(i * PLANT_TURN, 6),
-                    "scale": 1.0,
-                }
-            )
+    roof_models = [m.value for m in (garden.plant_models if garden else [])]
+    placements = [
+        AssetPlacement(
+            f"Plant_Roof_{i + 1}", "Roof", roof_models[i % len(roof_models)], location,
+            round(i * PLANT_TURN, 6), 1.0, garden.planter_width.value + 0.2, ROOF_PLANT_HEIGHT,
+        )
+        for i, location in enumerate(roof_plant_positions(project) if roof_models else [])
+    ] + context_asset_specs(project)  # fmt: skip
+    if placements:
+        extra["assets"] = [_asset_entry(a, catalog.get(a.model)) for a in placements]
     return extra
+
+
+def _asset_entry(a: AssetPlacement, model) -> dict:
+    main = next(f for f in model.files if f.role == "gltf")
+    fit = (
+        {}
+        if a.fit_diameter is None
+        else {"fit": {"diameter": a.fit_diameter, "height": a.fit_height}}
+    )
+    return {
+        **fit,
+        "name": a.name,
+        "collection": a.collection,
+        "model": _asset_ref(model, main),
+        "includes": [_asset_ref(model, f) for f in model.files if f.role == "include"],
+        "location": list(a.location),
+        "rotation_z": a.rotation_z,
+        "scale": a.scale,
+    }
 
 
 def _modern_objects_and_materials(
     project: Project, textured: bool = False
 ) -> tuple[list[dict], list[dict]]:
     objects = []
-    for o in _modern_plan_objects(project):
+    extra_objects = context_objects(project) + backdrop_objects(project)
+    for o in _modern_plan_objects(project) + extra_objects:
         if o.mesh is None:
             objects.append(_empty(o.name, *o.empty_box))
             continue
@@ -206,6 +242,16 @@ def _modern_objects_and_materials(
             continue
         spec = getattr(project.materials, role).value
         entry = _material(name, spec)
+        if textured and spec.texture is not None:
+            entry.update(_textures(spec, catalog))
+        materials.append(entry)
+    if INTERIOR_MATERIAL["name"] in used:
+        materials.append(dict(INTERIOR_MATERIAL))
+    for name in sorted(n for n in used if n.startswith(NEIGHBOUR_PREFIX) and n[-1].isdigit()):
+        spec = project.materials.neighbour_wall.value
+        entry = _material(name, spec)
+        tint = NEIGHBOUR_TINTS[int(name.removeprefix(NEIGHBOUR_PREFIX)) - 1]
+        entry["base_color"] = [round(a * b, 6) for a, b in zip(spec.base_color, tint, strict=True)]
         if textured and spec.texture is not None:
             entry.update(_textures(spec, catalog))
         materials.append(entry)

@@ -23,10 +23,13 @@ EXPECTED = (
     | {"Floor2_Terrace_Rail", "Floor2_Terrace_Pergola", "Parapet", "StairHead"}
     | {"Planter_Roof_1", "Roof_Pergola", "Balcony_F2", "Balcony_F2_Rail", "Frame_F2-2"}
     | {f"Louver_F2_{k}" for k in range(1, 7)}
-    | {"Canopy", "Door_D1_Frame", "Door_D1_Glass", "Door_D2"}
+    | {"Canopy", "Cladding_F1_Front", "Door_D1_Frame", "Door_D1_Glass", "Door_D2"}
     | {f"Window_W{k}_{part}" for k in range(1, 6) for part in ("Frame", "Glass")}
     | {"Yard_Front", "Yard_Rear", "Site_Context", "Fence_Left", "Fence_Right", "Gate"}
-    | {"Prop_Car", "Prop_Motorbike_1", "Prop_Motorbike_2"}
+    | {"Sidewalk_Front", "Kerb_Front", "Road", "Road_Marking", "Sidewalk_Opposite"}
+    | {"Ground_Left", "Ground_Right", "Ground_Rear", "Lot_Base"}
+    | {f"Backdrop_{i}" for i in ("D1", "W1", "W2", "W3", "W4", "W5")}
+    | {f"Neighbour_{s}{k}{g}" for s in "LR" for k in (1, 2) for g in ("", "_Glass")}
 )
 
 

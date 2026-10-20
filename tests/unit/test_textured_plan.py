@@ -22,10 +22,10 @@ def test_smoke_plan_is_flat(project):
 def test_preview_plan_references_textures(project):
     plan = build_scene_plan(project, resolve_render("preview"))
     wall = next(m for m in plan["materials"] if m["name"] == "MAT_Wall")
-    asset = load_catalog().get("painted_plaster_wall")
+    asset = load_catalog().get("beige_wall_001")
     base = next(f for f in asset.files if f.role == "base_color")
     assert wall["textures"]["base_color"] == {
-        "path": f"materials/painted_plaster_wall/{base.path}",
+        "path": f"materials/beige_wall_001/{base.path}",
         "sha256": base.sha256,
     }
     assert set(wall["textures"]) == {"base_color", "roughness", "normal"}
@@ -49,11 +49,12 @@ def test_plants_inside_planter(project):
     plan = build_scene_plan(project, resolve_render("preview"))
     planter = next(o for o in massing_objects(project) if o.name == "Planter_Roof_1")
     (lo, hi) = planter.mesh.bounds()
-    plants = plan["assets"]
+    plants = [a for a in plan["assets"] if a["collection"] == "Roof"]
     assert len(plants) >= 2 and [a["name"] for a in plants] == [
         f"Plant_Roof_{k}" for k in range(1, len(plants) + 1)
     ]
-    assert {a["model"]["path"].split("/")[1] for a in plants} == {"shrub_01", "shrub_02"}
+    shrubs = {f"shrub_0{k}" for k in range(2, 5)}
+    assert {a["model"]["path"].split("/")[1] for a in plants} == shrubs
     for a in plants:
         x, y, z = a["location"]
         assert lo[0] < x < hi[0] and lo[1] < y < hi[1]
@@ -67,9 +68,9 @@ def test_required_asset_files_complete(project):
     assert len(files) == len(set(files))
     catalog = load_catalog()
     expected = set()
-    for asset_id in ("painted_plaster_wall", "kloofendal_48d_partly_cloudy_puresky", "shrub_01"):
+    for asset_id in ("beige_wall_001", "kloofendal_48d_partly_cloudy_puresky", "shrub_02"):
         for f in catalog.get(asset_id).files:
-            if asset_id != "painted_plaster_wall" or f.role in (
+            if asset_id != "beige_wall_001" or f.role in (
                 "base_color",
                 "roughness",
                 "normal",

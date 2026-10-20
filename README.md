@@ -2,7 +2,7 @@
 
 Trợ lý dựng hình ảnh **ngoại thất** kiến trúc: tham số đã kiểm tra → một scene Blender duy nhất → 10 ảnh từ 10 góc chuẩn → file `.blend` sửa được, `.glb` và gói giao hàng có checksum.
 
-Trạng thái hiện tại: **M0 + M1 + M2a + M2b** (xem [docs/STATUS.md](docs/STATUS.md)). Chưa có AI, chưa đọc CAD/ảnh, chưa có API/cloud. Nội thất vẫn làm trong JEGA. Chính sách phiên bản: [docs/dependency-policy.md](docs/dependency-policy.md).
+Trạng thái hiện tại: **M0 + M1 + M2a + M2b + M2c** (xem [docs/STATUS.md](docs/STATUS.md)). Chưa có AI, chưa đọc CAD/ảnh, chưa có API/cloud. Nội thất vẫn làm trong JEGA. Chính sách phiên bản: [docs/dependency-policy.md](docs/dependency-policy.md).
 
 > `examples/demo_house/project.json` là **DEMO FIXTURE**, không phải nhà thật. Các giá trị đề xuất (dày tường, lỗ cửa, vật liệu…) được đánh dấu `needs_review`.
 
@@ -99,9 +99,25 @@ exterior-agent benchmark "examples\modern_townhouse\project.json" --samples 64,1
 
 - Vật liệu chọn texture bằng `"texture": "<asset id>"` trong `materials.<vai trò>.value`; màu `base_color` nhân với texture (để `[1, 1, 1]` nếu muốn giữ nguyên màu texture). Bầu trời: khối `world` (`hdri`, `strength`, `rotation_deg`). Cây trên mái: `roof.garden.plant_models`.
 - Chỉ project `modern_townhouse` dùng tài sản; profile `smoke` và nhà demo M1 luôn màu phẳng, không cần cache.
-- Gói giao có thêm `materials\<asset>\...` (chỉ file đã dùng) và `materials\LICENSES.json`; `delivery.json` liệt kê `assets` (CC0) và `placeholders` (xe/xe máy là khối mẫu). `.blend` dùng đường dẫn tương đối `//materials/...` nên chép cả thư mục revision sang máy khác vẫn mở được.
+- Gói giao có thêm `materials\<asset>\...` (chỉ file đã dùng) và `materials\LICENSES.json`; `delivery.json` liệt kê `assets` (CC0), `placeholders` (xe/xe máy khối mẫu, nếu bật) và `illustrative` (M2c). `.blend` dùng đường dẫn tương đối `//materials/...` nên chép cả thư mục revision sang máy khác vẫn mở được.
 - Thiếu tài sản → build dừng trước Blender với thông báo chạy `exterior-agent assets fetch`. GPU hết bộ nhớ → thông báo gợi ý giảm `--samples`/cây hoặc `--engine cycles --device cpu`.
 - `benchmark` ghi `output\benchmarks\<project_id>\<thời điểm>\benchmark.json` và ảnh từng mức (`s64\`, `s128\`…), mỗi lần chỉ một Blender.
+
+## Bối cảnh phố, ốp gạch, kính trong (M2c)
+
+Demo `examples\modern_townhouse` giờ đặt nhà trong một con phố minh hoạ: vỉa hè, bó vỉa, đường nhựa có vạch kẻ (hoặc công viên), nhà hàng xóm sát vách, cây và đèn đường, chậu cây trên ban công/terrace; tầng trệt ốp gạch thẻ; kính trong suốt khung nhôm đen; đã bỏ ô tô/xe máy mẫu.
+
+- Khối `context` trong `project.json` (chỉ `modern_townhouse`):
+  - `front`: `road` (đường) hoặc `park` (làn nhỏ + bãi cỏ có cây); `sidewalk_width`, `road_width` (m).
+  - `neighbours`: `{ "per_side": 0..4, "seed": số }` — cùng seed luôn ra cùng dãy nhà; đổi seed để đổi chiều cao/màu. `null` = không có hàng xóm.
+  - `street_lamps`, `street_trees`, `pots`: bật/tắt; `models`: id mô hình CC0 cho `tree`, `lamp`, `pot`.
+  - Cần thêm vật liệu `asphalt`, `sidewalk`, `kerb`, `road_marking`, `neighbour_glass` (và `neighbour_wall` khi có hàng xóm).
+- Ốp gạch: `modern.cladding = { "zone": "ground_front", "thickness": 0.02 }` + vật liệu `cladding`. Đỉnh lớp ốp ở đáy ô văng (hoặc đỉnh tầng 1) và phải chừa ≥ 0.10 m trên mọi cửa tầng trệt.
+- Kính trong: thêm `"transmission": 1.0` vào `materials.window_glass.value` (0 = kiểu cũ, kính mờ theo `alpha`).
+- **Xem mặt bên nhà chính:** nhà phố sát vách nên view `03_left`/`04_right` thấy tường hàng xóm. Muốn ảnh mặt bên, chép `project.json`, đặt `"neighbours": null` rồi build — ra revision riêng, revision cũ giữ nguyên.
+- Bối cảnh, cây, đèn, chậu là **minh hoạ**: nằm trong collection `Context`/`Plants`, không ảnh hưởng khung camera, và `delivery.json` liệt kê chúng ở mục `illustrative` ("không phải hiện trạng hay số đo").
+- Tài sản CC0 thêm: `beige_wall_001`, `brick_wall_09`, `clean_asphalt`, `concrete_pavement_02` (texture), `island_tree_02`, `street_lamp_01`, `potted_plant_02`, `shrub_03`, `shrub_04` (mô hình). Chạy lại `exterior-agent assets fetch` sau khi cập nhật.
+- Mỗi mô hình chỉ nạp một lần; các bản sao (cây, chậu, đèn) dùng chung mesh để tiết kiệm RAM.
 
 ## Kết quả
 
@@ -135,7 +151,7 @@ Exporter báo thành công là chưa đủ. Mở `model.glb` bằng một viewer
 
 ## Giới hạn
 
-- Nhà demo M1: một tầng, mái bằng. Template hiện đại: 1–5 tầng mái bằng, texture CC0 + HDRI (M2b); xe/xe máy vẫn là khối mẫu (Poly Haven không có mô hình xe CC0); nền xung quanh là mặt phẳng xám trơn.
+- Nhà demo M1: một tầng, mái bằng. Template hiện đại: 1–5 tầng mái bằng, texture CC0 + HDRI (M2b); xe/xe máy chỉ có dạng khối mẫu (Poly Haven không có mô hình xe CC0) nên demo đã tắt; bối cảnh phố (M2c) là minh hoạ, một loại cây to, ban ngày, sau kính chỉ là khoảng tối, không có nội thất.
 - Chưa đọc DXF/ảnh/phác thảo; chưa có AI, API, cloud.
 - OptiX không chạy trên driver NVIDIA hiện tại của laptop; `--device gpu` dùng CUDA trước. Eevee/GPU chưa được kiểm trên CI.
 - Không hứa hiệu năng hay 4K; số đo thời gian xem `docs/STATUS.md`.

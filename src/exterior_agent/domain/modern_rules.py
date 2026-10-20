@@ -27,11 +27,60 @@ MODERN_MATERIAL_ROLES = (
     "pergola_wood",
     "props",
 )
+CONTEXT_MATERIAL_ROLES = ("asphalt", "sidewalk", "kerb", "road_marking", "neighbour_glass")
+MAX_NEIGHBOURS_PER_SIDE = 4
+MIN_FURNISHED_SIDEWALK = 1.5  # kerb + tree pits / lamp posts
 
 
 def total_height(m) -> float:
     above_roof = max(m.roof.parapet_height.value, m.roof.stair_head.height.value)
     return sum(f.height.value for f in m.floors) + above_roof
+
+
+def cladding_top(m) -> float:
+    """Top of the ground-floor cladding: under the canopy if there is one, else floor 1's top."""
+    top = m.floors[0].height.value
+    return min(top, m.canopy.height.value) if m.canopy is not None else top
+
+
+def check_context(p) -> list[ValidationIssue]:
+    """Street context and cladding rules (context geometry itself never enters the lot)."""
+    issues: list[ValidationIssue] = []
+
+    def add(path: str, message: str) -> None:
+        issues.append(ValidationIssue(path, message))
+
+    m, c = p.modern, p.context
+    if m.cladding is not None:
+        if m.cladding.zone.value != "ground_front":
+            add("modern.cladding.zone", "zone must be 'ground_front'")
+        if p.materials.cladding is None:
+            add("materials.cladding", "material role required by modern.cladding")
+        top = cladding_top(m)
+        for o in m.floors[0].openings_front:
+            if o.sill.value + o.height.value > top - MIN_LINTEL + TOL:
+                add("modern.cladding", f"cladding top {top:g} m leaves no {MIN_LINTEL} m "
+                    f"lintel above opening {o.id}")  # fmt: skip
+    if c is None:
+        return issues
+    if (c.street_trees.value or c.street_lamps.value) and (
+        c.sidewalk_width.value < MIN_FURNISHED_SIDEWALK - TOL
+    ):
+        add("context.sidewalk_width", f"street trees/lamps need a sidewalk of at least "
+            f"{MIN_FURNISHED_SIDEWALK} m")  # fmt: skip
+    if c.front.value not in ("road", "park"):
+        add("context.front", "front must be 'road' or 'park'")
+    roles = list(CONTEXT_MATERIAL_ROLES)
+    if c.neighbours is not None:
+        roles.append("neighbour_wall")
+        if not 0 <= c.neighbours.per_side.value <= MAX_NEIGHBOURS_PER_SIDE:
+            add("context.neighbours.per_side", f"per_side must be 0..{MAX_NEIGHBOURS_PER_SIDE}")
+        if c.neighbours.seed.value < 0:
+            add("context.neighbours.seed", "seed must be 0 or more")
+    for role in roles:
+        if getattr(p.materials, role) is None:
+            add(f"materials.{role}", "material role required by context")
+    return issues
 
 
 def check_assets(p) -> list[ValidationIssue]:
@@ -49,6 +98,10 @@ def check_assets(p) -> list[ValidationIssue]:
             wanted.append((f"materials.{role}.value.texture", mat.value.texture, "texture"))
     if p.world is not None:
         wanted.append(("world.hdri", p.world.hdri.value, "hdri"))
+    if p.context is not None:
+        for slot in ("tree", "lamp", "pot"):
+            model = getattr(p.context.models, slot)
+            wanted.append((f"context.models.{slot}", model.value, "model"))
     garden = p.modern.roof.garden
     for i, model in enumerate(garden.plant_models if garden is not None else []):
         wanted.append((f"modern.roof.garden.plant_models[{i}]", model.value, "model"))
@@ -227,4 +280,4 @@ def check_modern(p) -> list[ValidationIssue]:  # noqa: C901 - one flat list of r
             fits = bikes * pitch - BIKE_GAP <= s.width.value + TOL
         if bikes and not fits:
             add("modern.front_yard.motorbikes", "motorbikes do not fit across the front yard")
-    return issues + check_assets(p)
+    return issues + check_context(p) + check_assets(p)

@@ -9,6 +9,7 @@ import itertools
 
 from exterior_agent.domain.validate_common import TOL, ValidationIssue
 from exterior_agent.geometry.mesh import Bounds
+from exterior_agent.geometry.modern_cladding import cladding_objects
 from exterior_agent.geometry.modern_facade import facade_objects
 from exterior_agent.geometry.modern_massing import massing_objects
 from exterior_agent.geometry.modern_site import site_objects
@@ -71,7 +72,7 @@ def check_modern_geometry(p) -> list[ValidationIssue]:
     def add(name: str, message: str) -> None:
         issues.append(ValidationIssue(_path(name), message))
 
-    objects = massing_objects(p) + facade_objects(p) + site_objects(p)
+    objects = massing_objects(p) + facade_objects(p) + cladding_objects(p) + site_objects(p)
     names = [o.name for o in objects]
     for name in sorted({n for n in names if names.count(n) > 1}):
         add(name, f"two components produce the same object {name!r} (one per floor/id)")
@@ -88,7 +89,8 @@ def check_modern_geometry(p) -> list[ValidationIssue]:
             add(o.name, f"{o.name} extends outside the lot")
         if len(o.mesh.faces) == 1:  # ground quads have no volume
             continue
-        if "_Wall_" in o.name:  # wall solid = its AABB minus the openings cut through it
+        # wall-like solids (holed grid meshes, not merged boxes) = AABB minus openings through it
+        if "_Wall_" in o.name or o.name.startswith("Cladding_"):
             inside = [h for h in holes if _overlap(h, (lo, hi)) > 0]
             walls[o.name] = ((lo, hi), inside)
             continue
