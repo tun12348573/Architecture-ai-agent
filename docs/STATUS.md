@@ -9,9 +9,9 @@ Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun1234
 - Spec: [docs/superpowers/specs/2026-10-19-m0-m1-design.md](superpowers/specs/2026-10-19-m0-m1-design.md)
 - Plan: [docs/superpowers/plans/2026-10-19-m0-m1.md](superpowers/plans/2026-10-19-m0-m1.md)
 
-## M2b — ảnh gần như thật (nhánh `m2b`, 2026-10-20)
+## M2b — ảnh gần như thật (merge vào `main` 2026-10-20)
 
-**Đã triển khai, kiểm chứng cục bộ; chờ review cuối + merge.** Plan: [2026-10-19-m2b-photoreal.md](superpowers/plans/2026-10-19-m2b-photoreal.md).
+**Đã merge vào `main` (chưa push).** Sau merge: `check.ps1` pass (240 unit, audit sạch); integration với Blender 5.2.2 thật 22/22 pass. Lỗi nhỏ để lại: #4 #5 #7 #9 #11 (ledger `.superpowers/sdd/2026-10-19-m2b-photoreal/progress.md`). Plan: [2026-10-19-m2b-photoreal.md](superpowers/plans/2026-10-19-m2b-photoreal.md).
 
 - 11 tài sản CC0 Poly Haven (8 texture 1k, HDRI `kloofendal_48d_partly_cloudy_puresky` 2k, cây `shrub_01`/`shrub_02` 1k), 35 file, 30 MiB; `exterior-agent assets fetch` thật: 35 tải về, chạy lại 35 bỏ qua. Poly Haven chặn User-Agent mặc định của urllib → đã đặt User-Agent riêng.
 - Vật liệu PBR (màu, độ nhám, normal map theo UV mét), bầu trời HDRI, cây glTF trên bồn mái, `.blend` đường dẫn tương đối (kiểm cả khi chép thư mục sang chỗ khác), GLB có texture.
@@ -109,7 +109,7 @@ Python host 3.13.3 · Blender 5.2.2 LTS (Python nhúng 3.13.13) · pydantic 2.14
 
 ## Bước tiếp theo
 
-1. Review cuối + merge M2b, push `main` để CI chạy.
-2. Sau đó: tân cổ điển (mẫu C) hoặc cải thiện bối cảnh (nền, cây, xe) — chờ chủ dự án chọn.
+1. Push `main` lên GitHub (chờ chủ dự án) để CI chạy.
+2. M2c — bối cảnh thật hơn (chủ dự án đã yêu cầu): đường, vỉa hè, đèn, nhà hàng xóm, nền có texture, cây nhiều/to hơn; bỏ xe mặc định. Sau đó: tân cổ điển (mẫu C).
 
 Lệnh chạy tiếp ngay: `.\scripts\check.ps1` rồi `exterior-agent build "examples\demo_house\project.json"`.
