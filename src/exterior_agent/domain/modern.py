@@ -83,6 +83,7 @@ class FrontYard(Strict):
     fence_height: Length
     car: Flag
     motorbikes: Count
+    gate_piers: Flag | None = None  # piers with lanterns (neoclassical)
 
 
 class Cladding(Strict):

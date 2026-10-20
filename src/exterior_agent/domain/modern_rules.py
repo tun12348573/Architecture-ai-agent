@@ -50,8 +50,8 @@ def check_context(p) -> list[ValidationIssue]:
     def add(path: str, message: str) -> None:
         issues.append(ValidationIssue(path, message))
 
-    m, c = p.modern, p.context
-    if m.cladding is not None:
+    m, c = p.body, p.context
+    if getattr(m, "cladding", None) is not None:
         if m.cladding.zone.value != "ground_front":
             add("modern.cladding.zone", "zone must be 'ground_front'")
         if p.materials.cladding is None:
@@ -102,7 +102,7 @@ def check_assets(p) -> list[ValidationIssue]:
         for slot in ("tree", "lamp", "pot"):
             model = getattr(p.context.models, slot)
             wanted.append((f"context.models.{slot}", model.value, "model"))
-    garden = p.modern.roof.garden
+    garden = getattr(p.body.roof, "garden", None)
     for i, model in enumerate(garden.plant_models if garden is not None else []):
         wanted.append((f"modern.roof.garden.plant_models[{i}]", model.value, "model"))
     issues = []
