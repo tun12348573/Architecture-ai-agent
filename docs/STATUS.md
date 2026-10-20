@@ -17,9 +17,9 @@ Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun1234
 - `island_tree_02` gốc chỉ cao 3.41 m → cây đường nhân 1.8 (≈ 5–7 m).
 - `inspect_scene` (công cụ test) vector hoá bằng numpy: một lần inspect từ ~2 phút xuống ~27 s khi scene có cây.
 - Lưu ý: thêm trường tuỳ chọn (`context`, `cladding`, `transmission`) nên thư mục `r###-<hash8>` của project cũ đổi tên **một lần** khi build lại (scene giữ nguyên; hash M1 golden không đổi).
-- Benchmark thật 2026-10-20 (`outputenchmarks\modern-townhouse61020T062406Z`, 128 samples, 2 view): **32.2 s/ảnh**, VRAM đỉnh **1673 MiB**, RAM trống thấp nhất **0.15 GB** → đạt ngưỡng (≤ 40 s, ≤ 3.5 GB, không lỗi). M2b là 17.3 s/ảnh.
+- Benchmark thật 2026-10-20 (`output\benchmarks\modern-townhouse\20261020T062406Z`, 128 samples, 2 view): **32.2 s/ảnh**, VRAM đỉnh **1673 MiB**, RAM trống thấp nhất **0.15 GB** → đạt ngưỡng (≤ 40 s, ≤ 3.5 GB, không lỗi). M2b là 17.3 s/ảnh.
 - Ảnh benchmark lộ 3 lỗi, đã sửa: nhìn xuyên nhà thấy cửa sổ sau (→ tấm nền tối `Interior_Backdrop` sau mọi ô kính khi kính trong), hàng xóm 5 tầng che nhà trong `10_aerial` (→ hàng xóm không cao hơn số tầng nhà chính), hàng xóm cùng màu nhà chính (→ tường hàng xóm `painted_plaster_wall`).
-- Build `final` thật: `exterior-agent build "examples\modern_townhouse\project.json" --profile final` → `output\modern-townhouse001-b02ced2a\`; dựng scene 38.7 s + render 273 s (**≈ 5.2 phút**, 21.7–35.1 s/ảnh); `verify_delivery` sạch; `illustrative`: 15 object + 18 mô hình.
+- Build `final` thật: `exterior-agent build "examples\modern_townhouse\project.json" --profile final` → `output\modern-townhouse\r001-b02ced2a\`; dựng scene 38.7 s + render 273 s (**≈ 5.2 phút**, 21.7–35.1 s/ảnh); `verify_delivery` sạch; `illustrative`: 15 object + 18 mô hình.
 - Kiểm tra bằng mắt (manual, `01_front`, `05_front_left`, `10_aerial`): kính trong tối có chiều sâu, khung đen, gạch thẻ tầng trệt, chậu trên ban công/terrace, đường + vạch kẻ + vỉa hè + đèn + cây, mái và pergola thấy rõ từ trên cao. Kích thước viên gạch nhìn hợp lý (chưa đo trên ảnh).
 - Còn yếu: ở góc chéo `05/06` cây vỉa hè và nhà hàng xóm che phần lớn mặt tiền; nhà hàng xóm là khối trơn; nền xa (`leafy_grass`) đọc như mặt đất vàng phẳng ở ảnh trên cao; tường chính là màu be (texture `beige_wall_001`), chưa phải trắng ngà.
 
