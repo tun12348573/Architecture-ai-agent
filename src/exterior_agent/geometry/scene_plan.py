@@ -31,6 +31,7 @@ MATERIAL_NAMES = {
 }
 SUN_ROTATION = (math.radians(50), 0.0, math.radians(35))  # light from the front-right, above
 SUN_STRENGTH = 3.0
+SUN_STRENGTH_WITH_HDRI = 1.0  # the HDRI already lights the scene and contains the sun
 WORLD_COLOR = [0.60, 0.72, 0.88]
 CAMERA_CLIP_END = 1000.0
 # modern_townhouse: material name -> role in project.materials
@@ -222,6 +223,7 @@ def build_scene_plan(project: Project, render: RenderSettings) -> dict:
     else:
         objects, materials = _basic_objects_and_materials(project)
         building, site = building_bounds(project), site_bounds(project)
+    sun = SUN_STRENGTH_WITH_HDRI if "world" in extra else SUN_STRENGTH
     cameras = [
         {
             "name": f"CAM_{pose.id}",
@@ -243,7 +245,7 @@ def build_scene_plan(project: Project, render: RenderSettings) -> dict:
         "objects": objects,
         "materials": materials,
         "cameras": cameras,
-        "sun": {"rotation_euler": list(SUN_ROTATION), "strength": SUN_STRENGTH},
+        "sun": {"rotation_euler": list(SUN_ROTATION), "strength": sun},
         "world_color": WORLD_COLOR,
         "render": render.to_dict(),
         **extra,

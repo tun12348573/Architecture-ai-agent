@@ -76,3 +76,9 @@ def test_required_asset_files_complete(project):
             ):
                 expected.add((asset_id, f.path, f.sha256))
     assert expected <= set(files)
+
+
+def test_hdri_plan_softens_sun(project):
+    flat = build_scene_plan(project, resolve_render("smoke"))
+    textured = build_scene_plan(project, resolve_render("preview"))
+    assert textured["sun"]["strength"] < flat["sun"]["strength"]

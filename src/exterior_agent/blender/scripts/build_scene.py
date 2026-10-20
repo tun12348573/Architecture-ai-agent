@@ -210,7 +210,7 @@ def add_plant(spec: dict, scene, base: Path) -> None:
     get_collection(spec["collection"], scene).objects.link(plant)
 
 
-def setup_render(render: dict, scene) -> None:
+def setup_render(render: dict, scene, photoreal: bool = False) -> None:
     scene.render.engine = render["engine"]
     scene.render.resolution_x = render["width"]
     scene.render.resolution_y = render["height"]
@@ -226,8 +226,9 @@ def setup_render(render: dict, scene) -> None:
         scene.cycles.device = render["device"] or "CPU"
     else:
         scene.eevee.taa_render_samples = render["samples"]
+    # AgX keeps highlight detail for HDRI-lit photoreal scenes; flat scenes stay Standard.
     try:
-        scene.view_settings.view_transform = "Standard"
+        scene.view_settings.view_transform = "AgX" if photoreal else "Standard"
     except TypeError:
         scene.view_settings.view_transform = "AgX"
 
@@ -247,7 +248,7 @@ def main() -> None:
     cameras = [add_camera(spec, scene) for spec in plan["cameras"]]
     scene.camera = cameras[0]
     setup_world_and_light(plan, scene, base)
-    setup_render(plan["render"], scene)
+    setup_render(plan["render"], scene, photoreal="world" in plan)
 
     blend = Path(args.blend)
     tmp_blend = blend.with_name(blend.stem + ".tmp.blend")

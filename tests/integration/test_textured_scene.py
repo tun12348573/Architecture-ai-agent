@@ -75,3 +75,11 @@ def test_revision_is_portable(blender_cmd, textured, tmp_path):
     shutil.copytree(rev, moved)
     report = inspect(blender_cmd, tmp_path, blend=moved / "model.blend")
     assert all(i["exists"] for i in report["images"])
+
+
+def test_hdri_scene_uses_agx_and_softer_sun(blender_cmd, textured, tmp_path):
+    _, rev = textured
+    report = inspect(blender_cmd, tmp_path, blend=rev / "model.blend")
+    assert report["view_transform"] == "AgX"
+    plan = json.loads((rev / "scene_plan.json").read_text(encoding="utf-8"))
+    assert plan["sun"]["strength"] < 3.0  # the HDRI already contains the sun

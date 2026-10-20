@@ -120,6 +120,7 @@ def main() -> None:
             if img.source == "FILE"
         ],
         "world_nodes": world_nodes(),
+        "view_transform": bpy.context.scene.view_settings.view_transform,
         "material_inputs": {m.name: material_inputs(m) for m in bpy.data.materials},
         "rays": [],
     }
