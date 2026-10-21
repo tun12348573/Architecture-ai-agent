@@ -22,6 +22,10 @@ TREE_MAX_RADIUS, TREE_MAX_HEIGHT, TREE_MIN_RADIUS = 4.0, 7.0, 1.0  # island_tree
 LOT_MARGIN = 0.3  # street-tree canopies keep this far from the lot side lines
 POT_FIT = (0.6, 1.0)
 FRONT_VIEWS = ("01_front", "05_front_left", "06_front_right")
+CANOPY_BASE = 0.25  # canopy starts at this share of the tree height; a thin trunk below
+TRUNK_RADIUS = 0.2
+TREE_HEIGHT_RATIO = 1.2  # island_tree_02 is ~1.17 × its footprint radius tall
+MAX_OBLIQUE_BLOCKED = 0.3  # a street tree may hide at most 30 % of the 05/06 sightlines
 TREE_BASE_SCALE = 1.8  # island_tree_02 is ~3.4 m tall; street trees ~5-7 m
 PARK_ROWS = (4.0, 11.0)  # metres behind the park's road edge
 PARK_SPACING, PARK_JITTER = 7.0, 1.0
@@ -87,31 +91,55 @@ def _park_trees(p, rng: random.Random) -> list[tuple[float, float]]:
     return out
 
 
-def _front_sightlines(p) -> list[tuple[tuple, tuple]]:
-    """(camera, facade point) segments of the front views; trees must not cross them."""
+def _front_sightlines(p) -> dict[str, list[tuple[tuple, tuple]]]:
+    """Per front camera, its (camera, facade point) segments."""
     from exterior_agent.geometry.cameras import fit_cameras  # avoid an import cycle
     from exterior_agent.geometry.scene_plan import template_bounds
 
     m = p.body
     w = m.footprint_width.value
-    cams = [c.location for c in fit_cameras(*template_bounds(p)) if c.id in FRONT_VIEWS]
+    cams = {c.id: c.location for c in fit_cameras(*template_bounds(p)) if c.id in FRONT_VIEWS}
     targets = [
         (x, floor_front_y(p, n) - 0.05, floor_base_z(m, n) + m.floors[n - 1].height.value / 2)
         for n in range(1, len(m.floors) + 1)
         for x in (-w / 4, 0.0, w / 4)
     ]
-    return [(c, t) for c in cams for t in targets]
+    return {cid: [(c, t) for t in targets] for cid, c in cams.items()}
 
 
-def _blocks(sightlines, x: float, y: float, r: float, h: float, steps: int = 200) -> bool:
-    """Does the cylinder (x, y, radius r, height h) cross any sightline?"""
-    for c, t in sightlines:
-        for k in range(steps + 1):
-            u = k / steps
-            px, py, pz = (c[i] + u * (t[i] - c[i]) for i in range(3))
-            if pz < h and (px - x) ** 2 + (py - y) ** 2 < r * r:
-                return True
+def _blocks(c, t, x: float, y: float, r: float, h: float, steps: int = 200) -> bool:
+    """Does a tree (thin trunk up to the canopy base, canopy cylinder above) cross c→t?"""
+    base = CANOPY_BASE * h
+    for k in range(steps + 1):
+        u = k / steps
+        px, py, pz = (c[i] + u * (t[i] - c[i]) for i in range(3))
+        d2 = (px - x) ** 2 + (py - y) ** 2
+        if (pz < base and d2 < TRUNK_RADIUS**2) or (base <= pz < h and d2 < r * r):
+            return True
     return False
+
+
+def _fits_views(sightlines, x: float, y: float, r: float, h: float) -> bool:
+    """Never in front of the facade in 01; at most a share of the 05/06 sightlines."""
+    if any(_blocks(c, t, x, y, r, h) for c, t in sightlines.get("01_front", [])):
+        return False
+    oblique = [s for cid in ("05_front_left", "06_front_right") for s in sightlines.get(cid, [])]
+    blocked = sum(_blocks(c, t, x, y, r, h) for c, t in oblique)
+    return blocked <= MAX_OBLIQUE_BLOCKED * len(oblique)
+
+
+def _tree_size(sightlines, x: float, y: float, r_max: float) -> float | None:
+    """Largest canopy radius (0.5 m steps) that keeps the facade in view, or None."""
+    r = r_max
+    while r >= TREE_MIN_RADIUS - 1e-9:
+        if _fits_views(sightlines, x, y, r, tree_height(r)):
+            return r
+        r -= 0.5
+    return None
+
+
+def tree_height(r: float) -> float:
+    return min(TREE_MAX_HEIGHT, TREE_HEIGHT_RATIO * r)
 
 
 def _yard_tree(p) -> tuple[tuple[float, float, float], float] | None:
@@ -152,11 +180,12 @@ def context_asset_specs(p) -> list[AssetPlacement]:
         k = 0
         for x, y in spots:
             scale = round(TREE_BASE_SCALE * rng.uniform(0.85, 1.15), 3)
-            r = min(TREE_MAX_RADIUS, abs(x) - half - LOT_MARGIN)  # canopy never enters the lot
-            if r < TREE_MIN_RADIUS or _blocks(sightlines, x, y, r, TREE_MAX_HEIGHT):
+            r_max = min(TREE_MAX_RADIUS, abs(x) - half - LOT_MARGIN)  # never into the lot
+            r = _tree_size(sightlines, x, y, r_max)
+            if r is None:
                 continue
             k += 1
-            add(f"Tree_{k}", "Context", tree, (x, y, 0.0), k, scale, (2 * r, TREE_MAX_HEIGHT))
+            add(f"Tree_{k}", "Context", tree, (x, y, 0.0), k, scale, (2 * r, tree_height(r)))
         yard = _yard_tree(p)
         if yard is not None:
             loc, r = yard

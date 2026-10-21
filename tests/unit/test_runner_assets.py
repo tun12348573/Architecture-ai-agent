@@ -73,13 +73,13 @@ def test_textures_staged_and_licensed(fake_catalog, modern_data, tmp_path):
     outcome = build(modern_data, tmp_path, cache=cache)
     rev = outcome.revision_dir
     assert outcome.status == "completed", outcome.message
-    staged = rev / "materials" / "beige_wall_001"
+    staged = rev / "materials" / "white_plaster_02"
     assert staged.is_dir()
     for f in staged.iterdir():
-        assert f.read_bytes() == (cache / "beige_wall_001" / f.name).read_bytes()
+        assert f.read_bytes() == (cache / "white_plaster_02" / f.name).read_bytes()
     licenses = json.loads((rev / "materials" / "LICENSES.json").read_text(encoding="utf-8"))
     ids = {entry["id"] for entry in licenses}
-    assert {"beige_wall_001", "kloofendal_48d_partly_cloudy_puresky", "shrub_02"} <= ids
+    assert {"white_plaster_02", "kloofendal_48d_partly_cloudy_puresky", "shrub_02"} <= ids
     assert all(entry["license"] == "CC0" for entry in licenses)
     assert verify_delivery(rev) == []
     delivery = json.loads((rev / "delivery.json").read_text(encoding="utf-8"))

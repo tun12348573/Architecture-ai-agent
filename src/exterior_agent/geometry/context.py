@@ -55,7 +55,8 @@ def neighbour_specs(p) -> list[NeighbourSpec]:
         for k in range(1, c.neighbours.per_side.value + 1):
             # whole millimetres: wall_mesh snaps to 1 µm, float noise would leak into the lot
             width = round(rng.uniform(4.0, 6.0), 3)
-            y0 = round(rng.uniform(0.0, 3.0), 3)
+            # flush with or behind the house front: the 05/06 views see the whole facade
+            y0 = round(p.site.front_setback.value + rng.uniform(0.0, 0.8), 3)
             y1 = round(y0 + depth + rng.uniform(-2.0, 2.0), 3)
             floors = rng.randint(2, max(2, len(p.body.floors)))  # never tower over the house
             tint = rng.randrange(len(NEIGHBOUR_TINTS))

@@ -68,7 +68,10 @@ def test_neighbour_ranges(project):
         "Neighbour_R2",
     ]
     for n in specs:
-        assert 4.0 <= n.x1 - n.x0 <= 6.0 and 2 <= n.floors <= 5 and 0.0 <= n.y0 <= 3.0, n
+        assert 4.0 <= n.x1 - n.x0 <= 6.0 and 2 <= n.floors <= 5, n
+        assert project.site.front_setback.value <= n.y0 <= project.site.front_setback.value + 0.8, (
+            n
+        )  # flush with or behind the house front
     by = {n.name: n for n in specs}
     assert by["Neighbour_L2"].x1 == pytest.approx(by["Neighbour_L1"].x0, abs=1e-9)
     assert by["Neighbour_R2"].x0 == pytest.approx(by["Neighbour_R1"].x1, abs=1e-9)
@@ -157,3 +160,45 @@ def test_ground_closes_around_lot(project):
     for x, y in ((half + 0.001, 5), (-half - 0.001, 5), (0, depth + 1), (half + 1, depth + 30),
                  (0, depth / 2)):  # fmt: skip
         assert covered(x, y), (x, y)
+
+
+def _segment_hits_box(a, b, lo, hi) -> bool:
+    t0, t1 = 0.0, 1.0
+    for k in range(3):
+        d = b[k] - a[k]
+        if abs(d) < 1e-12:
+            if not lo[k] <= a[k] <= hi[k]:
+                return False
+            continue
+        u0, u1 = (lo[k] - a[k]) / d, (hi[k] - a[k]) / d
+        t0, t1 = max(t0, min(u0, u1)), min(t1, max(u0, u1))
+        if t0 > t1:
+            return False
+    return True
+
+
+def test_neighbours_leave_oblique_views_open(project):
+    """05/06 see the whole main facade: no neighbour stands in front of the house's front line.
+
+    Set-back upper floors are excluded: seen from a low oblique, a neighbour's side wall always
+    hides part of a floor that steps back behind the street line.
+    """
+    from exterior_agent.geometry.modern_massing import floor_base_z, floor_front_y
+
+    m = project.modern
+    plan = build_scene_plan(project, SMOKE)
+    cams = [
+        c["location"] for c in plan["cameras"] if c["id"] in ("05_front_left", "06_front_right")
+    ]
+    w = m.footprint_width.value
+    targets = [
+        (x, floor_front_y(project, n) - 0.05, floor_base_z(m, n) + m.floors[n - 1].height.value / 2)
+        for n in range(1, len(m.floors) + 1)
+        if floor_front_y(project, n) == floor_front_y(project, 1)
+        for x in (-w / 4, 0.0, w / 4)
+    ]
+    for n in neighbour_specs(project):
+        lo, hi = (n.x0, n.y0, 0.0), (n.x1, n.y1, n.floors * 3.3)
+        for c in cams:
+            for t in targets:
+                assert not _segment_hits_box(c, t, lo, hi), (n.name, c, t)

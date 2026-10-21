@@ -120,8 +120,9 @@ def test_modern_mm_equals_m(modern_data):
     assert canonical_json(_round(in_mm)) == canonical_json(_round(in_m))
 
 
-# Modern fixture, smoke profile, pinned before the neoclassical template (M2d) touched the core.
-MODERN_SMOKE_GOLDEN = "7c8feb573c2311922af01f8336e8ab546287cc3898803ff834a860cbc8a9aa5e"
+# Modern fixture, smoke profile. Re-pinned 2026-10-21 (M2c tuning): neighbours now stand flush
+# with or behind the house front, so their positions changed on purpose.
+MODERN_SMOKE_GOLDEN = "c34799ece8c492f3ec2e172b933b4ad515c99b233662c4826dfa1f4294f6dd9d"
 
 
 def test_modern_plan_hash_unchanged(modern_data):

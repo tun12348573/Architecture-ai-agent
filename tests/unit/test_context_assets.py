@@ -4,7 +4,13 @@ import pytest
 
 from exterior_agent.domain.render import resolve_render
 from exterior_agent.domain.validate import parse_project
-from exterior_agent.geometry.context_assets import TREE_BASE_SCALE, context_asset_specs
+from exterior_agent.geometry.context_assets import (
+    CANOPY_BASE,
+    MAX_OBLIQUE_BLOCKED,
+    TREE_BASE_SCALE,
+    TRUNK_RADIUS,
+    context_asset_specs,
+)
 from exterior_agent.geometry.modern_massing import (
     floor_base_z,
     floor_front_y,
@@ -128,30 +134,49 @@ def test_tree_canopy_clear_of_lot(project):
         assert s.fit_height <= 7.0
 
 
-def test_trees_do_not_hide_facade(project):
-    """No tree cylinder (fit radius x height) crosses a sightline from 01/05/06 to the facade."""
+def _sightlines(project):
     m = project.modern
     plan = build_scene_plan(project, resolve_render("preview"))
-    cams = [
-        c["location"]
-        for c in plan["cameras"]
-        if c["id"] in ("01_front", "05_front_left", "06_front_right")
-    ]
+    cams = {c["id"]: c["location"] for c in plan["cameras"]}
     w = m.footprint_width.value
     targets = [
         (x, floor_front_y(project, n) - 0.05, floor_base_z(m, n) + m.floors[n - 1].height.value / 2)
         for n in range(1, len(m.floors) + 1)
         for x in (-w / 4, 0.0, w / 4)
     ]
+    return cams, targets
+
+
+def _tree_blocks(s, c, t) -> bool:
+    """Trunk (thin, up to the canopy base) + canopy cylinder, as the placement models a tree."""
+    r, h = s.fit_diameter / 2, s.fit_height
+    base = CANOPY_BASE * h
+    for k in range(201):
+        u = k / 200
+        x, y, z = (c[i] + u * (t[i] - c[i]) for i in range(3))
+        d2 = (x - s.location[0]) ** 2 + (y - s.location[1]) ** 2
+        if (z < base and d2 < TRUNK_RADIUS**2) or (base <= z < h and d2 < r * r):
+            return True
+    return False
+
+
+def test_trees_spare_the_front_view(project):
+    cams, targets = _sightlines(project)
     for s in by_prefix(context_asset_specs(project), "Tree_"):
-        r, h = s.fit_diameter / 2, s.fit_height
-        for c in cams:
-            for t in targets:
-                for k in range(201):
-                    u = k / 200
-                    x, y, z = (c[i] + u * (t[i] - c[i]) for i in range(3))
-                    inside = (x - s.location[0]) ** 2 + (y - s.location[1]) ** 2 < r * r
-                    assert not (inside and z < h), (s.name, c, t)
+        assert not any(_tree_blocks(s, cams["01_front"], t) for t in targets), s.name
+
+
+def test_trees_obliques_mostly_clear(project):
+    cams, targets = _sightlines(project)
+    pairs = [(cams[c], t) for c in ("05_front_left", "06_front_right") for t in targets]
+    for s in by_prefix(context_asset_specs(project), "Tree_"):
+        blocked = sum(_tree_blocks(s, c, t) for c, t in pairs)
+        assert blocked <= MAX_OBLIQUE_BLOCKED * len(pairs), (s.name, blocked)
+
+
+def test_street_has_trees_near_house(project):
+    near = [s for s in by_prefix(context_asset_specs(project), "Tree_") if abs(s.location[0]) <= 12]
+    assert len(near) >= 2
 
 
 def test_yard_tree_fits_yard(modern_data):
