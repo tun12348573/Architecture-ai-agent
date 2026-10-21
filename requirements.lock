@@ -2,7 +2,7 @@
 annotated-types==0.8.0
 boolean.py==5.0
 CacheControl==0.14.4
-certifi==2026.10.18
+certifi==2026.10.19
 charset-normalizer==3.5.2
 colorama==0.4.6
 cyclonedx-python-lib==11.12.0
