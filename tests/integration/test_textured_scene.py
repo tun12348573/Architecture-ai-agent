@@ -67,7 +67,7 @@ def test_glb_carries_textures(textured):
     _, rev = textured
     doc = read_glb(rev / "model.glb")
     assert doc.get("images")
-    wall = next(m for m in doc["materials"] if m["name"] == "MAT_Wall")
+    wall = next(m for m in doc["materials"] if m["name"] == "MAT_Cladding")  # full texture set
     assert "baseColorTexture" in wall["pbrMetallicRoughness"]
 
 
