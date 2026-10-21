@@ -154,7 +154,6 @@ Python host 3.13.3 · Blender 5.2.2 LTS (Python nhúng 3.13.13) · pydantic 2.14
 ## Bước tiếp theo
 
 1. Push `main` lên GitHub (chờ chủ dự án) để CI chạy.
-2. Chờ chủ dự án xem ảnh mẫu C (`output
-eoclassical-townhouse001-c47c2d14images`) và chọn: tinh chỉnh mẫu C, tinh chỉnh M2c (cây, góc chéo, màu tường), hoặc M3 (đọc DXF/ảnh).
+2. Chờ chủ dự án xem ảnh mẫu C (`output\neoclassical-townhouse\r001-c47c2d14\images\`) và chọn: tinh chỉnh mẫu C, tinh chỉnh M2c (cây, góc chéo, màu tường), hoặc M3 (đọc DXF/ảnh).
 
 Lệnh chạy tiếp ngay: `.\scripts\check.ps1` rồi `exterior-agent build "examples\demo_house\project.json"`.
