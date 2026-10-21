@@ -9,7 +9,7 @@ Cập nhật: 2026-10-21 · Nhánh: `main` · Remote: https://github.com/tun1234
 - Spec: [docs/superpowers/specs/2026-10-19-m0-m1-design.md](superpowers/specs/2026-10-19-m0-m1-design.md)
 - Plan: [docs/superpowers/plans/2026-10-19-m0-m1.md](superpowers/plans/2026-10-19-m0-m1.md)
 
-## M2c tinh chỉnh (merge vào `main` 2026-10-21; integration trên `main` 34/34; chưa push)
+## M2c tinh chỉnh (merge vào `main` 2026-10-21; integration trên `main` 34/34; push, CI xanh run 39539946567)
 
 Chủ dự án chọn sửa 3 điểm yếu của M2c, bỏ qua hỏi đáp.
 - **Hàng xóm không che góc chéo:** mặt tiền nhà hàng xóm lùi bằng hoặc sau mặt tiền nhà chính (0–0.8 m). Ở 05/06 thấy trọn mặt tiền chính; riêng tầng lùi (terrace) vẫn bị tường hàng xóm che một phần, điều này không tránh được.
