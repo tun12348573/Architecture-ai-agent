@@ -1,6 +1,6 @@
 # STATUS
 
-Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun12348573/Architecture-ai-agent (public).
+Cập nhật: 2026-10-21 · Nhánh: `main` · Remote: https://github.com/tun12348573/Architecture-ai-agent (public).
 
 ## Milestone
 
@@ -9,9 +9,9 @@ Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun1234
 - Spec: [docs/superpowers/specs/2026-10-19-m0-m1-design.md](superpowers/specs/2026-10-19-m0-m1-design.md)
 - Plan: [docs/superpowers/plans/2026-10-19-m0-m1.md](superpowers/plans/2026-10-19-m0-m1.md)
 
-## M2d — nhà phố tân cổ điển, mẫu C (nhánh `m2d`, 2026-10-20)
+## M2d — nhà phố tân cổ điển, mẫu C (merge vào `main` 2026-10-21)
 
-**Đã triển khai, kiểm chứng cục bộ; chờ review cuối + merge.**
+**Đã merge vào `main` (chưa push).** Review cuối: 0 Critical; 5 Important đã sửa (kiểm tra mặt tiền/khối nhô/sân trước, UV ngói theo mái dốc, ban công mặt sau, chiều cao vòm/cửa tối thiểu). Sau merge: `check.ps1` pass (370 unit, audit sạch sau khi nâng `certifi` lên 2026.10.19 do cảnh báo PYSEC-2026-4320 mới công bố); integration Blender 5.2.2 thật 34/34.
 - Spec: [2026-10-20-m2d-neoclassical-design.md](superpowers/specs/2026-10-20-m2d-neoclassical-design.md).
 - Plan: [2026-10-20-m2d-neoclassical.md](superpowers/plans/2026-10-20-m2d-neoclassical.md).
 - Ledger: `.superpowers/sdd/2026-10-20-m2d-neoclassical/progress.md`.
@@ -154,6 +154,7 @@ Python host 3.13.3 · Blender 5.2.2 LTS (Python nhúng 3.13.13) · pydantic 2.14
 ## Bước tiếp theo
 
 1. Push `main` lên GitHub (chờ chủ dự án) để CI chạy.
-2. Tinh chỉnh theo ý chủ dự án (cây, góc chéo, màu tường) hoặc làm tân cổ điển (mẫu C).
+2. Chờ chủ dự án xem ảnh mẫu C (`output
+eoclassical-townhouse001-c47c2d14images`) và chọn: tinh chỉnh mẫu C, tinh chỉnh M2c (cây, góc chéo, màu tường), hoặc M3 (đọc DXF/ảnh).
 
 Lệnh chạy tiếp ngay: `.\scripts\check.ps1` rồi `exterior-agent build "examples\demo_house\project.json"`.
