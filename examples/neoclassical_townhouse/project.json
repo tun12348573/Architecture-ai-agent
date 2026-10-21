@@ -829,6 +829,7 @@
           0.9
         ],
         "roughness": 0.6,
+        "texture_color": false,
         "texture": "white_plaster_02"
       },
       "unit": null,

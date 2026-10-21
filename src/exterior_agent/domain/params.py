@@ -116,7 +116,8 @@ class MaterialSpec(Strict):
     alpha: float = Field(default=1.0, ge=0, le=1)
     transmission: float = Field(default=0.0, ge=0, le=1)
     metallic: float = Field(default=0.0, ge=0, le=1)  # >0: clear refractive glass (Cycles)
-    texture: str | None = None  # asset id in assets/catalog.json (modern template only)
+    texture: str | None = None  # asset id in assets/catalog.json (townhouse templates)
+    texture_color: bool = True  # False: flat base_color; the texture adds roughness/relief only
 
     @field_validator("base_color")
     @classmethod

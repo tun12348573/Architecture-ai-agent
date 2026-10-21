@@ -43,7 +43,9 @@ def test_images_relative_and_present(blender_cmd, textured, tmp_path):
     assert images and all(p.startswith("//materials/") for p in paths), paths
     assert all(i["exists"] for i in images)
     assert report["world_nodes"] and "TEX_ENVIRONMENT" in report["world_nodes"]
-    assert report["material_inputs"]["MAT_Wall"]["base_color_from"] == "TEX_IMAGE"
+    # brick cladding keeps its texture colour (white tint); the wall colour is flat ivory
+    assert report["material_inputs"]["MAT_Cladding"]["base_color_from"] == "TEX_IMAGE"
+    assert report["material_inputs"]["MAT_Wall"]["base_color_from"] is None
 
 
 def test_plants_in_roof_planter(blender_cmd, textured, tmp_path):
