@@ -4,6 +4,7 @@ from typing import Literal
 
 from pydantic import Field
 
+from exterior_agent.domain.classic import ClassicBuilding
 from exterior_agent.domain.modern import ModernBuilding, StreetContext
 from exterior_agent.domain.params import (  # noqa: F401 - re-exported for existing imports
     Choice,
@@ -81,6 +82,12 @@ class Materials(Strict):
     road_marking: MaterialParam | None = None
     neighbour_wall: MaterialParam | None = None
     neighbour_glass: MaterialParam | None = None
+    # Neoclassical template roles (M2d).
+    trim: MaterialParam | None = None
+    panel: MaterialParam | None = None
+    roof_tiles: MaterialParam | None = None
+    iron: MaterialParam | None = None
+    door_wood: MaterialParam | None = None
 
 
 class World(Strict):
@@ -115,12 +122,18 @@ class Project(Strict):
     project_revision: int = Field(ge=1, strict=True)
     input_mode: str
     label: str
-    template: Literal["basic_house", "modern_townhouse"] = "basic_house"
+    template: Literal["basic_house", "modern_townhouse", "neoclassical_townhouse"] = "basic_house"
     site: Site
     building: Building | None = None
     modern: ModernBuilding | None = None
+    classic: ClassicBuilding | None = None
     world: World | None = None
     context: StreetContext | None = None
     materials: Materials
     cameras: list[CameraDef] = Field(default_factory=lambda: list(CANONICAL_CAMERAS))
     render_profile: Literal["preview", "final", "smoke"] = "preview"
+
+    @property
+    def body(self):
+        """The townhouse block (modern or classic) shared code reads; None for basic_house."""
+        return self.modern if self.modern is not None else self.classic

@@ -24,6 +24,7 @@ class PlanObject:
     mesh: Mesh | None
     material: str | None
     empty_box: Bounds | None = None
+    uvs: list | None = None  # per face, per corner (u, v) in metres; None → box projection
 
 
 def floor_base_z(m, n: int) -> float:
@@ -31,7 +32,8 @@ def floor_base_z(m, n: int) -> float:
 
 
 def floor_front_y(p, n: int) -> float:
-    return p.site.front_setback.value + p.modern.floors[n - 1].front_setback.value
+    setback = getattr(p.body.floors[n - 1], "front_setback", None)  # classic floors never step back
+    return p.site.front_setback.value + (setback.value if setback is not None else 0.0)
 
 
 def clear_height(m, n: int) -> float:
@@ -39,7 +41,7 @@ def clear_height(m, n: int) -> float:
 
 
 def floor_frames(p, n: int) -> dict[str, WallFrame]:
-    m = p.modern
+    m = p.body
     t, w = m.wall_thickness.value, m.footprint_width.value
     x0, x1 = -w / 2, w / 2
     yf = floor_front_y(p, n)

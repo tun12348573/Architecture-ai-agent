@@ -5,7 +5,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, ValidationError
 
-from exterior_agent.domain.modern_rules import check_modern
+from exterior_agent.domain.classic_rules import check_classic
+from exterior_agent.domain.modern_rules import check_assets, check_context, check_modern
 from exterior_agent.domain.project import (
     CANONICAL_CAMERA_IDS,
     Length,
@@ -103,14 +104,25 @@ def facade_length(project: Project, wall: str) -> float:
 
 def _template_issues(p: Project) -> list[ValidationIssue]:
     if p.template == "modern_townhouse":
-        if p.schema_version != "1.1" or p.modern is None or p.building is not None:
+        if (p.schema_version != "1.1" or p.modern is None or p.building is not None
+                or p.classic is not None):  # fmt: skip
             return [
                 ValidationIssue(
                     "template",
                     "modern_townhouse needs schema_version 1.1, a 'modern' block and no 'building'",
                 )
             ]
-    elif p.building is None or p.modern is not None:
+    elif p.template == "neoclassical_townhouse":
+        if (p.schema_version != "1.1" or p.classic is None or p.building is not None
+                or p.modern is not None):  # fmt: skip
+            return [
+                ValidationIssue(
+                    "template",
+                    "neoclassical_townhouse needs schema_version 1.1, a 'classic' block, "
+                    "no 'modern' and no 'building'",
+                )
+            ]
+    elif p.building is None or p.modern is not None or p.classic is not None:
         return [ValidationIssue("template", "basic_house needs a 'building' block and no 'modern'")]
     elif p.world is not None or any(
         m is not None and m.value.texture is not None
@@ -118,7 +130,7 @@ def _template_issues(p: Project) -> list[ValidationIssue]:
     ):
         return [ValidationIssue("template", "textures and HDRI worlds need modern_townhouse")]
     elif p.context is not None:
-        return [ValidationIssue("template", "a street context needs modern_townhouse")]
+        return [ValidationIssue("template", "a street context needs a townhouse template")]
     return []
 
 
@@ -158,6 +170,13 @@ def check_semantics(p: Project) -> list[ValidationIssue]:
         from exterior_agent.geometry.modern_checks import check_modern_geometry
 
         return check_modern_geometry(p)
+    if p.template == "neoclassical_townhouse":
+        issues = check_classic(p) + check_context(p) + check_assets(p)
+        if issues:
+            return issues
+        from exterior_agent.geometry.modern_checks import check_classic_geometry
+
+        return check_classic_geometry(p)
     return _check_basic(p)
 
 

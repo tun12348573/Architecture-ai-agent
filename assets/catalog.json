@@ -107,6 +107,40 @@
       ]
     },
     {
+      "id": "clay_roof_tiles",
+      "kind": "texture",
+      "license": "CC0",
+      "authors": [
+        "Amal Kumar"
+      ],
+      "source_page": "https://polyhaven.com/a/clay_roof_tiles",
+      "resolution": "1k",
+      "scale_m": 4.0,
+      "files": [
+        {
+          "path": "clay_roof_tiles_diff_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/clay_roof_tiles/clay_roof_tiles_diff_1k.jpg",
+          "size": 878367,
+          "role": "base_color",
+          "sha256": "aac0f4e742a2cce21afb5dfb523b47c720c6a8e2782a312b823608fe3f80eae6"
+        },
+        {
+          "path": "clay_roof_tiles_rough_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/clay_roof_tiles/clay_roof_tiles_rough_1k.jpg",
+          "size": 306665,
+          "role": "roughness",
+          "sha256": "9dbddfda928ea582e520d5e6fe7fadcfb886a169df9aa8ecaefa689363679b58"
+        },
+        {
+          "path": "clay_roof_tiles_nor_gl_1k.jpg",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/1k/clay_roof_tiles/clay_roof_tiles_nor_gl_1k.jpg",
+          "size": 1101177,
+          "role": "normal",
+          "sha256": "e6b364661f6c3045bf5268f684047968fc6550e5fa9b22b4b1266df47b495faa"
+        }
+      ]
+    },
+    {
       "id": "clean_asphalt",
       "kind": "texture",
       "license": "CC0",

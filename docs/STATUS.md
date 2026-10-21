@@ -9,6 +9,35 @@ Cập nhật: 2026-10-19 · Nhánh: `main` · Remote: https://github.com/tun1234
 - Spec: [docs/superpowers/specs/2026-10-19-m0-m1-design.md](superpowers/specs/2026-10-19-m0-m1-design.md)
 - Plan: [docs/superpowers/plans/2026-10-19-m0-m1.md](superpowers/plans/2026-10-19-m0-m1.md)
 
+## M2d — nhà phố tân cổ điển, mẫu C (nhánh `m2d`, 2026-10-20)
+
+**Đã triển khai, kiểm chứng cục bộ; chờ review cuối + merge.**
+- Spec: [2026-10-20-m2d-neoclassical-design.md](superpowers/specs/2026-10-20-m2d-neoclassical-design.md).
+- Plan: [2026-10-20-m2d-neoclassical.md](superpowers/plans/2026-10-20-m2d-neoclassical.md).
+- Ledger: `.superpowers/sdd/2026-10-20-m2d-neoclassical/progress.md`.
+
+**Đã làm:**
+- Template `neoclassical_townhouse` (khối `classic`), dùng chung lõi qua `Project.body`. Mẫu hiện đại giữ nguyên: mã băm plan smoke vẫn bằng `MODERN_SMOKE_GOLDEN`; golden M1 không đổi.
+- Lỗ vòm và cửa sổ tròn thật: tường dựng bằng tam giác hoá đa giác có lỗ (thuần Python, không dùng boolean). Ray-cast trong Blender xuyên qua lỗ được.
+- Mái ngói hai mái phủ trước–sau (`clay_roof_tiles`), hồi trước có cửa sổ tròn, máng xối.
+- Khối nhô/lô gia với cột đầu lá, hồi nhỏ có hoa văn, ban công sắt phình.
+- Phào răng cưa, trụ ốp có hoa thị, khung vòm, đá khoá, mũ cửa.
+- Ban công con tiện, ban công tròn, lan can sắt thẳng; cửa gỗ có ô rẻ quạt; trụ cổng có đèn, cổng sắt.
+- Fixture demo: 97 object, khoảng 96.8 nghìn tam giác (ngân sách 400 nghìn).
+
+**Số đo thật 2026-10-20:**
+- Benchmark (`output\benchmarks\neoclassical-townhouse\20261020T154132Z`, 128 samples, 2 view): **26.6 s/ảnh**, VRAM đỉnh **1489 MiB**. RAM trống thấp nhất **0.03 GB**, sát giới hạn; nên đóng ứng dụng khác khi render.
+- Build `final`: `exterior-agent build "examples\neoclassical_townhouse\project.json" --profile final` → `output\neoclassical-townhouse\r001-c47c2d14\`. Dựng scene 43.8 s + render 240 s (**≈ 4.7 phút**, 21–26 s/ảnh); `verify_delivery` sạch.
+
+**Kiểm tra bằng mắt** (manual, `01_front`, `05_front_left`, `10_aerial`) so với ảnh tham chiếu của chủ dự án: thấy rõ khối nhô với cột và hồi nhỏ, cửa vòm, ban công sắt, hồi có cửa sổ tròn và hoa văn, mái ngói, trụ cổng và cổng sắt.
+
+**Giới hạn:**
+- Hoa văn nhìn cận còn thô; chỉ một kiểu đầu cột.
+- Mặt sau và hồi sau trơn.
+- Chưa có chậu cây cho mẫu C.
+- Góc chéo 05/06 bị hàng xóm sát vách che (giới hạn của M2c).
+- Tường trắng hơi xám do texture vữa.
+
 ## M2c — bối cảnh phố, ốp gạch, kính trong (merge vào `main` 2026-10-20)
 
 **Đã merge vào `main` (chưa push).** Sau merge: `check.ps1` pass (295 unit, audit sạch); integration Blender 5.2.2 thật 29/29. Spec: [2026-10-20-m2c-street-context-design.md](superpowers/specs/2026-10-20-m2c-street-context-design.md) · Plan: [2026-10-20-m2c-street-context.md](superpowers/plans/2026-10-20-m2c-street-context.md) · Ledger: `.superpowers/sdd/2026-10-20-m2c-street-context/progress.md`.

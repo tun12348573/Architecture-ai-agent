@@ -7,6 +7,7 @@ from exterior_agent.domain.modern_rules import (
     CAR_LENGTH,
     CAR_WIDTH,
 )
+from exterior_agent.geometry.classic_primitives import lathe
 from exterior_agent.geometry.context import FAR_GROUND_SIZE, KERB_HEIGHT
 from exterior_agent.geometry.mesh import Mesh, box_mesh, quad_mesh
 from exterior_agent.geometry.modern_massing import PlanObject
@@ -74,8 +75,22 @@ def _context_ground(p) -> Mesh:
     return quad_mesh((-half, cy - half, z), (half, cy + half, z))
 
 
+PIER, PIER_CAP = 0.45, 0.4  # gate pier width and the height it rises above the fence
+LANTERN = [(0.0, 0.0), (0.1, 0.0), (0.1, 0.04), (0.06, 0.06), (0.09, 0.3), (0.11, 0.34),
+           (0.03, 0.42), (0.0, 0.45)]  # fmt: skip
+
+
+def _pier(x0: float, x1: float, height: float) -> tuple[Mesh, Mesh]:
+    pier = merge_meshes(
+        [box_mesh((x0, 0.0, 0.0), (x1, PIER, height - 0.1)),
+         box_mesh((x0, 0.0, height - 0.1), (x1, PIER, height))]
+    )  # fmt: skip
+    lantern = lathe(LANTERN, ((x0 + x1) / 2, PIER / 2, height), 16)
+    return pier, lantern
+
+
 def site_objects(p) -> list[PlanObject]:
-    m, s = p.modern, p.site
+    m, s = p.body, p.site
     half = s.width.value / 2
     fs = s.front_setback.value
     yr = fs + m.footprint_depth.value
@@ -95,12 +110,19 @@ def site_objects(p) -> list[PlanObject]:
         base = quad_mesh((-half, 0.0, LOT_BASE_Z), (half, s.depth.value, LOT_BASE_Z))
         out.append(PlanObject("Lot_Base", "Site", base, "MAT_Paving"))
     gw, fh = yard.gate_width.value, yard.fence_height.value
-    for name, (a, c) in (("Fence_Left", (-half, -gw / 2)), ("Fence_Right", (gw / 2, half))):
+    metal = "MAT_Iron" if p.template == "neoclassical_townhouse" else "MAT_Aluminium"
+    piers = yard.gate_piers is not None and yard.gate_piers.value and gw / 2 + PIER <= half
+    edge = gw / 2 + (PIER if piers else 0.0)  # fences start beside the gate or its piers
+    for name, (a, c) in (("Fence_Left", (-half, -edge)), ("Fence_Right", (edge, half))):
         if c - a > 1e-9:
             mesh = box_mesh((a, 0.0, 0.0), (c, FENCE_THICKNESS, fh))
-            out.append(PlanObject(name, "Site", mesh, "MAT_Aluminium"))
-    out.append(PlanObject("Gate", "Site", _gate(-gw / 2, gw / 2, yard.gate_height.value),
-                          "MAT_Aluminium"))  # fmt: skip
+            out.append(PlanObject(name, "Site", mesh, metal))
+    out.append(PlanObject("Gate", "Site", _gate(-gw / 2, gw / 2, yard.gate_height.value), metal))
+    if piers:
+        for side, (a, c) in (("L", (-edge, -gw / 2)), ("R", (gw / 2, edge))):
+            pier, lantern = _pier(a, c, fh + PIER_CAP)
+            out.append(PlanObject(f"Gate_Pier_{side}", "Site", pier, "MAT_Trim"))
+            out.append(PlanObject(f"Gate_Lantern_{side}", "Site", lantern, "MAT_Iron"))
 
     usable = fs - FENCE_THICKNESS
     if yard.car.value:

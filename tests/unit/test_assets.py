@@ -181,3 +181,15 @@ def test_context_model_budget():
     models = [a for a, k in M2C_ASSETS.items() if k == "model"]
     total = sum(f.size for a in models for f in catalog.get(a).files)
     assert total <= 60 * 2**20
+
+
+M2D_ASSETS = {"clay_roof_tiles": "texture"}
+
+
+def test_m2d_assets_pinned():
+    from exterior_agent.assets.catalog import load_catalog
+
+    catalog = load_catalog()
+    for asset_id, kind in M2D_ASSETS.items():
+        asset = catalog.get(asset_id)
+        assert (asset.kind, asset.license) == (kind, "CC0"), asset_id

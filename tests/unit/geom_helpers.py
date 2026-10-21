@@ -52,3 +52,28 @@ def box_overlap_volume(a, b) -> float:
             return 0.0
         vol *= hi - lo
     return vol
+
+
+def signed_volume(mesh) -> float:
+    """Divergence-theorem volume: positive when a closed mesh's faces wind outward."""
+    total = 0.0
+    for face in mesh.faces:
+        a = mesh.vertices[face[0]]
+        for b, c in zip(
+            (mesh.vertices[i] for i in face[1:-1]),
+            (mesh.vertices[i] for i in face[2:]),
+            strict=True,
+        ):
+            total += _dot(a, _cross(b, c)) / 6
+    return total
+
+
+def is_oriented(mesh) -> bool:
+    """Every directed edge appears once and its reverse once: consistent winding."""
+    from collections import Counter
+
+    edges = Counter()
+    for face in mesh.faces:
+        for a, b in zip(face, face[1:] + face[:1], strict=True):
+            edges[(a, b)] += 1
+    return all(n == 1 and edges.get((b, a)) == 1 for (a, b), n in edges.items())

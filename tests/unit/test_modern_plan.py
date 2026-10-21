@@ -118,3 +118,12 @@ def test_modern_mm_equals_m(modern_data):
     to_mm(modern_data)
     in_mm = build_scene_plan(parse_project(modern_data), SMOKE)
     assert canonical_json(_round(in_mm)) == canonical_json(_round(in_m))
+
+
+# Modern fixture, smoke profile, pinned before the neoclassical template (M2d) touched the core.
+MODERN_SMOKE_GOLDEN = "7c8feb573c2311922af01f8336e8ab546287cc3898803ff834a860cbc8a9aa5e"
+
+
+def test_modern_plan_hash_unchanged(modern_data):
+    plan = build_scene_plan(parse_project(modern_data), SMOKE)
+    assert hashlib.sha256(canonical_json(plan).encode()).hexdigest() == MODERN_SMOKE_GOLDEN

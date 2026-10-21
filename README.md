@@ -2,7 +2,7 @@
 
 Trợ lý dựng hình ảnh **ngoại thất** kiến trúc: tham số đã kiểm tra → một scene Blender duy nhất → 10 ảnh từ 10 góc chuẩn → file `.blend` sửa được, `.glb` và gói giao hàng có checksum.
 
-Trạng thái hiện tại: **M0 + M1 + M2a + M2b + M2c** (xem [docs/STATUS.md](docs/STATUS.md)). Chưa có AI, chưa đọc CAD/ảnh, chưa có API/cloud. Nội thất vẫn làm trong JEGA. Chính sách phiên bản: [docs/dependency-policy.md](docs/dependency-policy.md).
+Trạng thái hiện tại: **M0 + M1 + M2a + M2b + M2c + M2d** (xem [docs/STATUS.md](docs/STATUS.md)). Chưa có AI, chưa đọc CAD/ảnh, chưa có API/cloud. Nội thất vẫn làm trong JEGA. Chính sách phiên bản: [docs/dependency-policy.md](docs/dependency-policy.md).
 
 > `examples/demo_house/project.json` là **DEMO FIXTURE**, không phải nhà thật. Các giá trị đề xuất (dày tường, lỗ cửa, vật liệu…) được đánh dấu `needs_review`.
 
@@ -118,6 +118,34 @@ Demo `examples\modern_townhouse` giờ đặt nhà trong một con phố minh ho
 - Bối cảnh, cây, đèn, chậu là **minh hoạ**: nằm trong collection `Context`/`Plants`, không ảnh hưởng khung camera, và `delivery.json` liệt kê chúng ở mục `illustrative` ("không phải hiện trạng hay số đo").
 - Tài sản CC0 thêm: `beige_wall_001`, `brick_wall_09`, `clean_asphalt`, `concrete_pavement_02` (texture), `island_tree_02`, `street_lamp_01`, `potted_plant_02`, `shrub_03`, `shrub_04` (mô hình). Chạy lại `exterior-agent assets fetch` sau khi cập nhật.
 - Mỗi mô hình chỉ nạp một lần; các bản sao (cây, chậu, đèn) dùng chung mesh để tiết kiệm RAM.
+
+## Nhà phố tân cổ điển — mẫu C (M2d)
+
+```powershell
+exterior-agent build "examples\neoclassical_townhouse\project.json" --profile final
+```
+
+- Template `neoclassical_townhouse`, khối `classic` thay cho `modern`; dùng chung lô đất, sân/cổng, bối cảnh phố (`context`), 10 camera và gói giao với nhà phố hiện đại.
+- **Lỗ cửa:** `head: "flat" | "arch"` (vòm bán nguyệt, bán kính = rộng/2; `height` tính từ bậu tới đỉnh vòm). Loại: `window`, `door` (cửa kính), `door_wood` (cửa gỗ pano; nếu vòm thì có ô kính rẻ quạt).
+- **Ban công** của từng lỗ cửa: `iron_belly` (sắt phình, mặt bằng cong), `balustrade` (con tiện), `round_iron` (tròn trên chân đỡ cong), `iron_straight` (lan can sắt thẳng trước cửa sổ). Thêm `hood` (mũ phào), `keystone` (đá khoá; cửa vòm luôn có).
+- **Khối nhô** (`bay`): `side: "left" | "right"` (nhìn từ đường vào), `width`, `projection`, tầng `from_floor..to_floor`.
+  - Tầng `from_floor` là lô gia: cột đầu lá ở mép trước, cửa nằm lùi trên mặt tiền chính, phía trước có ban công sắt phình cong.
+  - Các tầng trên của khối nhô có tường trước riêng.
+  - `pediment` là hồi tam giác nhỏ trên đỉnh khối nhô (có hoa văn nếu `ornament: true`). Hồi này không được chạm cửa tầng trên.
+- **Mái:** hai mái dốc lợp ngói đỏ (`clay_roof_tiles`, CC0) phủ từ trước ra sau, đỉnh mái dọc chiều sâu nhà.
+  - Độ dốc `pitch_deg` 25–55°.
+  - Hồi trước có cửa sổ tròn (`oculus_radius`) và hoa văn cuộn.
+  - Có máng xối dọc hai tường bên; mép mái nằm trong ranh lô.
+- **Phào:** `cornices` (răng cưa `dentils`), `pilasters` (trụ ốp góc có đầu trụ và hoa thị). `front_yard.gate_piers: true` thêm trụ cổng có đèn; cổng và rào bằng sắt.
+- **Vật liệu mới:** `trim` (chi tiết trắng), `panel` (mảng kem), `roof_tiles`, `iron` (có `metallic`), `door_wood`.
+- **Hoa văn:** dựng hoàn toàn bằng code (không có thư viện hoa văn CC0). Mức chi tiết "đọc đúng khi nhìn cả mặt tiền"; nhìn cận thì thô hơn mô hình hoa văn thương mại.
+- **Mỗi thành phần là một object có tên trong `.blend`:**
+  - Bay: `Bay_Columns`, `Bay_Pediment`, `Bay_Pediment_Ornament`.
+  - Hồi trước: `Gable_Front`, `Gable_Front_Ornament`, `Oculus_Front_*`.
+  - Mái: `Roof_Tiles_L`/`_R`.
+  - Phào: `Cornice_F{n}`, `Dentils_Roof`.
+  - Theo từng cửa: `Archivolt_{id}`, `Keystone_{id}`, `Balcony_{id}_*`…
+- `scripts\make_classic_fixture.py` sinh lại fixture demo; fixture dùng chung phố với demo hiện đại.
 
 ## Kết quả
 
