@@ -11,7 +11,7 @@ Cập nhật: 2026-10-21 · Nhánh: `main` · Remote: https://github.com/tun1234
 
 ## M2d — nhà phố tân cổ điển, mẫu C (merge vào `main` 2026-10-21)
 
-**Đã merge vào `main` (chưa push).** Review cuối: 0 Critical; 5 Important đã sửa (kiểm tra mặt tiền/khối nhô/sân trước, UV ngói theo mái dốc, ban công mặt sau, chiều cao vòm/cửa tối thiểu). Sau merge: `check.ps1` pass (370 unit, audit sạch sau khi nâng `certifi` lên 2026.10.19 do cảnh báo PYSEC-2026-4320 mới công bố); integration Blender 5.2.2 thật 34/34.
+**Đã merge vào `main`, push, CI GitHub xanh (run 39531692957).** Review cuối: 0 Critical; 5 Important đã sửa (kiểm tra mặt tiền/khối nhô/sân trước, UV ngói theo mái dốc, ban công mặt sau, chiều cao vòm/cửa tối thiểu). Sau merge: `check.ps1` pass (370 unit, audit sạch sau khi nâng `certifi` lên 2026.10.19 do cảnh báo PYSEC-2026-4320 mới công bố); integration Blender 5.2.2 thật 34/34.
 - Spec: [2026-10-20-m2d-neoclassical-design.md](superpowers/specs/2026-10-20-m2d-neoclassical-design.md).
 - Plan: [2026-10-20-m2d-neoclassical.md](superpowers/plans/2026-10-20-m2d-neoclassical.md).
 - Ledger: `.superpowers/sdd/2026-10-20-m2d-neoclassical/progress.md`.
@@ -153,7 +153,7 @@ Python host 3.13.3 · Blender 5.2.2 LTS (Python nhúng 3.13.13) · pydantic 2.14
 
 ## Bước tiếp theo
 
-1. Push `main` lên GitHub (chờ chủ dự án) để CI chạy.
+1. (Xong 2026-10-21) `main` đã push, CI xanh.
 2. Chờ chủ dự án xem ảnh mẫu C (`output\neoclassical-townhouse\r001-c47c2d14\images\`) và chọn: tinh chỉnh mẫu C, tinh chỉnh M2c (cây, góc chéo, màu tường), hoặc M3 (đọc DXF/ảnh).
 
 Lệnh chạy tiếp ngay: `.\scripts\check.ps1` rồi `exterior-agent build "examples\demo_house\project.json"`.
