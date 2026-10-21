@@ -15,7 +15,7 @@ def paths(data) -> set[str]:
 
 def test_fixture_uses_catalog_assets(modern_data):
     p = parse_project(modern_data)
-    assert p.materials.wall.value.texture == "beige_wall_001"
+    assert p.materials.wall.value.texture == "white_plaster_02"
     assert p.world.hdri.value == "kloofendal_48d_partly_cloudy_puresky"
     assert [m.value for m in p.modern.roof.garden.plant_models] == [
         "shrub_02",
@@ -56,3 +56,11 @@ def test_world_and_textures_only_for_modern(demo_data):
 
 def test_m1_fixture_still_valid(demo_data):
     assert parse_project(demo_data).world is None
+
+
+def test_walls_are_ivory(modern_data, classic_data):
+    for data in (modern_data, classic_data):
+        wall = parse_project(data).materials.wall.value
+        assert wall.texture == "white_plaster_02"
+        r, g, b = wall.base_color
+        assert r >= g >= b >= 0.85 and r - b <= 0.1  # warm off-white, not grey or beige

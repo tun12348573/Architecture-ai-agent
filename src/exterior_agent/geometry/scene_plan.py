@@ -187,7 +187,11 @@ def _asset_ref(asset, f) -> dict:
 def _textures(spec, catalog) -> dict:
     asset = catalog.get(spec.texture)
     return {
-        "textures": {f.role: _asset_ref(asset, f) for f in asset.files if f.role in TEXTURE_ROLES},
+        "textures": {
+            f.role: _asset_ref(asset, f)
+            for f in asset.files
+            if f.role in TEXTURE_ROLES and (spec.texture_color or f.role != "base_color")
+        },
         "texture_scale_m": asset.scale_m or 1.0,
     }
 

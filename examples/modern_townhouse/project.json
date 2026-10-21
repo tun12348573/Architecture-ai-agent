@@ -744,16 +744,17 @@
     "wall": {
       "value": {
         "base_color": [
-          1.0,
-          1.0,
-          1.0
+          0.97,
+          0.95,
+          0.9
         ],
         "roughness": 0.8,
-        "texture": "beige_wall_001"
+        "texture": "white_plaster_02",
+        "texture_color": false
       },
       "unit": null,
-      "source": "m2c_spec_proposal",
-      "source_ref": "docs/superpowers/specs/2026-10-20-m2c-street-context-design.md §8",
+      "source": "owner",
+      "source_ref": "chat 2026-10-21: tường trắng ngà (M2c tuning)",
       "status": "needs_review"
     },
     "roof": {

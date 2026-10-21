@@ -9,6 +9,16 @@ Cập nhật: 2026-10-21 · Nhánh: `main` · Remote: https://github.com/tun1234
 - Spec: [docs/superpowers/specs/2026-10-19-m0-m1-design.md](superpowers/specs/2026-10-19-m0-m1-design.md)
 - Plan: [docs/superpowers/plans/2026-10-19-m0-m1.md](superpowers/plans/2026-10-19-m0-m1.md)
 
+## M2c tinh chỉnh (nhánh `m2c-tune`, 2026-10-21)
+
+Chủ dự án chọn sửa 3 điểm yếu của M2c, bỏ qua hỏi đáp.
+- **Hàng xóm không che góc chéo:** mặt tiền nhà hàng xóm lùi bằng hoặc sau mặt tiền nhà chính (0–0.8 m). Ở 05/06 thấy trọn mặt tiền chính; riêng tầng lùi (terrace) vẫn bị tường hàng xóm che một phần, điều này không tránh được.
+- **Có cây gần nhà:** cây được mô hình thành thân mảnh cộng tán (tán bắt đầu từ 25 % chiều cao). Mỗi cây thu nhỏ dần cho tới khi không che gì ở 01 và che tối đa 30 % tầm nhìn 05/06. Demo hiện có cây cách nhà khoảng 6.5 m mỗi bên.
+- **Tường trắng ngà:** texture CC0 `white_plaster_02` với `texture_color: false`, tức màu phẳng [0.97, 0.95, 0.90] và texture chỉ tạo độ nhám, vân bề mặt. Lần thử nhuộm màu bằng texture cho ra mảng xám lốm đốm nên đã bỏ. Áp dụng cho cả hai demo.
+- Mốc mã băm plan smoke của mẫu hiện đại được ghim lại có chủ đích (vị trí hàng xóm đổi). Mốc M1 không đổi.
+- Kiểm thử: unit 375/375; integration Blender 34 test (lần chạy đầy đủ có 33 pass, test còn lại gắn cứng texture màu tường đã sửa sang `MAT_Cladding` và pass 12/12 khi chạy lại bộ textured).
+- Ảnh `final`: `output\modern-townhouse\r001-d5fd6c63\`, `output\neoclassical-townhouse\r001-bbb46159\`. Kiểm tra bằng mắt (manual): tường trắng ngà sạch, 05 thấy mặt tiền, có cây hai bên.
+
 ## M2d — nhà phố tân cổ điển, mẫu C (merge vào `main` 2026-10-21)
 
 **Đã merge vào `main`, push, CI GitHub xanh (run 39531692957).** Review cuối: 0 Critical; 5 Important đã sửa (kiểm tra mặt tiền/khối nhô/sân trước, UV ngói theo mái dốc, ban công mặt sau, chiều cao vòm/cửa tối thiểu). Sau merge: `check.ps1` pass (370 unit, audit sạch sau khi nâng `certifi` lên 2026.10.19 do cảnh báo PYSEC-2026-4320 mới công bố); integration Blender 5.2.2 thật 34/34.

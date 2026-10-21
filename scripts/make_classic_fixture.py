@@ -57,7 +57,7 @@ def main() -> None:
     materials = copy.deepcopy(modern["materials"])
     materials.update(
         {
-            "wall": material([0.95, 0.94, 0.91], 0.6, "painted_plaster_wall"),
+            "wall": material([0.97, 0.95, 0.9], 0.6, "white_plaster_02", texture_color=False),
             "trim": material([0.97, 0.96, 0.94], 0.45),
             "panel": material([0.88, 0.80, 0.66], 0.55, "painted_plaster_wall"),
             "roof_tiles": material([1.0, 1.0, 1.0], 0.75, "clay_roof_tiles"),

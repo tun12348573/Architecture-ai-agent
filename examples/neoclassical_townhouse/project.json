@@ -824,12 +824,13 @@
     "wall": {
       "value": {
         "base_color": [
+          0.97,
           0.95,
-          0.94,
-          0.91
+          0.9
         ],
         "roughness": 0.6,
-        "texture": "painted_plaster_wall"
+        "texture_color": false,
+        "texture": "white_plaster_02"
       },
       "unit": null,
       "source": "m2d_spec_proposal",

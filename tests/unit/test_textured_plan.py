@@ -21,11 +21,11 @@ def test_smoke_plan_is_flat(project):
 
 def test_preview_plan_references_textures(project):
     plan = build_scene_plan(project, resolve_render("preview"))
-    wall = next(m for m in plan["materials"] if m["name"] == "MAT_Wall")
-    asset = load_catalog().get("beige_wall_001")
+    wall = next(m for m in plan["materials"] if m["name"] == "MAT_Cladding")  # full texture set
+    asset = load_catalog().get("brick_wall_09")
     base = next(f for f in asset.files if f.role == "base_color")
     assert wall["textures"]["base_color"] == {
-        "path": f"materials/beige_wall_001/{base.path}",
+        "path": f"materials/brick_wall_09/{base.path}",
         "sha256": base.sha256,
     }
     assert set(wall["textures"]) == {"base_color", "roughness", "normal"}
@@ -68,9 +68,9 @@ def test_required_asset_files_complete(project):
     assert len(files) == len(set(files))
     catalog = load_catalog()
     expected = set()
-    for asset_id in ("beige_wall_001", "kloofendal_48d_partly_cloudy_puresky", "shrub_02"):
+    for asset_id in ("brick_wall_09", "kloofendal_48d_partly_cloudy_puresky", "shrub_02"):
         for f in catalog.get(asset_id).files:
-            if asset_id != "beige_wall_001" or f.role in (
+            if asset_id != "brick_wall_09" or f.role in (
                 "base_color",
                 "roughness",
                 "normal",
@@ -83,3 +83,11 @@ def test_hdri_plan_softens_sun(project):
     flat = build_scene_plan(project, resolve_render("smoke"))
     textured = build_scene_plan(project, resolve_render("preview"))
     assert textured["sun"]["strength"] < flat["sun"]["strength"]
+
+
+def test_wall_colour_is_flat_ivory(modern_data):
+    """Wall colour comes from base_color; the plaster texture only adds roughness and relief."""
+    plan = build_scene_plan(parse_project(modern_data), resolve_render("preview"))
+    wall = next(m for m in plan["materials"] if m["name"] == "MAT_Wall")
+    assert set(wall["textures"]) == {"roughness", "normal"}
+    assert wall["base_color"] == [0.97, 0.95, 0.9]
